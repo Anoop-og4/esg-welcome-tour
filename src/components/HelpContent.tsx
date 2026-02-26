@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, BookOpen, BarChart3, Leaf, Target, Users, ShoppingBag, ChevronDown } from "lucide-react";
+import {
+  ArrowLeft, ArrowRight, BookOpen, BarChart3, Leaf, Target, Users,
+  ShoppingBag, ChevronDown, Play, MessageCircleQuestion, Plus, Minus
+} from "lucide-react";
 
 interface SubSection {
   id: string;
   title: string;
   description: string;
   content: {
-    type: "image" | "iframe";
+    type: "image" | "iframe" | "video";
     src: string;
+    poster?: string;
   };
   steps: string[];
 }
@@ -18,6 +22,11 @@ interface HelpSection {
   title: string;
   icon: React.ElementType;
   subsections: SubSection[];
+}
+
+interface FaqItem {
+  question: string;
+  answer: string;
 }
 
 const helpSections: HelpSection[] = [
@@ -46,6 +55,17 @@ const helpSections: HelpSection[] = [
           "Click the 'Filters' button in the page header to open the filter panel.",
           "Select the scope (1, 2, or 3), facility, and emission category you want to view.",
           "Click 'Apply' to refresh the dashboard with filtered data.",
+        ],
+      },
+      {
+        id: "dashboard-video",
+        title: "Video: Quick Tour",
+        description: "Watch a guided video walkthrough of the Environment Dashboard and its key features.",
+        content: { type: "video", src: "/videos/welcome-overview.mp4", poster: "/help/overview-1.png" },
+        steps: [
+          "This video introduces the main dashboard layout including stat cards, charts, and navigation.",
+          "Learn how to interpret Scope 1, 2, and 3 emission data at a glance.",
+          "See how to apply filters and switch between financial year views.",
         ],
       },
     ],
@@ -135,6 +155,17 @@ const helpSections: HelpSection[] = [
           "Goals flagged as 'Needs Review' require updated reduction strategies.",
         ],
       },
+      {
+        id: "goals-video",
+        title: "Video: Goal Setup Guide",
+        description: "A step-by-step video tutorial on creating and managing carbon reduction goals.",
+        content: { type: "video", src: "/videos/welcome-overview.mp4", poster: "/help/overview-7.png" },
+        steps: [
+          "Learn how to create your first carbon reduction goal with a baseline and target year.",
+          "Understand absolute vs intensity-based targets and when to use each.",
+          "See how progress tracking and alerts help you stay on course.",
+        ],
+      },
     ],
   },
   {
@@ -168,12 +199,40 @@ const helpSections: HelpSection[] = [
   },
 ];
 
+const faqItems: FaqItem[] = [
+  {
+    question: "How are Scope 1, 2, and 3 emissions calculated?",
+    answer: "Scope 1 covers direct emissions from owned sources (e.g., company vehicles, on-site fuel). Scope 2 includes indirect emissions from purchased electricity and energy. Scope 3 encompasses all other value chain emissions. Each is calculated using activity data multiplied by relevant emission factors from recognized databases.",
+  },
+  {
+    question: "Can I export my ESG data as a report?",
+    answer: "Yes. Navigate to the Docs Hub section from the sidebar where you can generate comprehensive PDF or Excel reports. Reports can be customized by date range, scope, facility, and specific metrics. These are formatted for regulatory submissions and stakeholder presentations.",
+  },
+  {
+    question: "What is Carbon Intensity and how is it measured?",
+    answer: "Carbon Intensity measures emissions relative to a business metric — typically TCO₂e per unit of production or revenue. Lower intensity indicates more efficient operations. You can track it on the Environment Dashboard and set intensity-based reduction goals.",
+  },
+  {
+    question: "How do I set up a new carbon reduction goal?",
+    answer: "Go to Goal Settings → Create New Goal. Choose between absolute reduction (total emissions) or intensity-based (per unit). Set your baseline year, target year, and desired reduction percentage. The system will automatically track progress and alert you if a goal needs attention.",
+  },
+  {
+    question: "Who can access and modify data in the platform?",
+    answer: "Access is controlled through the Admin section. Administrators can assign roles with granular permissions — from view-only access for stakeholders to full edit rights for data managers. All changes are logged in an audit trail for governance compliance.",
+  },
+  {
+    question: "How often is dashboard data updated?",
+    answer: "Dashboard data refreshes based on your data ingestion schedule. Most organizations configure daily or weekly automatic imports. Manual data entry updates are reflected immediately. The 'Last Updated' timestamp on each card shows the most recent data point.",
+  },
+];
+
 export default function HelpContent() {
   const [expandedSections, setExpandedSections] = useState<string[]>([helpSections[0].id]);
   const [selectedSub, setSelectedSub] = useState<{ section: HelpSection; sub: SubSection } | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [activeTab, setActiveTab] = useState<"guides" | "faq">("guides");
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
-  // Auto-select first subsection on mount
   useEffect(() => {
     if (!selectedSub) {
       setSelectedSub({ section: helpSections[0], sub: helpSections[0].subsections[0] });
@@ -189,6 +248,7 @@ export default function HelpContent() {
   const selectSubsection = (section: HelpSection, sub: SubSection) => {
     setSelectedSub({ section, sub });
     setCurrentStep(0);
+    setActiveTab("guides");
   };
 
   const handleNext = () => {
@@ -207,10 +267,12 @@ export default function HelpContent() {
     if (currentStep > 0) setCurrentStep((s) => s - 1);
   };
 
+  const isVideo = selectedSub?.sub.content.type === "video";
+
   return (
     <div className="flex-1 flex overflow-hidden" style={{ background: "linear-gradient(160deg, hsl(var(--background)), hsl(210 20% 94%), hsl(142 30% 95%))" }}>
       {/* Left sidebar nav */}
-      <aside className="w-72 shrink-0 border-r border-border bg-card/80 backdrop-blur-sm overflow-y-auto">
+      <aside className="w-72 shrink-0 border-r border-border bg-card/80 backdrop-blur-sm overflow-y-auto flex flex-col">
         <div className="px-5 py-5 border-b border-border">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
@@ -223,68 +285,120 @@ export default function HelpContent() {
           </div>
         </div>
 
-        <nav className="py-3">
-          {helpSections.map((section) => {
-            const isExpanded = expandedSections.includes(section.id);
-            return (
-              <div key={section.id} className="mb-0.5">
-                <button
-                  onClick={() => toggleSection(section.id)}
-                  className="flex w-full items-center gap-2.5 px-5 py-2.5 text-left transition-colors hover:bg-muted/50"
-                >
-                  <section.icon size={15} className="text-primary shrink-0" />
-                  <span className="text-[13px] font-semibold text-foreground flex-1">{section.title}</span>
-                  <ChevronDown
-                    size={14}
-                    className={`text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
-                  />
-                </button>
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
-                      {section.subsections.map((sub) => {
-                        const isActive = selectedSub?.sub.id === sub.id;
-                        return (
-                          <button
-                            key={sub.id}
-                            onClick={() => selectSubsection(section, sub)}
-                            className={`relative flex w-full items-center pl-12 pr-4 py-2 text-left text-[13px] transition-all ${
-                              isActive
-                                ? "text-primary font-medium bg-primary/5"
-                                : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
-                            }`}
-                          >
-                            {/* Active indicator bar */}
-                            {isActive && (
-                              <motion.div
-                                layoutId="help-active"
-                                className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r-full bg-primary"
-                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                              />
-                            )}
-                            {sub.title}
-                          </button>
-                        );
-                      })}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
-        </nav>
+        {/* Sidebar tabs */}
+        <div className="flex border-b border-border">
+          <button
+            onClick={() => setActiveTab("guides")}
+            className={`flex-1 py-2.5 text-[12px] font-semibold transition-colors ${
+              activeTab === "guides"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Guides
+          </button>
+          <button
+            onClick={() => setActiveTab("faq")}
+            className={`flex-1 py-2.5 text-[12px] font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+              activeTab === "faq"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <MessageCircleQuestion size={13} />
+            FAQ
+          </button>
+        </div>
+
+        {activeTab === "guides" && (
+          <nav className="py-3 flex-1 overflow-y-auto">
+            {helpSections.map((section) => {
+              const isExpanded = expandedSections.includes(section.id);
+              return (
+                <div key={section.id} className="mb-0.5">
+                  <button
+                    onClick={() => toggleSection(section.id)}
+                    className="flex w-full items-center gap-2.5 px-5 py-2.5 text-left transition-colors hover:bg-muted/50"
+                  >
+                    <section.icon size={15} className="text-primary shrink-0" />
+                    <span className="text-[13px] font-semibold text-foreground flex-1">{section.title}</span>
+                    <ChevronDown
+                      size={14}
+                      className={`text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        {section.subsections.map((sub) => {
+                          const isActive = selectedSub?.sub.id === sub.id;
+                          const isVid = sub.content.type === "video";
+                          return (
+                            <button
+                              key={sub.id}
+                              onClick={() => selectSubsection(section, sub)}
+                              className={`relative flex w-full items-center gap-2 pl-12 pr-4 py-2 text-left text-[13px] transition-all ${
+                                isActive
+                                  ? "text-primary font-medium bg-primary/5"
+                                  : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                              }`}
+                            >
+                              {isActive && (
+                                <motion.div
+                                  layoutId="help-active"
+                                  className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r-full bg-primary"
+                                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                />
+                              )}
+                              {isVid && <Play size={12} className="shrink-0 text-primary/70" />}
+                              <span className="truncate">{sub.title}</span>
+                            </button>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </nav>
+        )}
+
+        {activeTab === "faq" && (
+          <div className="flex-1 overflow-y-auto py-3 px-4">
+            <p className="text-[11px] text-muted-foreground mb-3 px-1">Common questions answered</p>
+            {faqItems.map((item, i) => (
+              <button
+                key={i}
+                onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
+                className="w-full text-left mb-1"
+              >
+                <div className={`rounded-lg px-3 py-2.5 transition-colors ${expandedFaq === i ? "bg-primary/5" : "hover:bg-muted/40"}`}>
+                  <div className="flex items-start gap-2">
+                    <div className="mt-0.5 shrink-0">
+                      {expandedFaq === i ? <Minus size={12} className="text-primary" /> : <Plus size={12} className="text-muted-foreground" />}
+                    </div>
+                    <span className={`text-[12px] leading-snug ${expandedFaq === i ? "font-semibold text-foreground" : "font-medium text-muted-foreground"}`}>
+                      {item.question}
+                    </span>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </aside>
 
       {/* Right content area */}
       <main className="flex-1 overflow-y-auto">
         <AnimatePresence mode="wait">
-          {selectedSub && (
+          {activeTab === "guides" && selectedSub && (
             <motion.div
               key={selectedSub.sub.id}
               initial={{ opacity: 0, y: 12 }}
@@ -303,17 +417,33 @@ export default function HelpContent() {
               </div>
 
               {/* Title */}
-              <h1 className="font-display text-2xl font-bold text-foreground mb-1.5">
-                {selectedSub.sub.title}
-              </h1>
+              <div className="flex items-center gap-3 mb-1.5">
+                {isVideo && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+                    <Play size={10} /> Video
+                  </span>
+                )}
+                <h1 className="font-display text-2xl font-bold text-foreground">
+                  {selectedSub.sub.title}
+                </h1>
+              </div>
               <p className="text-sm text-muted-foreground mb-6 max-w-xl">
                 {selectedSub.sub.description}
               </p>
 
-              {/* Preview box with themed border */}
+              {/* Preview box */}
               <div className="relative rounded-xl overflow-hidden border-2 border-primary/20 mb-6" style={{ boxShadow: "0 8px 32px -8px hsl(142 64% 36% / 0.12)" }}>
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent" />
-                {selectedSub.sub.content.type === "iframe" ? (
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent z-10" />
+                {selectedSub.sub.content.type === "video" ? (
+                  <video
+                    key={selectedSub.sub.content.src}
+                    src={selectedSub.sub.content.src}
+                    poster={selectedSub.sub.content.poster}
+                    controls
+                    className="h-[380px] w-full object-cover bg-foreground/5"
+                    preload="metadata"
+                  />
+                ) : selectedSub.sub.content.type === "iframe" ? (
                   <iframe
                     src={selectedSub.sub.content.src}
                     title={selectedSub.sub.title}
@@ -335,7 +465,6 @@ export default function HelpContent() {
                   <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary">
                     Step {currentStep + 1} of {selectedSub.sub.steps.length}
                   </span>
-                  {/* Step dots */}
                   <div className="flex items-center gap-1.5">
                     {selectedSub.sub.steps.map((_, i) => (
                       <button
@@ -366,7 +495,6 @@ export default function HelpContent() {
                   </motion.p>
                 </AnimatePresence>
 
-                {/* Nav buttons */}
                 <div className="mt-5 flex items-center justify-between pt-4 border-t border-border">
                   <button
                     onClick={handlePrev}
@@ -389,6 +517,71 @@ export default function HelpContent() {
                     <ArrowRight size={14} />
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "faq" && (
+            <motion.div
+              key="faq-content"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+              className="p-8 max-w-3xl"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
+                  <MessageCircleQuestion size={18} className="text-primary" />
+                </div>
+                <h1 className="font-display text-2xl font-bold text-foreground">Frequently Asked Questions</h1>
+              </div>
+              <p className="text-sm text-muted-foreground mb-8">Quick answers to common questions about the ESG platform.</p>
+
+              <div className="space-y-3">
+                {faqItems.map((item, i) => {
+                  const isOpen = expandedFaq === i;
+                  return (
+                    <motion.div
+                      key={i}
+                      className={`rounded-xl border transition-colors ${isOpen ? "border-primary/30 bg-card" : "border-border bg-card/60"}`}
+                      style={isOpen ? { boxShadow: "0 4px 20px -4px hsl(142 64% 36% / 0.08)" } : {}}
+                    >
+                      <button
+                        onClick={() => setExpandedFaq(isOpen ? null : i)}
+                        className="flex w-full items-center justify-between px-5 py-4 text-left"
+                      >
+                        <span className={`text-sm font-medium pr-4 ${isOpen ? "text-foreground" : "text-foreground/80"}`}>
+                          {item.question}
+                        </span>
+                        <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors ${isOpen ? "bg-primary/10" : "bg-muted"}`}>
+                          {isOpen
+                            ? <Minus size={13} className="text-primary" />
+                            : <Plus size={13} className="text-muted-foreground" />
+                          }
+                        </div>
+                      </button>
+                      <AnimatePresence>
+                        {isOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="px-5 pb-4 pt-0">
+                              <div className="h-px bg-border mb-3" />
+                              <p className="text-sm leading-relaxed text-muted-foreground">
+                                {item.answer}
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
           )}
