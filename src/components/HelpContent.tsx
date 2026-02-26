@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, ChevronRight, BookOpen, BarChart3, Leaf, Target, Users, ShoppingBag, Settings, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, BarChart3, Leaf, Target, Users, ShoppingBag, ChevronDown } from "lucide-react";
 
 interface SubSection {
   id: string;
@@ -58,7 +58,7 @@ const helpSections: HelpSection[] = [
       {
         id: "scope-1",
         title: "Scope 1 Emissions",
-        description: "Direct emissions from owned or controlled sources. Track emissions from company facilities and vehicles.",
+        description: "Direct emissions from owned or controlled sources.",
         content: { type: "iframe", src: "https://docs.lovable.dev" },
         steps: [
           "Navigate to Environment → Scope 1 from the sidebar.",
@@ -69,7 +69,7 @@ const helpSections: HelpSection[] = [
       {
         id: "scope-2",
         title: "Scope 2 & 3 Emissions",
-        description: "Indirect emissions from purchased energy (Scope 2) and value chain activities (Scope 3).",
+        description: "Indirect emissions from purchased energy and value chain activities.",
         content: { type: "iframe", src: "https://docs.lovable.dev" },
         steps: [
           "Scope 2 covers indirect emissions from purchased electricity, steam, heating, and cooling.",
@@ -116,7 +116,7 @@ const helpSections: HelpSection[] = [
       {
         id: "goals-create",
         title: "Creating Goals",
-        description: "Set carbon reduction targets aligned with science-based targets and company strategy.",
+        description: "Set carbon reduction targets aligned with science-based targets.",
         content: { type: "iframe", src: "https://docs.lovable.dev" },
         steps: [
           "Navigate to Goal Settings from the sidebar.",
@@ -169,228 +169,231 @@ const helpSections: HelpSection[] = [
 ];
 
 export default function HelpContent() {
-  const [selectedSection, setSelectedSection] = useState<HelpSection | null>(null);
-  const [selectedSubsection, setSelectedSubsection] = useState<SubSection | null>(null);
+  const [expandedSections, setExpandedSections] = useState<string[]>([helpSections[0].id]);
+  const [selectedSub, setSelectedSub] = useState<{ section: HelpSection; sub: SubSection } | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
 
-  const handleSubsectionClick = (section: HelpSection, sub: SubSection) => {
-    setSelectedSection(section);
-    setSelectedSubsection(sub);
+  // Auto-select first subsection on mount
+  useEffect(() => {
+    if (!selectedSub) {
+      setSelectedSub({ section: helpSections[0], sub: helpSections[0].subsections[0] });
+    }
+  }, []);
+
+  const toggleSection = (id: string) => {
+    setExpandedSections((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
+  const selectSubsection = (section: HelpSection, sub: SubSection) => {
+    setSelectedSub({ section, sub });
     setCurrentStep(0);
   };
 
-  const handleBack = () => {
-    if (selectedSubsection) {
-      setSelectedSubsection(null);
-      setCurrentStep(0);
-    }
-  };
-
   const handleNext = () => {
-    if (!selectedSubsection) return;
-    if (currentStep < selectedSubsection.steps.length - 1) {
+    if (!selectedSub) return;
+    if (currentStep < selectedSub.sub.steps.length - 1) {
       setCurrentStep((s) => s + 1);
     } else {
-      // Move to next subsection in same section
-      if (selectedSection) {
-        const idx = selectedSection.subsections.findIndex((s) => s.id === selectedSubsection.id);
-        if (idx < selectedSection.subsections.length - 1) {
-          setSelectedSubsection(selectedSection.subsections[idx + 1]);
-          setCurrentStep(0);
-        } else {
-          handleBack();
-        }
+      const idx = selectedSub.section.subsections.findIndex((s) => s.id === selectedSub.sub.id);
+      if (idx < selectedSub.section.subsections.length - 1) {
+        selectSubsection(selectedSub.section, selectedSub.section.subsections[idx + 1]);
       }
     }
   };
 
   const handlePrev = () => {
-    if (currentStep > 0) {
-      setCurrentStep((s) => s - 1);
-    }
+    if (currentStep > 0) setCurrentStep((s) => s - 1);
   };
 
   return (
-    <div className="flex-1 overflow-auto bg-background">
-      {/* Header */}
-      <header className="flex items-center gap-3 border-b border-border bg-card px-6 py-4">
-        {selectedSubsection && (
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <ArrowLeft size={14} />
-            Back
-          </button>
-        )}
-        <div className="flex items-center gap-2">
-          <BookOpen size={20} className="text-primary" />
-          <h1 className="font-display text-lg font-bold text-foreground">
-            Help Center
-            {selectedSection && selectedSubsection && (
-              <span className="font-normal text-muted-foreground">
-                {" "}
-                / {selectedSection.title} / {selectedSubsection.title}
-              </span>
-            )}
-          </h1>
-        </div>
-      </header>
-
-      <AnimatePresence mode="wait">
-        {!selectedSubsection ? (
-          /* ---- Section & Subsection List ---- */
-          <motion.div
-            key="list"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.25 }}
-            className="mx-auto max-w-4xl px-6 py-8"
-          >
-            <div className="mb-6">
-              <h2 className="font-display text-2xl font-bold text-foreground">
-                How can we help?
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Explore step-by-step guides for every feature in the platform.
-              </p>
+    <div className="flex-1 flex overflow-hidden" style={{ background: "linear-gradient(160deg, hsl(var(--background)), hsl(210 20% 94%), hsl(142 30% 95%))" }}>
+      {/* Left sidebar nav */}
+      <aside className="w-72 shrink-0 border-r border-border bg-card/80 backdrop-blur-sm overflow-y-auto">
+        <div className="px-5 py-5 border-b border-border">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+              <BookOpen size={16} className="text-primary" />
             </div>
+            <div>
+              <h2 className="font-display text-sm font-bold text-foreground">Help Center</h2>
+              <p className="text-[11px] text-muted-foreground">Feature guides & walkthroughs</p>
+            </div>
+          </div>
+        </div>
 
-            <div className="space-y-4">
-              {helpSections.map((section) => (
-                <div key={section.id} className="esg-card overflow-hidden">
-                  <div className="flex items-center gap-3 border-b border-border bg-muted/30 px-5 py-3">
-                    <section.icon size={18} className="text-primary" />
-                    <h3 className="font-display text-sm font-semibold text-foreground">
-                      {section.title}
-                    </h3>
-                  </div>
-                  <div className="divide-y divide-border">
-                    {section.subsections.map((sub) => (
-                      <button
-                        key={sub.id}
-                        onClick={() => handleSubsectionClick(section, sub)}
-                        className="flex w-full items-center justify-between px-5 py-3.5 text-left transition-colors hover:bg-muted/40"
-                      >
-                        <div>
-                          <p className="text-sm font-medium text-foreground">
+        <nav className="py-3">
+          {helpSections.map((section) => {
+            const isExpanded = expandedSections.includes(section.id);
+            return (
+              <div key={section.id} className="mb-0.5">
+                <button
+                  onClick={() => toggleSection(section.id)}
+                  className="flex w-full items-center gap-2.5 px-5 py-2.5 text-left transition-colors hover:bg-muted/50"
+                >
+                  <section.icon size={15} className="text-primary shrink-0" />
+                  <span className="text-[13px] font-semibold text-foreground flex-1">{section.title}</span>
+                  <ChevronDown
+                    size={14}
+                    className={`text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                  />
+                </button>
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      {section.subsections.map((sub) => {
+                        const isActive = selectedSub?.sub.id === sub.id;
+                        return (
+                          <button
+                            key={sub.id}
+                            onClick={() => selectSubsection(section, sub)}
+                            className={`relative flex w-full items-center pl-12 pr-4 py-2 text-left text-[13px] transition-all ${
+                              isActive
+                                ? "text-primary font-medium bg-primary/5"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                            }`}
+                          >
+                            {/* Active indicator bar */}
+                            {isActive && (
+                              <motion.div
+                                layoutId="help-active"
+                                className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r-full bg-primary"
+                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                              />
+                            )}
                             {sub.title}
-                          </p>
-                          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
-                            {sub.description}
-                          </p>
-                        </div>
-                        <ChevronRight size={16} className="shrink-0 text-muted-foreground" />
-                      </button>
+                          </button>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </nav>
+      </aside>
+
+      {/* Right content area */}
+      <main className="flex-1 overflow-y-auto">
+        <AnimatePresence mode="wait">
+          {selectedSub && (
+            <motion.div
+              key={selectedSub.sub.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+              className="p-8 max-w-4xl"
+            >
+              {/* Breadcrumb */}
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
+                <span>Help</span>
+                <span>/</span>
+                <span>{selectedSub.section.title}</span>
+                <span>/</span>
+                <span className="text-foreground font-medium">{selectedSub.sub.title}</span>
+              </div>
+
+              {/* Title */}
+              <h1 className="font-display text-2xl font-bold text-foreground mb-1.5">
+                {selectedSub.sub.title}
+              </h1>
+              <p className="text-sm text-muted-foreground mb-6 max-w-xl">
+                {selectedSub.sub.description}
+              </p>
+
+              {/* Preview box with themed border */}
+              <div className="relative rounded-xl overflow-hidden border-2 border-primary/20 mb-6" style={{ boxShadow: "0 8px 32px -8px hsl(142 64% 36% / 0.12)" }}>
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent" />
+                {selectedSub.sub.content.type === "iframe" ? (
+                  <iframe
+                    src={selectedSub.sub.content.src}
+                    title={selectedSub.sub.title}
+                    className="h-[380px] w-full border-0 bg-card"
+                    sandbox="allow-scripts allow-same-origin"
+                  />
+                ) : (
+                  <img
+                    src={selectedSub.sub.content.src}
+                    alt={selectedSub.sub.title}
+                    className="h-[380px] w-full object-cover"
+                  />
+                )}
+              </div>
+
+              {/* Steps card */}
+              <div className="rounded-xl border border-border bg-card p-6" style={{ boxShadow: "var(--shadow-card)" }}>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary">
+                    Step {currentStep + 1} of {selectedSub.sub.steps.length}
+                  </span>
+                  {/* Step dots */}
+                  <div className="flex items-center gap-1.5">
+                    {selectedSub.sub.steps.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentStep(i)}
+                        className={`rounded-full transition-all duration-300 ${
+                          i === currentStep
+                            ? "h-2 w-6 bg-primary"
+                            : i < currentStep
+                            ? "h-2 w-2 bg-primary/40"
+                            : "h-2 w-2 bg-border"
+                        }`}
+                      />
                     ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          </motion.div>
-        ) : (
-          /* ---- Subsection Detail / Walkthrough ---- */
-          <motion.div
-            key={selectedSubsection.id}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.25 }}
-            className="mx-auto max-w-5xl px-6 py-8"
-          >
-            {/* Title & description */}
-            <div className="mb-6">
-              <h2 className="font-display text-xl font-bold text-foreground">
-                {selectedSubsection.title}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {selectedSubsection.description}
-              </p>
-            </div>
 
-            {/* Preview area */}
-            <div className="esg-card-elevated mb-6 overflow-hidden">
-              {selectedSubsection.content.type === "iframe" ? (
-                <iframe
-                  src={selectedSubsection.content.src}
-                  title={selectedSubsection.title}
-                  className="h-[400px] w-full border-0"
-                  sandbox="allow-scripts allow-same-origin"
-                />
-              ) : (
-                <img
-                  src={selectedSubsection.content.src}
-                  alt={selectedSubsection.title}
-                  className="h-[400px] w-full object-cover"
-                />
-              )}
-            </div>
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={currentStep}
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -16 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-sm leading-relaxed text-foreground min-h-[48px]"
+                  >
+                    {selectedSub.sub.steps[currentStep]}
+                  </motion.p>
+                </AnimatePresence>
 
-            {/* Step walkthrough */}
-            <div className="esg-card p-5">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="esg-badge-success">
-                  Step {currentStep + 1} of {selectedSubsection.steps.length}
-                </span>
-              </div>
-
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={currentStep}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-sm leading-relaxed text-foreground"
-                >
-                  {selectedSubsection.steps[currentStep]}
-                </motion.p>
-              </AnimatePresence>
-
-              {/* Step dots */}
-              <div className="mt-4 flex items-center gap-1.5">
-                {selectedSubsection.steps.map((_, i) => (
+                {/* Nav buttons */}
+                <div className="mt-5 flex items-center justify-between pt-4 border-t border-border">
                   <button
-                    key={i}
-                    onClick={() => setCurrentStep(i)}
-                    className={`h-1.5 rounded-full transition-all ${
-                      i === currentStep
-                        ? "w-6 bg-primary"
-                        : "w-1.5 bg-border hover:bg-muted-foreground/40"
-                    }`}
-                  />
-                ))}
+                    onClick={handlePrev}
+                    disabled={currentStep === 0}
+                    className="flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
+                  >
+                    <ArrowLeft size={14} />
+                    Previous
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    disabled={
+                      currentStep === selectedSub.sub.steps.length - 1 &&
+                      selectedSub.section.subsections.findIndex((s) => s.id === selectedSub.sub.id) >=
+                        selectedSub.section.subsections.length - 1
+                    }
+                    className="flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-30"
+                  >
+                    {currentStep < selectedSub.sub.steps.length - 1 ? "Next Step" : "Next Topic"}
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
               </div>
-
-              {/* Navigation */}
-              <div className="mt-5 flex items-center justify-between">
-                <button
-                  onClick={handlePrev}
-                  disabled={currentStep === 0}
-                  className="flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent"
-                >
-                  <ArrowLeft size={14} />
-                  Previous
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-                >
-                  {currentStep < selectedSubsection.steps.length - 1
-                    ? "Next Step"
-                    : selectedSection &&
-                      selectedSection.subsections.findIndex((s) => s.id === selectedSubsection.id) <
-                        selectedSection.subsections.length - 1
-                    ? "Next Topic"
-                    : "Back to Help"}
-                  <ArrowRight size={14} />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
     </div>
   );
 }
