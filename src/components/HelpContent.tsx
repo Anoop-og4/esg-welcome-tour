@@ -30,7 +30,7 @@ const helpSections: HelpSection[] = [
         id: "dashboard-overview",
         title: "Dashboard Overview",
         description: "Get a bird's eye view of your environmental metrics including total emissions, carbon intensity, and green energy consumption.",
-        content: { type: "iframe", src: "https://docs.lovable.dev" },
+        content: { type: "image", src: "/help/overview-1.png" },
         steps: [
           "The dashboard displays five key stat cards at the top: Total Emission, Carbon Intensity, Green Energy, Goals On Track, and YoY Growth.",
           "Below the stats, interactive charts show Emission by Scope and Scope Breakdown for detailed analysis.",
@@ -41,7 +41,7 @@ const helpSections: HelpSection[] = [
         id: "dashboard-filters",
         title: "Using Filters",
         description: "Learn how to filter dashboard data by date range, scope, facility, and emission type.",
-        content: { type: "iframe", src: "https://docs.lovable.dev" },
+        content: { type: "image", src: "/help/overview-2.png" },
         steps: [
           "Click the 'Filters' button in the page header to open the filter panel.",
           "Select the scope (1, 2, or 3), facility, and emission category you want to view.",
@@ -59,7 +59,7 @@ const helpSections: HelpSection[] = [
         id: "scope-1",
         title: "Scope 1 Emissions",
         description: "Direct emissions from owned or controlled sources.",
-        content: { type: "iframe", src: "https://docs.lovable.dev" },
+        content: { type: "image", src: "/help/overview-3.png" },
         steps: [
           "Navigate to Environment → Scope 1 from the sidebar.",
           "View entity-level breakdown with Total Emissions (TCO₂e), Production, and Carbon Intensity columns.",
@@ -70,7 +70,7 @@ const helpSections: HelpSection[] = [
         id: "scope-2",
         title: "Scope 2 & 3 Emissions",
         description: "Indirect emissions from purchased energy and value chain activities.",
-        content: { type: "iframe", src: "https://docs.lovable.dev" },
+        content: { type: "image", src: "/help/overview-4.png" },
         steps: [
           "Scope 2 covers indirect emissions from purchased electricity, steam, heating, and cooling.",
           "Scope 3 includes all other indirect emissions across the value chain.",
@@ -88,7 +88,7 @@ const helpSections: HelpSection[] = [
         id: "operations-processes",
         title: "Managing Processes",
         description: "Define and manage production processes including fuel and electricity requirements.",
-        content: { type: "iframe", src: "https://docs.lovable.dev" },
+        content: { type: "image", src: "/help/overview-5.png" },
         steps: [
           "Go to Operations → Processes to see all defined processes.",
           "View summary cards showing Total Process Maps, Processes, Raw Materials, Products, and unmapped products.",
@@ -99,7 +99,7 @@ const helpSections: HelpSection[] = [
         id: "operations-materials",
         title: "Raw Materials & Products",
         description: "Track raw materials and their relationship to products and production processes.",
-        content: { type: "iframe", src: "https://docs.lovable.dev" },
+        content: { type: "image", src: "/help/overview-6.png" },
         steps: [
           "Navigate to Operations → Raw Materials to view all input materials.",
           "Link materials to specific processes for accurate emission tracking.",
@@ -117,7 +117,7 @@ const helpSections: HelpSection[] = [
         id: "goals-create",
         title: "Creating Goals",
         description: "Set carbon reduction targets aligned with science-based targets.",
-        content: { type: "iframe", src: "https://docs.lovable.dev" },
+        content: { type: "image", src: "/help/overview-7.png" },
         steps: [
           "Navigate to Goal Settings from the sidebar.",
           "Click 'Create New Goal' and select target type (absolute or intensity-based).",
@@ -128,7 +128,7 @@ const helpSections: HelpSection[] = [
         id: "goals-track",
         title: "Tracking Progress",
         description: "Monitor goal progress and receive alerts when targets need attention.",
-        content: { type: "iframe", src: "https://docs.lovable.dev" },
+        content: { type: "image", src: "/help/overview-1.png" },
         steps: [
           "The Goals On Track card on the dashboard gives a quick status overview.",
           "Visit Goal Settings for detailed progress charts and milestone tracking.",
@@ -146,7 +146,7 @@ const helpSections: HelpSection[] = [
         id: "social-overview",
         title: "Social Metrics",
         description: "Track diversity, equity, inclusion, and community impact metrics.",
-        content: { type: "iframe", src: "https://docs.lovable.dev" },
+        content: { type: "image", src: "/help/overview-2.png" },
         steps: [
           "Navigate to Social from the sidebar to access social impact tracking.",
           "View workforce diversity metrics, employee wellbeing data, and community initiatives.",
@@ -157,7 +157,7 @@ const helpSections: HelpSection[] = [
         id: "governance-overview",
         title: "Governance Framework",
         description: "Manage board composition, ethics policies, and compliance tracking.",
-        content: { type: "iframe", src: "https://docs.lovable.dev" },
+        content: { type: "image", src: "/help/overview-3.png" },
         steps: [
           "Go to Governance to view your organization's governance structure.",
           "Track board diversity, committee composition, and policy compliance.",
