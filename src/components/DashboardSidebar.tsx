@@ -1,19 +1,24 @@
-import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, BarChart3, Target } from "lucide-react";
+import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, BarChart3, Target, HelpCircle } from "lucide-react";
 
 const navItems = [
-  { icon: Home, label: "Home", active: false },
-  { icon: Leaf, label: "Environment", active: true },
-  { icon: Users, label: "Social", active: false },
-  { icon: Building2, label: "Governance", active: false },
-  { icon: Shield, label: "Customers", active: false },
-  { icon: ShoppingBag, label: "Products", active: false },
-  { icon: BarChart3, label: "Operations", active: false },
-  { icon: Target, label: "Goals", active: false },
-  { icon: FileText, label: "Docs Hub", active: false },
-  { icon: Settings, label: "Admin", active: false },
+  { icon: Home, label: "Home", key: "home" },
+  { icon: Leaf, label: "Environment", key: "environment" },
+  { icon: Users, label: "Social", key: "social" },
+  { icon: Building2, label: "Governance", key: "governance" },
+  { icon: Shield, label: "Customers", key: "customers" },
+  { icon: ShoppingBag, label: "Products", key: "products" },
+  { icon: BarChart3, label: "Operations", key: "operations" },
+  { icon: Target, label: "Goals", key: "goals" },
+  { icon: FileText, label: "Docs Hub", key: "docs" },
+  { icon: Settings, label: "Admin", key: "admin" },
 ];
 
-export default function DashboardSidebar() {
+interface DashboardSidebarProps {
+  activeView: string;
+  onViewChange: (view: string) => void;
+}
+
+export default function DashboardSidebar({ activeView, onViewChange }: DashboardSidebarProps) {
   return (
     <aside
       className="hidden h-screen w-60 flex-col py-6 md:flex"
@@ -27,9 +32,10 @@ export default function DashboardSidebar() {
       <nav className="flex-1 space-y-0.5 px-3">
         {navItems.map((item) => (
           <button
-            key={item.label}
+            key={item.key}
+            onClick={() => onViewChange(item.key)}
             className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-              item.active
+              activeView === item.key
                 ? "bg-sidebar-accent text-primary"
                 : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
             }`}
@@ -39,6 +45,21 @@ export default function DashboardSidebar() {
           </button>
         ))}
       </nav>
+
+      {/* Help section at bottom */}
+      <div className="border-t border-sidebar-border px-3 pt-3">
+        <button
+          onClick={() => onViewChange("help")}
+          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+            activeView === "help"
+              ? "bg-sidebar-accent text-primary"
+              : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+          }`}
+        >
+          <HelpCircle size={18} />
+          Help
+        </button>
+      </div>
     </aside>
   );
 }
