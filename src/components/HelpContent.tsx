@@ -814,191 +814,182 @@ export default function HelpContent() {
                 {selectedSub.sub.description}
               </p>
 
-              {/* Preview box */}
-              <div className="relative rounded-xl overflow-hidden border-2 border-primary/20 mb-6" style={{ boxShadow: "0 8px 32px -8px hsl(142 64% 36% / 0.12)" }}>
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent z-10" />
-                {selectedSub.sub.content.type === "video" ? (
-                  <video
-                    key={selectedSub.sub.content.src}
-                    src={selectedSub.sub.content.src}
-                    poster={selectedSub.sub.content.poster}
-                    controls
-                    className="h-[380px] w-full object-cover bg-foreground/5"
-                    preload="metadata"
-                  />
-                ) : selectedSub.sub.content.type === "iframe" ? (
-                  <iframe
-                    src={selectedSub.sub.content.src}
-                    title={selectedSub.sub.title}
-                    className="h-[380px] w-full border-0 bg-card"
-                    sandbox="allow-scripts allow-same-origin"
-                  />
-                ) : (
-                  <img
-                    src={selectedSub.sub.content.src}
-                    alt={selectedSub.sub.title}
-                    className="h-[380px] w-full object-cover"
-                  />
-                )}
-              </div>
-
-              {/* Checkpoint timeline */}
-              <div className="rounded-xl border border-border bg-card p-6" style={{ boxShadow: "var(--shadow-card)" }}>
-                <div className="flex items-center justify-between mb-5">
-                  <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary">
-                    Checkpoint {currentStep + 1} of {selectedSub.sub.steps.length}
-                  </span>
-                  {currentStep === selectedSub.sub.steps.length - 1 && (
-                    <motion.span
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]"
-                    >
-                      <CheckCircle2 size={12} /> Complete
-                    </motion.span>
-                  )}
+              {/* Side-by-side: Preview + Checkpoints */}
+              <div className="flex gap-6 items-stretch">
+                {/* Left: Preview box */}
+                <div className="flex-1 min-w-0">
+                  <div className="relative rounded-xl overflow-hidden border-2 border-primary/20 h-full" style={{ boxShadow: "0 8px 32px -8px hsl(142 64% 36% / 0.12)" }}>
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent z-10" />
+                    {selectedSub.sub.content.type === "video" ? (
+                      <video
+                        key={selectedSub.sub.content.src}
+                        src={selectedSub.sub.content.src}
+                        poster={selectedSub.sub.content.poster}
+                        controls
+                        className="h-full w-full object-cover bg-foreground/5 min-h-[320px]"
+                        preload="metadata"
+                      />
+                    ) : selectedSub.sub.content.type === "iframe" ? (
+                      <iframe
+                        src={selectedSub.sub.content.src}
+                        title={selectedSub.sub.title}
+                        className="h-full w-full border-0 bg-card min-h-[320px]"
+                        sandbox="allow-scripts allow-same-origin"
+                      />
+                    ) : (
+                      <img
+                        src={selectedSub.sub.content.src}
+                        alt={selectedSub.sub.title}
+                        className="h-full w-full object-cover min-h-[320px]"
+                      />
+                    )}
+                  </div>
                 </div>
 
-                {/* Vertical checkpoint timeline */}
-                <div className="relative ml-1 space-y-0">
-                  {selectedSub.sub.steps.map((step, i) => {
-                    const isCompleted = i < currentStep;
-                    const isCurrent = i === currentStep;
-                    const isFuture = i > currentStep;
-                    return (
-                      <div key={i} className="relative flex gap-4 group">
-                        {/* Vertical line */}
-                        {i < selectedSub.sub.steps.length - 1 && (
-                          <div className="absolute left-[11px] top-[28px] bottom-0 w-[2px]">
-                            <motion.div
-                              className="h-full w-full rounded-full"
-                              initial={false}
-                              animate={{
-                                backgroundColor: isCompleted
-                                  ? "hsl(var(--primary))"
-                                  : "hsl(var(--border))",
-                              }}
-                              transition={{ duration: 0.4, delay: isCompleted ? 0.2 : 0 }}
-                            />
-                          </div>
-                        )}
-
-                        {/* Checkpoint node */}
-                        <button
-                          onClick={() => setCurrentStep(i)}
-                          className="relative z-10 shrink-0 mt-1"
+                {/* Right: Checkpoint timeline */}
+                <div className="w-[340px] shrink-0 flex flex-col justify-center">
+                  <div className="rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary">
+                        Checkpoint {currentStep + 1}/{selectedSub.sub.steps.length}
+                      </span>
+                      {currentStep === selectedSub.sub.steps.length - 1 && (
+                        <motion.span
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]"
                         >
-                          <motion.div
-                            className="flex items-center justify-center rounded-full border-2"
-                            initial={false}
-                            animate={{
-                              width: isCurrent ? 24 : 24,
-                              height: isCurrent ? 24 : 24,
-                              borderColor: isFuture
-                                ? "hsl(var(--border))"
-                                : "hsl(var(--primary))",
-                              backgroundColor: isCompleted
-                                ? "hsl(var(--primary))"
-                                : isCurrent
-                                ? "hsl(var(--primary) / 0.1)"
-                                : "hsl(var(--background))",
-                            }}
-                            transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 25 }}
-                          >
-                            <AnimatePresence mode="wait">
-                              {isCompleted ? (
-                                <motion.div
-                                  key="check"
-                                  initial={{ scale: 0, rotate: -90 }}
-                                  animate={{ scale: 1, rotate: 0 }}
-                                  exit={{ scale: 0 }}
-                                  transition={{ duration: 0.3, type: "spring", stiffness: 400 }}
-                                >
-                                  <CheckCircle2 size={14} className="text-primary-foreground" />
-                                </motion.div>
-                              ) : isCurrent ? (
-                                <motion.div
-                                  key="pulse"
-                                  className="h-2.5 w-2.5 rounded-full bg-primary"
-                                  animate={{ scale: [1, 1.3, 1] }}
-                                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                                />
-                              ) : (
-                                <motion.div
-                                  key="dot"
-                                  className="h-2 w-2 rounded-full bg-border"
-                                />
-                              )}
-                            </AnimatePresence>
-                          </motion.div>
-                        </button>
+                          <CheckCircle2 size={11} /> Done
+                        </motion.span>
+                      )}
+                    </div>
 
-                        {/* Step content */}
-                        <motion.div
-                          className={`flex-1 pb-5 cursor-pointer`}
-                          onClick={() => setCurrentStep(i)}
-                          initial={false}
-                          animate={{ opacity: isFuture ? 0.45 : 1 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <motion.div
-                            className={`rounded-lg px-4 py-3 transition-colors ${
-                              isCurrent
-                                ? "bg-primary/5 border border-primary/20"
-                                : isCompleted
-                                ? "bg-muted/30"
-                                : ""
-                            }`}
-                            layout
-                          >
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <span className={`text-[10px] font-bold uppercase tracking-wider ${
-                                isCurrent ? "text-primary" : isCompleted ? "text-primary/60" : "text-muted-foreground"
-                              }`}>
-                                Step {i + 1}
-                              </span>
-                            </div>
-                            <AnimatePresence mode="wait">
-                              <motion.p
-                                key={`step-${i}`}
-                                initial={isCurrent ? { opacity: 0, y: 6 } : false}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.25 }}
-                                className={`text-sm leading-relaxed ${
-                                  isCurrent ? "text-foreground font-medium" : isCompleted ? "text-foreground/70" : "text-muted-foreground"
-                                }`}
+                    {/* Vertical checkpoint timeline */}
+                    <div className="relative ml-0.5">
+                      {selectedSub.sub.steps.map((step, i) => {
+                        const isCompleted = i < currentStep;
+                        const isCurrent = i === currentStep;
+                        const isFuture = i > currentStep;
+                        return (
+                          <div key={i} className="relative flex gap-3 group">
+                            {/* Vertical line */}
+                            {i < selectedSub.sub.steps.length - 1 && (
+                              <div className="absolute left-[9px] top-[24px] bottom-0 w-[2px]">
+                                <motion.div
+                                  className="h-full w-full rounded-full"
+                                  initial={false}
+                                  animate={{
+                                    backgroundColor: isCompleted
+                                      ? "hsl(var(--primary))"
+                                      : "hsl(var(--border))",
+                                  }}
+                                  transition={{ duration: 0.4, delay: isCompleted ? 0.2 : 0 }}
+                                />
+                              </div>
+                            )}
+
+                            {/* Node */}
+                            <button
+                              onClick={() => setCurrentStep(i)}
+                              className="relative z-10 shrink-0 mt-1"
+                            >
+                              <motion.div
+                                className="flex items-center justify-center rounded-full border-2 w-5 h-5"
+                                initial={false}
+                                animate={{
+                                  borderColor: isFuture ? "hsl(var(--border))" : "hsl(var(--primary))",
+                                  backgroundColor: isCompleted
+                                    ? "hsl(var(--primary))"
+                                    : isCurrent
+                                    ? "hsl(var(--primary) / 0.1)"
+                                    : "hsl(var(--background))",
+                                }}
+                                transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 25 }}
                               >
-                                {step}
-                              </motion.p>
-                            </AnimatePresence>
-                          </motion.div>
-                        </motion.div>
-                      </div>
-                    );
-                  })}
-                </div>
+                                <AnimatePresence mode="wait">
+                                  {isCompleted ? (
+                                    <motion.div
+                                      key="check"
+                                      initial={{ scale: 0, rotate: -90 }}
+                                      animate={{ scale: 1, rotate: 0 }}
+                                      exit={{ scale: 0 }}
+                                      transition={{ duration: 0.3, type: "spring", stiffness: 400 }}
+                                    >
+                                      <CheckCircle2 size={12} className="text-primary-foreground" />
+                                    </motion.div>
+                                  ) : isCurrent ? (
+                                    <motion.div
+                                      key="pulse"
+                                      className="h-2 w-2 rounded-full bg-primary"
+                                      animate={{ scale: [1, 1.3, 1] }}
+                                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                    />
+                                  ) : (
+                                    <motion.div key="dot" className="h-1.5 w-1.5 rounded-full bg-border" />
+                                  )}
+                                </AnimatePresence>
+                              </motion.div>
+                            </button>
 
-                <div className="mt-2 flex items-center justify-between pt-4 border-t border-border">
-                  <button
-                    onClick={handlePrev}
-                    disabled={currentStep === 0}
-                    className="flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
-                  >
-                    <ArrowLeft size={14} />
-                    Previous
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    disabled={
-                      currentStep === selectedSub.sub.steps.length - 1 &&
-                      selectedSub.section.subsections.findIndex((s) => s.id === selectedSub.sub.id) >=
-                        selectedSub.section.subsections.length - 1
-                    }
-                    className="flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-30"
-                  >
-                    {currentStep < selectedSub.sub.steps.length - 1 ? "Next Step" : "Next Topic"}
-                    <ArrowRight size={14} />
-                  </button>
+                            {/* Step text */}
+                            <motion.div
+                              className="flex-1 pb-4 cursor-pointer"
+                              onClick={() => setCurrentStep(i)}
+                              initial={false}
+                              animate={{ opacity: isFuture ? 0.4 : 1 }}
+                              transition={{ duration: 0.3 }}
+                            >
+                              <motion.div
+                                className={`rounded-lg px-3 py-2 transition-colors ${
+                                  isCurrent
+                                    ? "bg-primary/5 border border-primary/20"
+                                    : isCompleted
+                                    ? "bg-muted/30"
+                                    : ""
+                                }`}
+                                layout
+                              >
+                                <span className={`text-[9px] font-bold uppercase tracking-wider block mb-0.5 ${
+                                  isCurrent ? "text-primary" : isCompleted ? "text-primary/60" : "text-muted-foreground"
+                                }`}>
+                                  Step {i + 1}
+                                </span>
+                                <p className={`text-[12px] leading-relaxed ${
+                                  isCurrent ? "text-foreground font-medium" : isCompleted ? "text-foreground/70" : "text-muted-foreground"
+                                }`}>
+                                  {step}
+                                </p>
+                              </motion.div>
+                            </motion.div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Nav buttons */}
+                    <div className="mt-2 flex items-center justify-between pt-3 border-t border-border">
+                      <button
+                        onClick={handlePrev}
+                        disabled={currentStep === 0}
+                        className="flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[12px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
+                      >
+                        <ArrowLeft size={12} />
+                        Prev
+                      </button>
+                      <button
+                        onClick={handleNext}
+                        disabled={
+                          currentStep === selectedSub.sub.steps.length - 1 &&
+                          selectedSub.section.subsections.findIndex((s) => s.id === selectedSub.sub.id) >=
+                            selectedSub.section.subsections.length - 1
+                        }
+                        className="flex items-center gap-1 rounded-lg bg-primary px-4 py-1.5 text-[12px] font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-30"
+                      >
+                        {currentStep < selectedSub.sub.steps.length - 1 ? "Next" : "Next Topic"}
+                        <ArrowRight size={12} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </motion.div>
