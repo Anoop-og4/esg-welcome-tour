@@ -1,13 +1,23 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, BookOpen, BarChart3, Leaf, Target, Users,
   ShoppingBag, ChevronDown, Play, MessageCircleQuestion, Plus, Minus,
   Search, X, Bookmark, BookmarkCheck, CheckCircle2, Lightbulb,
-  Keyboard, Star, Zap, TrendingUp, Shield, FileText
+  Keyboard, Star, Zap, TrendingUp, Shield, FileText, Info, AlertTriangle
 } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────────────────
+interface ContentBlock {
+  id: string;
+  tag: "h3" | "p" | "img" | "callout" | "ul";
+  text?: string;
+  items?: string[];
+  variant?: "info" | "warning" | "success";
+  src?: string;
+  alt?: string;
+}
+
 interface SubSection {
   id: string;
   title: string;
@@ -17,7 +27,7 @@ interface SubSection {
     src: string;
     poster?: string;
   };
-  steps: string[];
+  blocks: ContentBlock[];
 }
 
 interface HelpSection {
@@ -58,10 +68,18 @@ const helpSections: HelpSection[] = [
         title: "Dashboard Overview",
         description: "Get a bird's eye view of your environmental metrics including total emissions, carbon intensity, and green energy consumption.",
         content: { type: "image", src: "/help/overview-1.png" },
-        steps: [
-          "The dashboard displays five key stat cards at the top: Total Emission, Carbon Intensity, Green Energy, Goals On Track, and YoY Growth.",
-          "Below the stats, interactive charts show Emission by Scope and Scope Breakdown for detailed analysis.",
-          "Use the Financial Year selector and Filters to narrow down the data by date range or category.",
+        blocks: [
+          { id: "do-1", tag: "h3", text: "Key Metrics Cards" },
+          { id: "do-2", tag: "p", text: "The dashboard displays five key stat cards at the top: Total Emission, Carbon Intensity, Green Energy, Goals On Track, and YoY Growth. Each card updates in real-time as new data is ingested into the platform." },
+          { id: "do-3", tag: "callout", text: "Make sure you have the latest data imported before reviewing metrics. Outdated data may lead to inaccurate reporting.", variant: "info" },
+          { id: "do-4", tag: "h3", text: "Interactive Charts" },
+          { id: "do-5", tag: "p", text: "Below the stats, interactive charts show Emission by Scope and Scope Breakdown for detailed analysis. Hover over data points to see exact values and click to drill down into specific categories." },
+          { id: "do-6", tag: "img", src: "/help/overview-2.png", alt: "Dashboard charts showing emission breakdown by scope" },
+          { id: "do-7", tag: "h3", text: "Financial Year Selector" },
+          { id: "do-8", tag: "p", text: "Use the Financial Year selector and Filters to narrow down the data by date range or category. Compare year-over-year performance to identify trends and measure progress against your targets." },
+          { id: "do-9", tag: "ul", items: ["Select a financial year from the dropdown to view historical data", "Apply scope filters to focus on Scope 1, 2, or 3", "Export filtered views as PDF or CSV for stakeholder reports"] },
+          { id: "do-10", tag: "h3", text: "Dashboard Customization" },
+          { id: "do-11", tag: "p", text: "You can rearrange dashboard widgets and pin your most-used metrics to the top. Changes are saved per user account and persist across sessions." },
         ],
       },
       {
@@ -69,10 +87,14 @@ const helpSections: HelpSection[] = [
         title: "Using Filters",
         description: "Learn how to filter dashboard data by date range, scope, facility, and emission type.",
         content: { type: "image", src: "/help/overview-2.png" },
-        steps: [
-          "Click the 'Filters' button in the page header to open the filter panel.",
-          "Select the scope (1, 2, or 3), facility, and emission category you want to view.",
-          "Click 'Apply' to refresh the dashboard with filtered data.",
+        blocks: [
+          { id: "df-1", tag: "h3", text: "Opening the Filter Panel" },
+          { id: "df-2", tag: "p", text: "Click the 'Filters' button in the page header to open the filter panel. The panel slides in from the right and provides controls for all available filter dimensions." },
+          { id: "df-3", tag: "h3", text: "Available Filter Options" },
+          { id: "df-4", tag: "ul", items: ["Scope: Filter by Scope 1, 2, or 3 emissions", "Facility: Select specific facilities or view all", "Emission Category: Focus on fuel combustion, electricity, transport, etc.", "Date Range: Choose custom date ranges or predefined periods"] },
+          { id: "df-5", tag: "h3", text: "Applying & Saving Filters" },
+          { id: "df-6", tag: "p", text: "Click 'Apply' to refresh the dashboard with filtered data. You can save frequently used filter combinations as presets for quick access later." },
+          { id: "df-7", tag: "callout", text: "Filters apply across all dashboard widgets simultaneously. Reset filters to return to the default view.", variant: "info" },
         ],
       },
       {
@@ -80,10 +102,13 @@ const helpSections: HelpSection[] = [
         title: "Video: Quick Tour",
         description: "Watch a guided video walkthrough of the Environment Dashboard and its key features.",
         content: { type: "video", src: "/videos/welcome-overview.mp4", poster: "/help/overview-1.png" },
-        steps: [
-          "This video introduces the main dashboard layout including stat cards, charts, and navigation.",
-          "Learn how to interpret Scope 1, 2, and 3 emission data at a glance.",
-          "See how to apply filters and switch between financial year views.",
+        blocks: [
+          { id: "dv-1", tag: "h3", text: "What You'll Learn" },
+          { id: "dv-2", tag: "p", text: "This video introduces the main dashboard layout including stat cards, charts, and navigation. Follow along to get up to speed quickly." },
+          { id: "dv-3", tag: "h3", text: "Key Takeaways" },
+          { id: "dv-4", tag: "ul", items: ["Navigate the main dashboard and understand each widget", "Interpret Scope 1, 2, and 3 emission data at a glance", "Apply filters and switch between financial year views"] },
+          { id: "dv-5", tag: "h3", text: "Next Steps" },
+          { id: "dv-6", tag: "p", text: "After watching, explore the dashboard hands-on. Try applying different filters and comparing financial years to build confidence with the platform." },
         ],
       },
     ],
@@ -98,10 +123,14 @@ const helpSections: HelpSection[] = [
         title: "Scope 1 Emissions",
         description: "Direct emissions from owned or controlled sources.",
         content: { type: "image", src: "/help/overview-3.png" },
-        steps: [
-          "Navigate to Environment → Scope 1 from the sidebar.",
-          "View entity-level breakdown with Total Emissions (TCO₂e), Production, and Carbon Intensity columns.",
-          "Use the Insights, Emission Details, and Activity Data tabs for different data perspectives.",
+        blocks: [
+          { id: "s1-1", tag: "h3", text: "Understanding Scope 1" },
+          { id: "s1-2", tag: "p", text: "Scope 1 covers direct greenhouse gas emissions from sources owned or controlled by your organization. This includes on-site fuel combustion, company vehicles, and fugitive emissions from refrigerants." },
+          { id: "s1-3", tag: "h3", text: "Data Entry & Sources" },
+          { id: "s1-4", tag: "p", text: "Navigate to Environment → Scope 1 from the sidebar. View entity-level breakdown with Total Emissions (TCO₂e), Production, and Carbon Intensity columns." },
+          { id: "s1-5", tag: "callout", text: "Ensure emission factors are up to date with the latest IPCC guidelines for accurate Scope 1 reporting.", variant: "warning" },
+          { id: "s1-6", tag: "h3", text: "Analysis Tabs" },
+          { id: "s1-7", tag: "ul", items: ["Insights: High-level trends and anomaly detection", "Emission Details: Granular breakdown by source category", "Activity Data: Raw input data for audit trails"] },
         ],
       },
       {
@@ -109,10 +138,14 @@ const helpSections: HelpSection[] = [
         title: "Scope 2 & 3 Emissions",
         description: "Indirect emissions from purchased energy and value chain activities.",
         content: { type: "image", src: "/help/overview-4.png" },
-        steps: [
-          "Scope 2 covers indirect emissions from purchased electricity, steam, heating, and cooling.",
-          "Scope 3 includes all other indirect emissions across the value chain.",
-          "Both sections follow the same layout as Scope 1 for consistency.",
+        blocks: [
+          { id: "s2-1", tag: "h3", text: "Scope 2: Purchased Energy" },
+          { id: "s2-2", tag: "p", text: "Scope 2 covers indirect emissions from purchased electricity, steam, heating, and cooling. These are calculated using location-based and market-based methods." },
+          { id: "s2-3", tag: "h3", text: "Scope 3: Value Chain" },
+          { id: "s2-4", tag: "p", text: "Scope 3 includes all other indirect emissions across the value chain — from purchased goods and services to employee commuting and end-of-life product treatment." },
+          { id: "s2-5", tag: "callout", text: "Scope 3 often represents the largest portion of an organization's total emissions. Start with the most material categories.", variant: "warning" },
+          { id: "s2-6", tag: "h3", text: "Consistent Layout" },
+          { id: "s2-7", tag: "p", text: "Both Scope 2 and 3 sections follow the same layout as Scope 1 for consistency. Use the same Insights, Emission Details, and Activity Data tabs." },
         ],
       },
     ],
@@ -127,10 +160,14 @@ const helpSections: HelpSection[] = [
         title: "Managing Processes",
         description: "Define and manage production processes including fuel and electricity requirements.",
         content: { type: "image", src: "/help/overview-5.png" },
-        steps: [
-          "Go to Operations → Processes to see all defined processes.",
-          "View summary cards showing Total Process Maps, Processes, Raw Materials, Products, and unmapped products.",
-          "Click '+ Add New Process' to define a new process with fuels and electricity required.",
+        blocks: [
+          { id: "op-1", tag: "h3", text: "Process Overview" },
+          { id: "op-2", tag: "p", text: "Go to Operations → Processes to see all defined processes. View summary cards showing Total Process Maps, Processes, Raw Materials, Products, and unmapped products." },
+          { id: "op-3", tag: "h3", text: "Adding New Processes" },
+          { id: "op-4", tag: "p", text: "Click '+ Add New Process' to define a new process with fuels and electricity required. Map each process to its input materials and output products for complete tracking." },
+          { id: "op-5", tag: "h3", text: "Process Mapping" },
+          { id: "op-6", tag: "ul", items: ["Link fuel types to each process stage", "Specify electricity consumption per unit of production", "Map raw materials to intermediate and final products"] },
+          { id: "op-7", tag: "callout", text: "Unmapped processes will show warnings in your emission reports. Ensure all active processes are fully configured.", variant: "warning" },
         ],
       },
       {
@@ -138,10 +175,13 @@ const helpSections: HelpSection[] = [
         title: "Raw Materials & Products",
         description: "Track raw materials and their relationship to products and production processes.",
         content: { type: "image", src: "/help/overview-6.png" },
-        steps: [
-          "Navigate to Operations → Raw Materials to view all input materials.",
-          "Link materials to specific processes for accurate emission tracking.",
-          "Monitor Products without Process Maps to identify gaps in your tracking.",
+        blocks: [
+          { id: "om-1", tag: "h3", text: "Material Inventory" },
+          { id: "om-2", tag: "p", text: "Navigate to Operations → Raw Materials to view all input materials. Each material is linked to specific processes for accurate emission tracking." },
+          { id: "om-3", tag: "h3", text: "Product Tracking" },
+          { id: "om-4", tag: "p", text: "Monitor Products without Process Maps to identify gaps in your tracking. Link every product to at least one process to ensure comprehensive reporting." },
+          { id: "om-5", tag: "h3", text: "Lifecycle Analysis" },
+          { id: "om-6", tag: "p", text: "Use the material-to-product flow to understand your carbon footprint at each stage of production and identify optimization opportunities." },
         ],
       },
     ],
@@ -156,10 +196,14 @@ const helpSections: HelpSection[] = [
         title: "Creating Goals",
         description: "Set carbon reduction targets aligned with science-based targets.",
         content: { type: "image", src: "/help/overview-7.png" },
-        steps: [
-          "Navigate to Goal Settings from the sidebar.",
-          "Click 'Create New Goal' and select target type (absolute or intensity-based).",
-          "Define the baseline year, target year, and reduction percentage.",
+        blocks: [
+          { id: "gc-1", tag: "h3", text: "Goal Types" },
+          { id: "gc-2", tag: "p", text: "Navigate to Goal Settings from the sidebar. You can create two types of goals: absolute reduction targets (total TCO₂e) and intensity-based targets (TCO₂e per unit of production or revenue)." },
+          { id: "gc-3", tag: "h3", text: "Setting Parameters" },
+          { id: "gc-4", tag: "ul", items: ["Choose a baseline year as your reference point", "Set a target year for achieving the reduction", "Define the reduction percentage (e.g., 42% by 2030)", "Optionally align with SBTi or Paris Agreement pathways"] },
+          { id: "gc-5", tag: "h3", text: "Best Practices" },
+          { id: "gc-6", tag: "callout", text: "Start with near-term goals (5-10 years) before setting long-term net-zero targets. This builds momentum and demonstrates progress.", variant: "success" },
+          { id: "gc-7", tag: "p", text: "Review your goals quarterly and adjust strategies if progress falls behind. The platform will flag goals that need attention." },
         ],
       },
       {
@@ -167,10 +211,13 @@ const helpSections: HelpSection[] = [
         title: "Tracking Progress",
         description: "Monitor goal progress and receive alerts when targets need attention.",
         content: { type: "image", src: "/help/overview-1.png" },
-        steps: [
-          "The Goals On Track card on the dashboard gives a quick status overview.",
-          "Visit Goal Settings for detailed progress charts and milestone tracking.",
-          "Goals flagged as 'Needs Review' require updated reduction strategies.",
+        blocks: [
+          { id: "gt-1", tag: "h3", text: "Dashboard Overview" },
+          { id: "gt-2", tag: "p", text: "The Goals On Track card on the dashboard gives a quick status overview. Green indicates on track, yellow means needs attention, and red signals falling behind." },
+          { id: "gt-3", tag: "h3", text: "Detailed Progress Charts" },
+          { id: "gt-4", tag: "p", text: "Visit Goal Settings for detailed progress charts and milestone tracking. See your actual emission trajectory compared to the required reduction pathway." },
+          { id: "gt-5", tag: "h3", text: "Alerts & Notifications" },
+          { id: "gt-6", tag: "p", text: "Goals flagged as 'Needs Review' require updated reduction strategies. The system sends email alerts when goals fall significantly behind schedule." },
         ],
       },
       {
@@ -178,10 +225,13 @@ const helpSections: HelpSection[] = [
         title: "Video: Goal Setup Guide",
         description: "A step-by-step video tutorial on creating and managing carbon reduction goals.",
         content: { type: "video", src: "/videos/welcome-overview.mp4", poster: "/help/overview-7.png" },
-        steps: [
-          "Learn how to create your first carbon reduction goal with a baseline and target year.",
-          "Understand absolute vs intensity-based targets and when to use each.",
-          "See how progress tracking and alerts help you stay on course.",
+        blocks: [
+          { id: "gv-1", tag: "h3", text: "Tutorial Overview" },
+          { id: "gv-2", tag: "p", text: "Learn how to create your first carbon reduction goal with a baseline and target year. This video walks through the complete setup process." },
+          { id: "gv-3", tag: "h3", text: "Key Concepts" },
+          { id: "gv-4", tag: "ul", items: ["Absolute vs intensity-based targets and when to use each", "Selecting appropriate baseline years", "Aligning goals with industry frameworks like SBTi"] },
+          { id: "gv-5", tag: "h3", text: "After Watching" },
+          { id: "gv-6", tag: "p", text: "See how progress tracking and alerts help you stay on course. Try creating a test goal to familiarize yourself with the workflow." },
         ],
       },
     ],
@@ -196,10 +246,13 @@ const helpSections: HelpSection[] = [
         title: "Social Metrics",
         description: "Track diversity, equity, inclusion, and community impact metrics.",
         content: { type: "image", src: "/help/overview-2.png" },
-        steps: [
-          "Navigate to Social from the sidebar to access social impact tracking.",
-          "View workforce diversity metrics, employee wellbeing data, and community initiatives.",
-          "Generate reports for stakeholder communication and ESG disclosures.",
+        blocks: [
+          { id: "so-1", tag: "h3", text: "Workforce Metrics" },
+          { id: "so-2", tag: "p", text: "Navigate to Social from the sidebar to access social impact tracking. View workforce diversity metrics, employee wellbeing data, and community initiatives." },
+          { id: "so-3", tag: "h3", text: "Community Impact" },
+          { id: "so-4", tag: "p", text: "Track community investment, volunteer hours, and social impact programs. These metrics are essential for comprehensive ESG disclosures." },
+          { id: "so-5", tag: "h3", text: "Reporting" },
+          { id: "so-6", tag: "p", text: "Generate reports for stakeholder communication and ESG disclosures. Data can be exported in formats compatible with GRI and SASB frameworks." },
         ],
       },
       {
@@ -207,16 +260,18 @@ const helpSections: HelpSection[] = [
         title: "Governance Framework",
         description: "Manage board composition, ethics policies, and compliance tracking.",
         content: { type: "image", src: "/help/overview-3.png" },
-        steps: [
-          "Go to Governance to view your organization's governance structure.",
-          "Track board diversity, committee composition, and policy compliance.",
-          "Monitor anti-corruption measures and ethical business practice metrics.",
+        blocks: [
+          { id: "go-1", tag: "h3", text: "Board Composition" },
+          { id: "go-2", tag: "p", text: "Go to Governance to view your organization's governance structure. Track board diversity, committee composition, and policy compliance." },
+          { id: "go-3", tag: "h3", text: "Ethics & Compliance" },
+          { id: "go-4", tag: "p", text: "Monitor anti-corruption measures and ethical business practice metrics. Set up compliance checklists and track completion rates across departments." },
+          { id: "go-5", tag: "h3", text: "Audit Trail" },
+          { id: "go-6", tag: "p", text: "All governance-related changes are logged with timestamps and user attribution. Access the audit trail for regulatory compliance and internal reviews." },
         ],
       },
     ],
   },
 ];
-
 const faqItems: FaqItem[] = [
   {
     question: "How are Scope 1, 2, and 3 emissions calculated?",
@@ -355,7 +410,8 @@ type TabKey = "guides" | "faq" | "tips" | "shortcuts";
 export default function HelpContent() {
   const [expandedSections, setExpandedSections] = useState<string[]>([helpSections[0].id]);
   const [selectedSub, setSelectedSub] = useState<{ section: HelpSection; sub: SubSection } | null>(null);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [activeHeadingId, setActiveHeadingId] = useState<string | null>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<TabKey>("guides");
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
@@ -371,17 +427,38 @@ export default function HelpContent() {
     }
   }, []);
 
-  // Mark guide as read when reaching last step
+  // Track active heading via scroll + mark as read when scrolled to bottom
   useEffect(() => {
-    if (selectedSub && currentStep === selectedSub.sub.steps.length - 1) {
-      setReadGuides((prev) => {
-        const next = new Set(prev);
-        next.add(selectedSub.sub.id);
-        saveSet(STORAGE_KEY_READ, next);
-        return next;
-      });
-    }
-  }, [currentStep, selectedSub]);
+    const container = mainRef.current;
+    if (!container || !selectedSub) return;
+    const headingBlocks = selectedSub.sub.blocks.filter(b => b.tag === "h3");
+    const handleScroll = () => {
+      // Track active heading
+      if (headingBlocks.length > 0) {
+        let active = headingBlocks[0]?.id ?? null;
+        for (const h of headingBlocks) {
+          const el = document.getElementById(h.id);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            if (rect.top <= 200) active = h.id;
+          }
+        }
+        setActiveHeadingId(active);
+      }
+      // Mark as read when near bottom
+      if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
+        setReadGuides(prev => {
+          const next = new Set(prev);
+          next.add(selectedSub.sub.id);
+          saveSet(STORAGE_KEY_READ, next);
+          return next;
+        });
+      }
+    };
+    container.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [selectedSub]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -395,13 +472,13 @@ export default function HelpContent() {
         setSearchOpen(true);
       }
       if (activeTab === "guides" && selectedSub) {
-        if (e.key === "ArrowRight") handleNext();
-        if (e.key === "ArrowLeft") handlePrev();
+        if (e.key === "ArrowRight") navigateArticle(1);
+        if (e.key === "ArrowLeft") navigateArticle(-1);
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [activeTab, selectedSub, currentStep]);
+  }, [activeTab, selectedSub]);
 
   // Search
   const searchResults = useMemo(() => {
@@ -412,7 +489,7 @@ export default function HelpContent() {
         .filter((sub) =>
           sub.title.toLowerCase().includes(q) ||
           sub.description.toLowerCase().includes(q) ||
-          sub.steps.some((st) => st.toLowerCase().includes(q))
+          sub.blocks.some((b) => (b.text ?? "").toLowerCase().includes(q))
         )
         .map((sub) => ({ type: "guide" as const, section: s, sub }))
     );
@@ -452,29 +529,35 @@ export default function HelpContent() {
 
   const selectSubsection = (section: HelpSection, sub: SubSection) => {
     setSelectedSub({ section, sub });
-    setCurrentStep(0);
+    setActiveHeadingId(null);
     setActiveTab("guides");
     setSearchOpen(false);
     setSearchQuery("");
+    setTimeout(() => mainRef.current?.scrollTo({ top: 0, behavior: "smooth" }), 50);
   };
 
-  const handleNext = () => {
-    if (!selectedSub) return;
-    if (currentStep < selectedSub.sub.steps.length - 1) {
-      setCurrentStep((s) => s + 1);
-    } else {
-      const idx = selectedSub.section.subsections.findIndex((s) => s.id === selectedSub.sub.id);
-      if (idx < selectedSub.section.subsections.length - 1) {
-        selectSubsection(selectedSub.section, selectedSub.section.subsections[idx + 1]);
-      }
+  // Flat list for prev/next navigation
+  const allSubs = useMemo(() =>
+    helpSections.flatMap(s => s.subsections.map(sub => ({ section: s, sub }))),
+    []
+  );
+
+  const currentArticleIndex = selectedSub
+    ? allSubs.findIndex(a => a.sub.id === selectedSub.sub.id)
+    : -1;
+
+  const navigateArticle = (dir: 1 | -1) => {
+    const nextIdx = currentArticleIndex + dir;
+    if (nextIdx >= 0 && nextIdx < allSubs.length) {
+      selectSubsection(allSubs[nextIdx].section, allSubs[nextIdx].sub);
     }
   };
 
-  const handlePrev = () => {
-    if (currentStep > 0) setCurrentStep((s) => s - 1);
-  };
-
   const isVideo = selectedSub?.sub.content.type === "video";
+  const articleHeadings = useMemo(() =>
+    selectedSub?.sub.blocks.filter(b => b.tag === "h3") ?? [],
+    [selectedSub]
+  );
 
   const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
     { key: "guides", label: "Guides", icon: BookOpen },
@@ -763,7 +846,7 @@ export default function HelpContent() {
       </aside>
 
       {/* Right content area */}
-      <main className="flex-1 overflow-y-auto">
+      <main ref={mainRef} className="flex-1 overflow-y-auto">
         <AnimatePresence mode="wait">
           {activeTab === "guides" && selectedSub && (
             <motion.div
@@ -772,7 +855,7 @@ export default function HelpContent() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}
-              className="p-8 max-w-4xl"
+              className="p-8"
             >
               {/* Breadcrumb */}
               <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
@@ -796,9 +879,7 @@ export default function HelpContent() {
                       <CheckCircle2 size={10} /> Completed
                     </span>
                   )}
-                  <h1 className="font-display text-2xl font-bold text-foreground">
-                    {selectedSub.sub.title}
-                  </h1>
+                  <h1 className="font-display text-2xl font-bold text-foreground">{selectedSub.sub.title}</h1>
                 </div>
                 <button
                   onClick={() => toggleBookmark(selectedSub.sub.id)}
@@ -810,184 +891,168 @@ export default function HelpContent() {
                   }
                 </button>
               </div>
-              <p className="text-sm text-muted-foreground mb-6 max-w-xl">
-                {selectedSub.sub.description}
-              </p>
+              <p className="text-sm text-muted-foreground mb-6 max-w-xl">{selectedSub.sub.description}</p>
 
-              {/* Side-by-side: Preview + Checkpoints */}
-              <div className="flex gap-6 items-stretch">
-                {/* Left: Preview box */}
-                <div className="flex-1 min-w-0">
-                  <div className="relative rounded-xl overflow-hidden border-2 border-primary/20 h-full" style={{ boxShadow: "0 8px 32px -8px hsl(142 64% 36% / 0.12)" }}>
+              {/* Two columns: Article + Progress sidebar */}
+              <div className="flex gap-8 items-start">
+                {/* Left: Article content */}
+                <div className="flex-1 min-w-0 space-y-6">
+                  {/* Hero image/video */}
+                  <div className="relative rounded-xl overflow-hidden border-2 border-primary/20" style={{ boxShadow: "0 8px 32px -8px hsl(142 64% 36% / 0.12)" }}>
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-transparent z-10" />
                     {selectedSub.sub.content.type === "video" ? (
-                      <video
-                        key={selectedSub.sub.content.src}
-                        src={selectedSub.sub.content.src}
-                        poster={selectedSub.sub.content.poster}
-                        controls
-                        className="h-full w-full object-cover bg-foreground/5 min-h-[320px]"
-                        preload="metadata"
-                      />
+                      <video key={selectedSub.sub.content.src} src={selectedSub.sub.content.src} poster={selectedSub.sub.content.poster} controls className="w-full object-cover bg-foreground/5" preload="metadata" />
                     ) : selectedSub.sub.content.type === "iframe" ? (
-                      <iframe
-                        src={selectedSub.sub.content.src}
-                        title={selectedSub.sub.title}
-                        className="h-full w-full border-0 bg-card min-h-[320px]"
-                        sandbox="allow-scripts allow-same-origin"
-                      />
+                      <iframe src={selectedSub.sub.content.src} title={selectedSub.sub.title} className="w-full border-0 bg-card min-h-[320px]" sandbox="allow-scripts allow-same-origin" />
                     ) : (
-                      <img
-                        src={selectedSub.sub.content.src}
-                        alt={selectedSub.sub.title}
-                        className="h-full w-full object-cover min-h-[320px]"
-                      />
+                      <img src={selectedSub.sub.content.src} alt={selectedSub.sub.title} className="w-full object-cover" />
                     )}
+                  </div>
+
+                  {/* Article blocks */}
+                  {selectedSub.sub.blocks.map((block) => {
+                    switch (block.tag) {
+                      case "h3":
+                        return (
+                          <h3 key={block.id} id={block.id} className="text-lg font-semibold text-foreground font-display scroll-mt-24 pt-2">
+                            {block.text}
+                          </h3>
+                        );
+                      case "p":
+                        return (
+                          <p key={block.id} className="text-sm text-muted-foreground leading-relaxed">
+                            {block.text}
+                          </p>
+                        );
+                      case "img":
+                        return (
+                          <figure key={block.id} className="rounded-lg overflow-hidden border border-border">
+                            <img src={block.src} alt={block.alt ?? ""} className="w-full object-cover" />
+                            {block.alt && <figcaption className="text-xs text-muted-foreground p-2 text-center">{block.alt}</figcaption>}
+                          </figure>
+                        );
+                      case "callout": {
+                        const calloutStyles = {
+                          info: { bg: "bg-[hsl(var(--info-light))]", border: "border-[hsl(var(--info))]", Icon: Info },
+                          warning: { bg: "bg-[hsl(var(--warning-light))]", border: "border-[hsl(var(--warning))]", Icon: AlertTriangle },
+                          success: { bg: "bg-[hsl(var(--success-light))]", border: "border-[hsl(var(--success))]", Icon: CheckCircle2 },
+                        };
+                        const style = calloutStyles[block.variant ?? "info"];
+                        return (
+                          <div key={block.id} className={`${style.bg} ${style.border} border-l-4 rounded-lg p-4 flex items-start gap-3`}>
+                            <style.Icon size={16} className="mt-0.5 shrink-0 text-foreground/60" />
+                            <p className="text-sm text-foreground/85">{block.text}</p>
+                          </div>
+                        );
+                      }
+                      case "ul":
+                        return (
+                          <ul key={block.id} className="list-disc pl-5 space-y-1.5 text-sm text-muted-foreground">
+                            {(block.items ?? []).map((item, i) => <li key={i}>{item}</li>)}
+                          </ul>
+                        );
+                      default:
+                        return null;
+                    }
+                  })}
+
+                  {/* Prev / Next article navigation */}
+                  <div className="flex items-center justify-between pt-6 mt-8 border-t border-border">
+                    {currentArticleIndex > 0 ? (
+                      <button
+                        onClick={() => navigateArticle(-1)}
+                        className="flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-left transition-colors hover:bg-muted/50 max-w-[45%]"
+                      >
+                        <ArrowLeft size={14} className="shrink-0 text-muted-foreground" />
+                        <div>
+                          <span className="text-[10px] uppercase tracking-wider block text-muted-foreground font-semibold">Previous</span>
+                          <span className="text-sm font-medium text-foreground truncate block">{allSubs[currentArticleIndex - 1].sub.title}</span>
+                        </div>
+                      </button>
+                    ) : <div />}
+                    {currentArticleIndex < allSubs.length - 1 ? (
+                      <button
+                        onClick={() => navigateArticle(1)}
+                        className="flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-right transition-colors hover:bg-muted/50 max-w-[45%] ml-auto"
+                      >
+                        <div>
+                          <span className="text-[10px] uppercase tracking-wider block text-muted-foreground font-semibold">Next</span>
+                          <span className="text-sm font-medium text-foreground truncate block">{allSubs[currentArticleIndex + 1].sub.title}</span>
+                        </div>
+                        <ArrowRight size={14} className="shrink-0 text-muted-foreground" />
+                      </button>
+                    ) : <div />}
                   </div>
                 </div>
 
-                {/* Right: Checkpoint timeline */}
-                <div className="w-[340px] shrink-0 flex flex-col justify-center">
-                  <div className="rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary">
-                        Checkpoint {currentStep + 1}/{selectedSub.sub.steps.length}
-                      </span>
-                      {currentStep === selectedSub.sub.steps.length - 1 && (
-                        <motion.span
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]"
-                        >
-                          <CheckCircle2 size={11} /> Done
-                        </motion.span>
-                      )}
-                    </div>
-
-                    {/* Vertical checkpoint timeline */}
-                    <div className="relative ml-0.5">
-                      {selectedSub.sub.steps.map((step, i) => {
-                        const isCompleted = i < currentStep;
-                        const isCurrent = i === currentStep;
-                        const isFuture = i > currentStep;
+                {/* Right: Table of contents with scroll progress */}
+                <div className="w-[220px] shrink-0 sticky top-8">
+                  <div className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-4">On this page</p>
+                    <div className="relative pl-[14px]">
+                      {/* Background line */}
+                      <div className="absolute left-[5px] top-0 bottom-0 w-[2px] bg-border rounded-full" />
+                      {/* Animated progress fill */}
+                      {(() => {
+                        const activeIdx = articleHeadings.findIndex(h => h.id === activeHeadingId);
+                        const progress = articleHeadings.length > 1
+                          ? ((Math.max(0, activeIdx) + 0.5) / articleHeadings.length) * 100
+                          : activeIdx >= 0 ? 100 : 0;
                         return (
-                          <div key={i} className="relative flex gap-3 group">
-                            {/* Vertical line */}
-                            {i < selectedSub.sub.steps.length - 1 && (
-                              <div className="absolute left-[9px] top-[24px] bottom-0 w-[2px]">
-                                <motion.div
-                                  className="h-full w-full rounded-full"
-                                  initial={false}
-                                  animate={{
-                                    backgroundColor: isCompleted
-                                      ? "hsl(var(--primary))"
-                                      : "hsl(var(--border))",
-                                  }}
-                                  transition={{ duration: 0.4, delay: isCompleted ? 0.2 : 0 }}
-                                />
-                              </div>
-                            )}
-
-                            {/* Node */}
-                            <button
-                              onClick={() => setCurrentStep(i)}
-                              className="relative z-10 shrink-0 mt-1"
-                            >
-                              <motion.div
-                                className="flex items-center justify-center rounded-full border-2 w-5 h-5"
-                                initial={false}
-                                animate={{
-                                  borderColor: isFuture ? "hsl(var(--border))" : "hsl(var(--primary))",
-                                  backgroundColor: isCompleted
-                                    ? "hsl(var(--primary))"
-                                    : isCurrent
-                                    ? "hsl(var(--primary) / 0.1)"
-                                    : "hsl(var(--background))",
-                                }}
-                                transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 25 }}
-                              >
-                                <AnimatePresence mode="wait">
-                                  {isCompleted ? (
-                                    <motion.div
-                                      key="check"
-                                      initial={{ scale: 0, rotate: -90 }}
-                                      animate={{ scale: 1, rotate: 0 }}
-                                      exit={{ scale: 0 }}
-                                      transition={{ duration: 0.3, type: "spring", stiffness: 400 }}
-                                    >
-                                      <CheckCircle2 size={12} className="text-primary-foreground" />
-                                    </motion.div>
-                                  ) : isCurrent ? (
-                                    <motion.div
-                                      key="pulse"
-                                      className="h-2 w-2 rounded-full bg-primary"
-                                      animate={{ scale: [1, 1.3, 1] }}
-                                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                                    />
-                                  ) : (
-                                    <motion.div key="dot" className="h-1.5 w-1.5 rounded-full bg-border" />
-                                  )}
-                                </AnimatePresence>
-                              </motion.div>
-                            </button>
-
-                            {/* Step text */}
+                          <motion.div
+                            className="absolute left-[5px] top-0 w-[2px] bg-primary rounded-full"
+                            initial={false}
+                            animate={{ height: `${progress}%` }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
+                          />
+                        );
+                      })()}
+                      {/* Heading items */}
+                      {articleHeadings.map((h) => {
+                        const isActive = h.id === activeHeadingId;
+                        return (
+                          <button
+                            key={h.id}
+                            onClick={() => {
+                              document.getElementById(h.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                            }}
+                            className="relative flex items-center gap-3 py-2 w-full text-left group"
+                          >
                             <motion.div
-                              className="flex-1 pb-4 cursor-pointer"
-                              onClick={() => setCurrentStep(i)}
+                              className="absolute -left-[14px] z-10 shrink-0 rounded-full border-2"
                               initial={false}
-                              animate={{ opacity: isFuture ? 0.4 : 1 }}
-                              transition={{ duration: 0.3 }}
-                            >
-                              <motion.div
-                                className={`rounded-lg px-3 py-2 transition-colors ${
-                                  isCurrent
-                                    ? "bg-primary/5 border border-primary/20"
-                                    : isCompleted
-                                    ? "bg-muted/30"
-                                    : ""
-                                }`}
-                                layout
-                              >
-                                <span className={`text-[9px] font-bold uppercase tracking-wider block mb-0.5 ${
-                                  isCurrent ? "text-primary" : isCompleted ? "text-primary/60" : "text-muted-foreground"
-                                }`}>
-                                  Step {i + 1}
-                                </span>
-                                <p className={`text-[12px] leading-relaxed ${
-                                  isCurrent ? "text-foreground font-medium" : isCompleted ? "text-foreground/70" : "text-muted-foreground"
-                                }`}>
-                                  {step}
-                                </p>
-                              </motion.div>
-                            </motion.div>
-                          </div>
+                              animate={{
+                                width: isActive ? 12 : 10,
+                                height: isActive ? 12 : 10,
+                                borderColor: isActive ? "hsl(var(--primary))" : "hsl(var(--border))",
+                                backgroundColor: isActive ? "hsl(var(--primary))" : "hsl(var(--background))",
+                              }}
+                              transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 25 }}
+                            />
+                            <span className={`text-[12px] leading-snug transition-colors ${
+                              isActive ? "text-primary font-semibold" : "text-muted-foreground group-hover:text-foreground"
+                            }`}>
+                              {h.text}
+                            </span>
+                          </button>
                         );
                       })}
                     </div>
 
-                    {/* Nav buttons */}
-                    <div className="mt-2 flex items-center justify-between pt-3 border-t border-border">
-                      <button
-                        onClick={handlePrev}
-                        disabled={currentStep === 0}
-                        className="flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[12px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
-                      >
-                        <ArrowLeft size={12} />
-                        Prev
-                      </button>
-                      <button
-                        onClick={handleNext}
-                        disabled={
-                          currentStep === selectedSub.sub.steps.length - 1 &&
-                          selectedSub.section.subsections.findIndex((s) => s.id === selectedSub.sub.id) >=
-                            selectedSub.section.subsections.length - 1
-                        }
-                        className="flex items-center gap-1 rounded-lg bg-primary px-4 py-1.5 text-[12px] font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-30"
-                      >
-                        {currentStep < selectedSub.sub.steps.length - 1 ? "Next" : "Next Topic"}
-                        <ArrowRight size={12} />
-                      </button>
+                    {/* Article progress */}
+                    <div className="mt-4 pt-3 border-t border-border">
+                      <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1.5">
+                        <span>Article</span>
+                        <span className="font-bold text-primary">{currentArticleIndex + 1}/{allSubs.length}</span>
+                      </div>
+                      <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full bg-primary"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${((currentArticleIndex + 1) / allSubs.length) * 100}%` }}
+                          transition={{ duration: 0.4, ease: "easeOut" }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
