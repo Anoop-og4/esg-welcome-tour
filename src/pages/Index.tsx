@@ -13,7 +13,7 @@ const Index = () => {
   const renderContent = () => {
     if (activeView === "help") return <HelpContent />;
     if (activeView === "admin") return <HelpStudio />;
-    return <DashboardContent />;
+    return <DashboardContent onNavigate={setActiveView} />;
   };
 
   return (
