@@ -2,9 +2,11 @@ import { useState } from "react";
 import {
   HelpArticle,
   HelpBlock,
+  BlockType,
   HELP_CATEGORIES,
   SEED_ARTICLES,
   ArticleStatus,
+  createBlock,
 } from "@/types/help";
 import {
   Plus,
@@ -17,11 +19,37 @@ import {
   Globe,
   FileText,
   Filter,
+  Type,
+  AlignLeft,
+  Image,
+  List,
+  ListOrdered,
+  AlertCircle,
+  Minus,
+  Video,
+  HelpCircle,
+  Code,
+  Bold,
+  Italic,
+  Link,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import BlockEditor from "./BlockEditor";
 import BlockRenderer from "./BlockRenderer";
+
+const BLOCK_TOOLS: { type: BlockType; icon: React.ElementType; label: string }[] = [
+  { type: "title", icon: Type, label: "Title" },
+  { type: "paragraph", icon: AlignLeft, label: "Paragraph" },
+  { type: "image", icon: Image, label: "Image" },
+  { type: "bullet-list", icon: List, label: "Bullet List" },
+  { type: "numbered-list", icon: ListOrdered, label: "Numbered List" },
+  { type: "callout", icon: AlertCircle, label: "Callout" },
+  { type: "divider", icon: Minus, label: "Divider" },
+  { type: "video", icon: Video, label: "Video" },
+  { type: "faq", icon: HelpCircle, label: "FAQ" },
+  { type: "code", icon: Code, label: "Code Block" },
+];
 
 type View = "list" | "editor" | "preview";
 
