@@ -300,11 +300,17 @@ export default function HelpStudio() {
     );
   }
 
-  /* ─── Editor View ─────────────────────────────────────── */
+  /* ─── Editor View (3-column: Block Tools | Editor | Live Preview) ── */
   if (view === "editor" && editingArticle) {
+    const addBlockFromTool = (type: BlockType) => {
+      const newBlock = createBlock(type, editingArticle.blocks.length);
+      setEditingArticle({ ...editingArticle, blocks: [...editingArticle.blocks, newBlock] });
+    };
+
     return (
-      <div className="flex-1 overflow-auto">
-        <header className="flex items-center justify-between border-b border-border bg-card px-6 py-3 sticky top-0 z-10">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top bar */}
+        <header className="flex items-center justify-between border-b border-border bg-card px-4 py-2 shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => {
@@ -315,138 +321,182 @@ export default function HelpStudio() {
             >
               <ArrowLeft size={18} />
             </button>
-            <h1 className="font-display text-lg font-bold text-foreground">
-              {articles.find((a) => a.id === editingArticle.id) ? "Edit Article" : "New Article"}
-            </h1>
+            <span className="text-sm font-semibold text-foreground">Help Builder</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setView("preview")}
-              className="gap-2"
-            >
-              <Eye size={14} /> Preview
-            </Button>
             <Button
               variant={editingArticle.status === "published" ? "secondary" : "outline"}
               size="sm"
               onClick={togglePublish}
-              className="gap-2"
+              className="gap-1.5 text-xs"
             >
               {editingArticle.status === "published" ? (
-                <>
-                  <FileText size={14} /> Unpublish
-                </>
+                <><FileText size={12} /> Unpublish</>
               ) : (
-                <>
-                  <Globe size={14} /> Publish
-                </>
+                <><Globe size={12} /> Publish</>
               )}
             </Button>
-            <Button size="sm" onClick={saveArticle} className="gap-2">
-              <Save size={14} /> Save
+            <Button size="sm" onClick={saveArticle} className="gap-1.5 text-xs">
+              <Save size={12} /> Save
             </Button>
           </div>
         </header>
 
-        <div className="max-w-3xl mx-auto px-6 py-6 space-y-6">
-          {/* Meta fields */}
-          <div className="esg-card p-4 space-y-4">
-            <h2 className="text-sm font-semibold text-foreground">Article Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Title</label>
-                <Input
-                  value={editingArticle.title}
-                  onChange={(e) => {
-                    const title = e.target.value;
-                    setEditingArticle({
-                      ...editingArticle,
-                      title,
-                      slug: editingArticle.slug || autoSlug(title),
-                    });
-                  }}
-                  placeholder="Article title"
-                />
+        {/* 3-column layout */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* LEFT: Block Tools */}
+          <aside className="w-[160px] shrink-0 border-r border-border bg-card overflow-y-auto p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
+                <Plus size={10} className="text-primary" />
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Slug</label>
-                <Input
-                  value={editingArticle.slug}
-                  onChange={(e) => setEditingArticle({ ...editingArticle, slug: e.target.value })}
-                  placeholder="url-slug"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Category</label>
-                <select
-                  value={editingArticle.category}
-                  onChange={(e) => setEditingArticle({ ...editingArticle, category: e.target.value })}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              <span className="text-xs font-semibold text-foreground">Block Tools</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mb-3">Click to add</p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {BLOCK_TOOLS.map((tool) => (
+                <button
+                  key={tool.type}
+                  onClick={() => addBlockFromTool(tool.type)}
+                  className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-background p-2.5 hover:border-primary/40 hover:bg-primary/5 transition-colors group"
                 >
-                  {HELP_CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
+                  <tool.icon size={18} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                  <span className="text-[10px] text-muted-foreground group-hover:text-foreground leading-tight text-center">{tool.label}</span>
+                </button>
+              ))}
+            </div>
+          </aside>
+
+          {/* CENTER: Editor */}
+          <main className="flex-1 overflow-y-auto">
+            {/* Editor toolbar */}
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card/95 backdrop-blur px-4 py-2">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[hsl(var(--success))]" />
+                <span className="text-xs font-medium text-foreground">Editor</span>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Status</label>
-                <div className="flex items-center gap-2 h-10">
-                  <span
-                    className={`inline-flex items-center gap-1.5 text-xs font-medium rounded-full px-3 py-1.5 ${
-                      editingArticle.status === "published"
-                        ? "bg-[hsl(var(--success-light))] text-[hsl(var(--success))]"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {editingArticle.status === "published" ? <Globe size={10} /> : <FileText size={10} />}
-                    {editingArticle.status}
-                  </span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1 border-r border-border pr-3">
+                  <button className="p-1 rounded hover:bg-muted text-muted-foreground"><Bold size={14} /></button>
+                  <button className="p-1 rounded hover:bg-muted text-muted-foreground"><Italic size={14} /></button>
+                  <button className="p-1 rounded hover:bg-muted text-muted-foreground"><Link size={14} /></button>
                 </div>
+                <span className="text-[10px] text-muted-foreground">
+                  {editingArticle.blocks.length} block{editingArticle.blocks.length !== 1 ? "s" : ""} · Auto-saved
+                </span>
               </div>
             </div>
 
-            {/* SEO */}
-            <details className="group">
-              <summary className="text-xs font-medium text-muted-foreground cursor-pointer hover:text-foreground">
-                SEO Fields ▸
-              </summary>
-              <div className="mt-3 grid grid-cols-1 gap-3">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Meta Title</label>
-                  <Input
-                    value={editingArticle.metaTitle}
-                    onChange={(e) => setEditingArticle({ ...editingArticle, metaTitle: e.target.value })}
-                    placeholder="SEO title (max 60 chars)"
-                    maxLength={60}
-                  />
+            <div className="px-6 py-6 max-w-2xl">
+              {/* Title & description inline */}
+              <input
+                value={editingArticle.title}
+                onChange={(e) => {
+                  const title = e.target.value;
+                  setEditingArticle({
+                    ...editingArticle,
+                    title,
+                    slug: editingArticle.slug || autoSlug(title),
+                  });
+                }}
+                placeholder="Article title…"
+                className="w-full bg-transparent text-2xl font-bold text-foreground placeholder:text-muted-foreground/50 outline-none font-display mb-1"
+              />
+              <input
+                value={editingArticle.metaDescription}
+                onChange={(e) => setEditingArticle({ ...editingArticle, metaDescription: e.target.value })}
+                placeholder="Add a short description..."
+                className="w-full bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground/40 outline-none mb-3"
+              />
+
+              {/* Status & category badges */}
+              <div className="flex items-center gap-2 mb-6">
+                <span
+                  className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase rounded px-2 py-0.5 ${
+                    editingArticle.status === "published"
+                      ? "bg-[hsl(var(--success))] text-white"
+                      : "bg-primary text-primary-foreground"
+                  }`}
+                >
+                  {editingArticle.status}
+                </span>
+                <select
+                  value={editingArticle.category}
+                  onChange={(e) => setEditingArticle({ ...editingArticle, category: e.target.value })}
+                  className="text-[10px] rounded border border-input bg-background px-2 py-0.5 text-muted-foreground"
+                >
+                  {HELP_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Blocks */}
+              <BlockEditor
+                blocks={editingArticle.blocks}
+                onChange={(blocks) => setEditingArticle({ ...editingArticle, blocks })}
+              />
+            </div>
+          </main>
+
+          {/* RIGHT: Live Preview */}
+          <aside className="w-[380px] shrink-0 border-l border-border bg-muted/30 overflow-y-auto flex flex-col">
+            <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-border bg-card/95 backdrop-blur px-4 py-2">
+              <Eye size={14} className="text-primary" />
+              <span className="text-xs font-medium text-foreground">Live Preview</span>
+            </div>
+
+            {/* Browser chrome mockup */}
+            <div className="p-4">
+              <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+                {/* Browser bar */}
+                <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-muted/50">
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--warning))]/60" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--success))]/60" />
+                  </div>
+                  <div className="flex-1 bg-background rounded px-2 py-0.5 text-[9px] text-muted-foreground truncate">
+                    help.yourapp.com/guides/{editingArticle.slug || "untitled"}
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Meta Description</label>
-                  <Input
-                    value={editingArticle.metaDescription}
-                    onChange={(e) =>
-                      setEditingArticle({ ...editingArticle, metaDescription: e.target.value })
-                    }
-                    placeholder="SEO description (max 160 chars)"
-                    maxLength={160}
-                  />
+
+                {/* Preview content */}
+                <div className="p-4 space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
+                  {/* Breadcrumb */}
+                  <div className="text-[10px] text-muted-foreground">
+                    Help / {editingArticle.category} / <span className="text-foreground font-medium">{editingArticle.title ? `${editingArticle.title.slice(0, 20)}…` : "Untitled"}</span>
+                  </div>
+
+                  {/* Article header */}
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground font-display">
+                      {editingArticle.title || "Untitled Article"}
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      {editingArticle.metaDescription || "Add a short description..."}
+                    </p>
+                  </div>
+
+                  <hr className="border-primary border-t-2 w-12" />
+
+                  {/* Rendered blocks */}
+                  <div className="space-y-3 text-xs [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-xs [&_p]:text-[11px] [&_li]:text-[11px] [&_pre]:text-[9px] [&_img]:rounded-md">
+                    {editingArticle.blocks
+                      .sort((a, b) => a.order - b.order)
+                      .map((block) => (
+                        <BlockRenderer key={block.id} block={block} />
+                      ))}
+                    {editingArticle.blocks.length === 0 && (
+                      <p className="text-center text-muted-foreground py-8 text-[11px]">
+                        Add blocks to see preview
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </details>
-          </div>
-
-          {/* Block editor */}
-          <div className="esg-card p-4">
-            <h2 className="text-sm font-semibold text-foreground mb-4">Content Blocks</h2>
-            <BlockEditor
-              blocks={editingArticle.blocks}
-              onChange={(blocks) => setEditingArticle({ ...editingArticle, blocks })}
-            />
-          </div>
+            </div>
+          </aside>
         </div>
       </div>
     );
