@@ -1,4 +1,9 @@
-import { Search, Bell, Filter } from "lucide-react";
+import { Bell, Filter } from "lucide-react";
+import GlobalSearch from "@/components/GlobalSearch";
+
+interface DashboardContentProps {
+  onNavigate: (view: string) => void;
+}
 
 const stats = [
   { label: "Total Emission", value: "271,874.7", unit: "TCO₂e" },
@@ -8,7 +13,7 @@ const stats = [
   { label: "YoY Growth", value: "6%", unit: "prediction" },
 ];
 
-export default function DashboardContent() {
+export default function DashboardContent({ onNavigate }: DashboardContentProps) {
   return (
     <div className="flex-1 overflow-auto">
       {/* Top bar */}
@@ -21,10 +26,7 @@ export default function DashboardContent() {
           <span className="text-foreground font-medium">Dashboard</span>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-muted-foreground">
-            <Search size={14} />
-            <span>Ctrl+K</span>
-          </div>
+          <GlobalSearch onNavigate={onNavigate} />
           <button className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted">
             <Bell size={16} />
           </button>
