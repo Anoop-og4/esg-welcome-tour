@@ -8,7 +8,7 @@ const stats = [
   { label: "YoY Growth", value: "6%", unit: "prediction" },
 ];
 
-export default function DashboardContent() {
+export default function DashboardContent({ onNavigate }: DashboardContentProps) {
   return (
     <div className="flex-1 overflow-auto">
       {/* Top bar */}
