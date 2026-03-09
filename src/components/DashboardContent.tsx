@@ -1,4 +1,9 @@
-import { Search, Bell, Filter } from "lucide-react";
+import { Bell, Filter } from "lucide-react";
+import GlobalSearch from "@/components/GlobalSearch";
+
+interface DashboardContentProps {
+  onNavigate: (view: string) => void;
+}
 
 const stats = [
   { label: "Total Emission", value: "271,874.7", unit: "TCO₂e" },
