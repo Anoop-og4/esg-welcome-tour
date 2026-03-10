@@ -59,6 +59,19 @@
     --shadow-card: 0 1px 3px 0 hsl(220 20% 10% / 0.06), 0 1px 2px -1px hsl(220 20% 10% / 0.06);
     --shadow-elevated: 0 4px 20px -2px hsl(220 20% 10% / 0.1), 0 2px 6px -2px hsl(220 20% 10% / 0.06);
     --shadow-modal: 0 25px 60px -12px hsl(220 20% 10% / 0.25);
+    --shadow-search: 0 20px 60px -15px hsl(142 64% 36% / 0.12), 0 8px 24px -8px hsl(220 20% 10% / 0.08);
+
+    /* ESG Search Tokens */
+    --esg-primary: 152 55% 33%;
+    --esg-primary-light: 152 40% 94%;
+    --esg-secondary: 122 35% 78%;
+    --esg-bg-accent: 138 40% 95%;
+    --esg-env: 142 64% 36%;
+    --esg-social: 210 80% 55%;
+    --esg-gov: 270 60% 55%;
+    --esg-risk-high: 0 72% 51%;
+    --esg-risk-medium: 45 90% 55%;
+    --esg-risk-low: 142 64% 36%;
 
     --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;
