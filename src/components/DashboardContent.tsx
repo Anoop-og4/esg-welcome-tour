@@ -1,5 +1,6 @@
-import { Bell, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
 import GlobalSearch from "@/components/GlobalSearch";
+import NotificationPanel from "@/components/notifications/NotificationPanel";
 
 interface DashboardContentProps {
   onNavigate: (view: string) => void;
