@@ -28,9 +28,7 @@ export default function DashboardContent({ onNavigate }: DashboardContentProps) 
         </div>
         <div className="flex items-center gap-3">
           <GlobalSearch onNavigate={onNavigate} />
-          <button className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted">
-            <Bell size={16} />
-          </button>
+          <NotificationPanel />
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
               DO
