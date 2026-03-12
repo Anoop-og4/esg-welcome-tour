@@ -5,12 +5,14 @@ import DashboardSidebar from "@/components/DashboardSidebar";
 import DashboardContent from "@/components/DashboardContent";
 import HelpContent from "@/components/HelpContent";
 import HelpStudio from "@/components/admin/HelpStudio";
+import HomePage from "@/components/home/HomePage";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(true);
-  const [activeView, setActiveView] = useState("environment");
+  const [activeView, setActiveView] = useState("home");
 
   const renderContent = () => {
+    if (activeView === "home") return <HomePage onNavigate={setActiveView} />;
     if (activeView === "help") return <HelpContent />;
     if (activeView === "admin") return <HelpStudio />;
     return <DashboardContent onNavigate={setActiveView} />;
