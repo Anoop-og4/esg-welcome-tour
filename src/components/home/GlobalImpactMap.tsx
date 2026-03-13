@@ -12,9 +12,9 @@ const markers = [
 ];
 
 const statusColors: Record<string, string> = {
-  ok: "hsl(var(--esg-risk-low))",
-  warning: "hsl(var(--esg-risk-medium))",
-  alert: "hsl(var(--esg-risk-high))",
+  ok: "hsl(var(--neon-green))",
+  warning: "hsl(var(--warning))",
+  alert: "hsl(var(--destructive))",
 };
 
 const typeIcons: Record<string, typeof MapPin> = {
@@ -28,7 +28,7 @@ export default function GlobalImpactMap() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.25 }}
-      className="esg-card-elevated p-6"
+      className="glass-card glow-border p-6"
     >
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -36,27 +36,26 @@ export default function GlobalImpactMap() {
           <p className="text-xs text-muted-foreground">Facilities, suppliers & emission hotspots</p>
         </div>
         <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-esg-risk-low" /> OK</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-esg-risk-medium" /> Warning</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-esg-risk-high" /> Alert</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-primary" /> OK</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> Warning</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" /> Alert</span>
         </div>
       </div>
 
-      {/* Simplified world map using dots pattern */}
-      <div className="relative h-[240px] w-full rounded-xl bg-muted/30 border border-border overflow-hidden">
-        {/* Grid pattern background */}
+      <div className="relative h-[240px] w-full rounded-xl bg-secondary/30 border border-border overflow-hidden">
+        {/* Grid pattern */}
         <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: `radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px)`,
-          backgroundSize: '16px 16px'
+          backgroundImage: `radial-gradient(circle, hsl(var(--neon-green)) 0.5px, transparent 0.5px)`,
+          backgroundSize: '20px 20px'
         }} />
 
-        {/* Continent shapes using soft blobs */}
-        <div className="absolute top-[22%] left-[15%] w-[18%] h-[28%] rounded-[40%] bg-esg-primary/8 border border-esg-primary/10" /> {/* N.America */}
-        <div className="absolute top-[48%] left-[28%] w-[10%] h-[28%] rounded-[40%] bg-esg-primary/8 border border-esg-primary/10" /> {/* S.America */}
-        <div className="absolute top-[20%] left-[42%] w-[16%] h-[30%] rounded-[35%] bg-esg-primary/8 border border-esg-primary/10" /> {/* Europe/Africa */}
-        <div className="absolute top-[44%] left-[44%] w-[12%] h-[26%] rounded-[40%] bg-esg-primary/8 border border-esg-primary/10" /> {/* Africa */}
-        <div className="absolute top-[18%] left-[60%] w-[22%] h-[34%] rounded-[35%] bg-esg-primary/8 border border-esg-primary/10" /> {/* Asia */}
-        <div className="absolute top-[58%] left-[78%] w-[12%] h-[18%] rounded-[40%] bg-esg-primary/8 border border-esg-primary/10" /> {/* Australia */}
+        {/* Continent blobs with glow */}
+        <div className="absolute top-[22%] left-[15%] w-[18%] h-[28%] rounded-[40%] bg-primary/5 border border-primary/10 shadow-[inset_0_0_20px_hsl(142_70%_45%/0.05)]" />
+        <div className="absolute top-[48%] left-[28%] w-[10%] h-[28%] rounded-[40%] bg-primary/5 border border-primary/10" />
+        <div className="absolute top-[20%] left-[42%] w-[16%] h-[30%] rounded-[35%] bg-primary/5 border border-primary/10" />
+        <div className="absolute top-[44%] left-[44%] w-[12%] h-[26%] rounded-[40%] bg-primary/5 border border-primary/10" />
+        <div className="absolute top-[18%] left-[60%] w-[22%] h-[34%] rounded-[35%] bg-primary/5 border border-primary/10" />
+        <div className="absolute top-[58%] left-[78%] w-[12%] h-[18%] rounded-[40%] bg-primary/5 border border-primary/10" />
 
         {/* Markers */}
         {markers.map((m, i) => {
@@ -74,13 +73,13 @@ export default function GlobalImpactMap() {
                 <span className="absolute -inset-2 animate-ping rounded-full opacity-30" style={{ background: statusColors[m.status] }} />
               )}
               <div
-                className="relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-card shadow-md cursor-pointer"
-                style={{ background: statusColors[m.status] }}
+                className="relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-background shadow-md cursor-pointer"
+                style={{ background: statusColors[m.status], boxShadow: `0 0 10px ${statusColors[m.status]}40` }}
               >
-                <Icon size={11} className="text-card" />
+                <Icon size={11} className="text-background" />
               </div>
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
-                <div className="rounded-md bg-foreground px-2 py-1 text-[10px] font-medium text-background whitespace-nowrap shadow-lg">
+                <div className="rounded-md bg-popover px-2 py-1 text-[10px] font-medium text-popover-foreground whitespace-nowrap shadow-lg border border-border">
                   {m.label}
                 </div>
               </div>

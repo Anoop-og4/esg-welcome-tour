@@ -2,32 +2,46 @@ import { motion } from "framer-motion";
 import { Leaf, Users, Building2 } from "lucide-react";
 
 const pillars = [
-  { label: "Environment", score: 78, icon: Leaf, color: "var(--esg-env)", bg: "hsl(142 64% 36% / 0.12)" },
-  { label: "Social", score: 65, icon: Users, color: "var(--esg-social)", bg: "hsl(210 80% 55% / 0.12)" },
-  { label: "Governance", score: 82, icon: Building2, color: "var(--esg-gov)", bg: "hsl(270 60% 55% / 0.12)" },
+  { label: "Environment", score: 78, icon: Leaf, color: "var(--esg-env)", bg: "hsl(142 70% 45% / 0.1)" },
+  { label: "Social", score: 65, icon: Users, color: "var(--esg-social)", bg: "hsl(210 80% 55% / 0.1)" },
+  { label: "Governance", score: 82, icon: Building2, color: "var(--esg-gov)", bg: "hsl(270 60% 55% / 0.1)" },
 ];
 
-function ScoreRing({ score, size = 160 }: { score: number; size?: number }) {
+function ScoreRing({ score, size = 150 }: { score: number; size?: number }) {
   const r = (size - 16) / 2;
   const circ = 2 * Math.PI * r;
   const offset = circ - (score / 100) * circ;
 
   return (
     <svg width={size} height={size} className="drop-shadow-lg">
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(var(--border))" strokeWidth={12} />
+      <defs>
+        <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="hsl(142 70% 50%)" />
+          <stop offset="100%" stopColor="hsl(180 80% 50%)" />
+        </linearGradient>
+        <filter id="scoreGlow">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(220 18% 18%)" strokeWidth={10} />
       <motion.circle
         cx={size / 2}
         cy={size / 2}
         r={r}
         fill="none"
-        stroke="hsl(var(--esg-primary))"
-        strokeWidth={12}
+        stroke="url(#scoreGrad)"
+        strokeWidth={10}
         strokeLinecap="round"
         strokeDasharray={circ}
         initial={{ strokeDashoffset: circ }}
         animate={{ strokeDashoffset: offset }}
         transition={{ duration: 1.4, ease: "easeOut", delay: 0.3 }}
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        filter="url(#scoreGlow)"
       />
       <text x="50%" y="44%" textAnchor="middle" className="fill-foreground font-display text-4xl font-extrabold">
         {score}
@@ -41,7 +55,7 @@ function ScoreRing({ score, size = 160 }: { score: number; size?: number }) {
 
 function MiniBar({ score, color }: { score: number; color: string }) {
   return (
-    <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden">
+    <div className="h-2 w-full rounded-full bg-secondary/60 overflow-hidden">
       <motion.div
         className="h-full rounded-full"
         style={{ background: `hsl(${color})` }}
@@ -61,12 +75,12 @@ export default function ESGScoreOverview() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="esg-card-elevated p-6"
+      className="glass-card glow-border p-6"
     >
       <div className="flex flex-col items-center gap-6 lg:flex-row lg:gap-10">
         <div className="flex flex-col items-center gap-1">
           <ScoreRing score={overall} />
-          <span className="mt-1 rounded-full bg-esg-bg-accent px-3 py-1 text-xs font-semibold text-esg-primary">
+          <span className="mt-1 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary shadow-glow-sm">
             Above Average
           </span>
         </div>
