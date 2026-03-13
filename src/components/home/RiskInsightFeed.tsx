@@ -21,15 +21,15 @@ const insights: Insight[] = [
 ];
 
 const severityStyles = {
-  high: "border-l-esg-risk-high bg-destructive/5",
-  medium: "border-l-esg-risk-medium bg-warning/5",
-  low: "border-l-esg-risk-low bg-success/5",
+  high: "border-l-destructive bg-destructive/5",
+  medium: "border-l-warning bg-warning/5",
+  low: "border-l-primary bg-primary/5",
 };
 
 const severityDot = {
-  high: "bg-esg-risk-high",
-  medium: "bg-esg-risk-medium",
-  low: "bg-esg-risk-low",
+  high: "bg-destructive animate-pulse",
+  medium: "bg-warning",
+  low: "bg-primary",
 };
 
 export default function RiskInsightFeed() {
@@ -38,14 +38,14 @@ export default function RiskInsightFeed() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.15 }}
-      className="esg-card-elevated p-6"
+      className="glass-card glow-border p-6"
     >
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="font-display text-lg font-bold text-foreground">Risk & Insights</h2>
           <p className="text-xs text-muted-foreground">AI-powered alerts and observations</p>
         </div>
-        <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-xs font-semibold text-destructive">
+        <span className="rounded-full bg-destructive/15 px-2.5 py-1 text-xs font-semibold text-destructive shadow-[0_0_10px_hsl(0_72%_55%/0.2)]">
           {insights.filter((i) => i.severity === "high").length} critical
         </span>
       </div>
@@ -57,7 +57,7 @@ export default function RiskInsightFeed() {
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 + idx * 0.06 }}
-            className={`flex items-start gap-3 rounded-lg border-l-[3px] p-3 cursor-pointer transition-colors hover:bg-muted/40 ${severityStyles[insight.severity]}`}
+            className={`flex items-start gap-3 rounded-lg border-l-[3px] p-3 cursor-pointer transition-all hover:bg-secondary/40 ${severityStyles[insight.severity]}`}
           >
             <div className="mt-0.5">
               <insight.icon size={16} className="text-muted-foreground" />

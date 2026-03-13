@@ -12,10 +12,10 @@ interface Goal {
 }
 
 const goals: Goal[] = [
-  { label: "Net Zero by 2040", target: "Target: Carbon Neutral", progress: 38, icon: Target, color: "var(--esg-env)", trend: "+5% YoY" },
-  { label: "Emission Reduction", target: "30% reduction by 2030", progress: 62, icon: Flame, color: "var(--esg-env)", trend: "+8% YoY" },
+  { label: "Net Zero by 2040", target: "Target: Carbon Neutral", progress: 38, icon: Target, color: "var(--neon-green)", trend: "+5% YoY" },
+  { label: "Emission Reduction", target: "30% reduction by 2030", progress: 62, icon: Flame, color: "var(--neon-green)", trend: "+8% YoY" },
   { label: "Waste Reduction", target: "Zero waste to landfill", progress: 67, icon: Trash2, color: "var(--warning)", trend: "+12% YoY" },
-  { label: "Water Efficiency", target: "40% reduction by 2030", progress: 51, icon: Droplets, color: "var(--info)", trend: "+3% YoY" },
+  { label: "Water Efficiency", target: "40% reduction by 2030", progress: 51, icon: Droplets, color: "var(--neon-cyan)", trend: "+3% YoY" },
 ];
 
 export default function SustainabilityGoals() {
@@ -24,7 +24,7 @@ export default function SustainabilityGoals() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="esg-card-elevated p-6"
+      className="glass-card glow-border p-6"
     >
       <h2 className="font-display text-lg font-bold text-foreground mb-1">Sustainability Goals</h2>
       <p className="text-xs text-muted-foreground mb-5">Progress toward company targets</p>
@@ -53,16 +53,16 @@ export default function SustainabilityGoals() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-2 flex-1 rounded-full bg-muted/60 overflow-hidden">
+              <div className="h-2 flex-1 rounded-full bg-secondary/60 overflow-hidden">
                 <motion.div
                   className="h-full rounded-full"
-                  style={{ background: `hsl(${goal.color})` }}
+                  style={{ background: `hsl(${goal.color})`, boxShadow: `0 0 8px hsl(${goal.color} / 0.4)` }}
                   initial={{ width: 0 }}
                   animate={{ width: `${goal.progress}%` }}
                   transition={{ duration: 1, ease: "easeOut", delay: 0.4 + idx * 0.1 }}
                 />
               </div>
-              <span className="text-[10px] font-medium text-esg-primary whitespace-nowrap">{goal.trend}</span>
+              <span className="text-[10px] font-medium text-primary whitespace-nowrap">{goal.trend}</span>
             </div>
           </motion.div>
         ))}

@@ -10,10 +10,10 @@ interface QuickAction {
 }
 
 const actions: QuickAction[] = [
-  { label: "Add Emission Data", description: "Log Scope 1, 2, 3 emissions", icon: Plus, color: "var(--esg-env)" },
-  { label: "Add Water Data", description: "Report water consumption", icon: Droplets, color: "var(--info)" },
+  { label: "Add Emission Data", description: "Log Scope 1, 2, 3 emissions", icon: Plus, color: "var(--neon-green)" },
+  { label: "Add Water Data", description: "Report water consumption", icon: Droplets, color: "var(--neon-cyan)" },
   { label: "Complete Scope 3", description: "Fill supply chain data gaps", icon: BarChart3, color: "var(--warning)" },
-  { label: "Upload ESG Report", description: "Submit documents & evidence", icon: Upload, color: "var(--esg-gov)" },
+  { label: "Upload ESG Report", description: "Submit documents & evidence", icon: Upload, color: "var(--neon-violet)" },
 ];
 
 export default function QuickActions() {
@@ -22,11 +22,11 @@ export default function QuickActions() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.35 }}
-      className="esg-card-elevated p-6"
+      className="glass-card glow-border p-6"
     >
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-esg-primary/10">
-          <Zap size={15} className="text-esg-primary" />
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+          <Zap size={15} className="text-primary" />
         </div>
         <div>
           <h2 className="font-display text-lg font-bold text-foreground">Quick Actions</h2>
@@ -41,7 +41,7 @@ export default function QuickActions() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 + idx * 0.06 }}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition-all hover:shadow-sm hover:border-esg-primary/30 hover:bg-esg-bg-accent/30 group"
+            className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-3 text-left transition-all hover:border-primary/30 hover:bg-secondary/50 hover:shadow-glow-sm group"
           >
             <div
               className="flex h-9 w-9 items-center justify-center rounded-lg shrink-0 transition-transform group-hover:scale-110"

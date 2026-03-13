@@ -17,7 +17,7 @@ const items: AttentionItem[] = [
 ];
 
 const priorityStyles = {
-  urgent: { bg: "bg-destructive/8", border: "border-destructive/20", dot: "bg-destructive" },
+  urgent: { bg: "bg-destructive/8", border: "border-destructive/20", dot: "bg-destructive animate-pulse" },
   important: { bg: "bg-warning/8", border: "border-warning/20", dot: "bg-warning" },
   moderate: { bg: "bg-info/8", border: "border-info/20", dot: "bg-info" },
 };
@@ -28,7 +28,7 @@ export default function AttentionPanel() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
-      className="esg-card-elevated p-6"
+      className="glass-card glow-border p-6"
     >
       <div className="flex items-center gap-2 mb-4">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-destructive/10">
@@ -49,7 +49,7 @@ export default function AttentionPanel() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 + idx * 0.07 }}
-              className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-all hover:shadow-sm ${style.bg} ${style.border}`}
+              className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-all hover:bg-secondary/30 ${style.bg} ${style.border}`}
             >
               <item.icon size={16} className="text-muted-foreground shrink-0" />
               <div className="flex-1 min-w-0">
