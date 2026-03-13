@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import WelcomeModal from "@/components/WelcomeModal";
 import DashboardSidebar from "@/components/DashboardSidebar";
@@ -8,8 +8,16 @@ import HelpStudio from "@/components/admin/HelpStudio";
 import HomePage from "@/components/home/HomePage";
 
 const Index = () => {
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
   const [activeView, setActiveView] = useState("home");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowWelcome(true);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const renderContent = () => {
     if (activeView === "home") return <HomePage onNavigate={setActiveView} />;
