@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import GlobalSearch from "@/components/GlobalSearch";
 import NotificationPanel from "@/components/notifications/NotificationPanel";
+import ThemeToggle from "@/components/ThemeToggle";
 import ESGScoreOverview from "./ESGScoreOverview";
 import EmissionTrends from "./EmissionTrends";
 import SustainabilityGoals from "./SustainabilityGoals";
