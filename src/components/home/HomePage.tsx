@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import GlobalSearch from "@/components/GlobalSearch";
 import NotificationPanel from "@/components/notifications/NotificationPanel";
+import ThemeToggle from "@/components/ThemeToggle";
 import ESGScoreOverview from "./ESGScoreOverview";
 import EmissionTrends from "./EmissionTrends";
 import SustainabilityGoals from "./SustainabilityGoals";
@@ -33,6 +34,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         </div>
         <div className="flex items-center gap-3">
           <GlobalSearch onNavigate={onNavigate} />
+          <ThemeToggle />
           <NotificationPanel />
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-glow-sm">
             DO
