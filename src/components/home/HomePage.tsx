@@ -34,6 +34,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         </div>
         <div className="flex items-center gap-3">
           <GlobalSearch onNavigate={onNavigate} />
+          <ThemeToggle />
           <NotificationPanel />
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-glow-sm">
             DO

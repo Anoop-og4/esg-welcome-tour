@@ -5,7 +5,7 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  :root, .dark {
     --background: 220 25% 6%;
     --foreground: 210 20% 92%;
 
@@ -89,6 +89,89 @@
     --sidebar-accent-foreground: 210 15% 80%;
     --sidebar-border: 220 20% 14%;
     --sidebar-ring: 142 70% 45%;
+  }
+
+  .light {
+    --background: 210 20% 96%;
+    --foreground: 220 25% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 12%;
+
+    --primary: 142 60% 38%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 15% 92%;
+    --secondary-foreground: 220 20% 30%;
+
+    --muted: 210 15% 92%;
+    --muted-foreground: 215 14% 45%;
+
+    --accent: 180 60% 38%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 15% 86%;
+    --input: 210 15% 86%;
+    --ring: 142 60% 38%;
+
+    --radius: 0.75rem;
+
+    --sidebar-bg: 210 18% 95%;
+    --sidebar-fg: 220 20% 35%;
+    --sidebar-active: 142 60% 38%;
+    --sidebar-hover: 210 15% 90%;
+
+    --surface-elevated: 0 0% 100%;
+    --surface-sunken: 210 18% 94%;
+
+    --success: 142 60% 38%;
+    --success-light: 142 40% 90%;
+    --warning: 45 85% 50%;
+    --warning-light: 45 60% 90%;
+    --info: 180 60% 42%;
+    --info-light: 180 40% 90%;
+
+    --gradient-esg: linear-gradient(135deg, hsl(142 60% 38%), hsl(180 60% 38%));
+    --gradient-sidebar: linear-gradient(180deg, hsl(210 18% 97%), hsl(210 18% 93%));
+    --gradient-video-bg: linear-gradient(135deg, hsl(160 20% 95%), hsl(200 20% 93%));
+
+    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.06), 0 1px 2px -1px hsl(0 0% 0% / 0.04);
+    --shadow-elevated: 0 4px 20px -2px hsl(0 0% 0% / 0.08), 0 0 15px -3px hsl(142 60% 38% / 0.04);
+    --shadow-modal: 0 25px 60px -12px hsl(0 0% 0% / 0.15);
+    --shadow-search: 0 20px 60px -15px hsl(142 60% 38% / 0.08), 0 8px 24px -8px hsl(0 0% 0% / 0.06);
+
+    --neon-green: 142 60% 42%;
+    --neon-cyan: 180 60% 42%;
+    --neon-violet: 270 55% 50%;
+
+    --esg-primary: 152 50% 35%;
+    --esg-primary-light: 152 35% 90%;
+    --esg-secondary: 122 30% 35%;
+    --esg-bg-accent: 138 30% 92%;
+    --esg-env: 142 60% 38%;
+    --esg-social: 210 70% 48%;
+    --esg-gov: 270 50% 48%;
+    --esg-risk-high: 0 72% 50%;
+    --esg-risk-medium: 45 85% 50%;
+    --esg-risk-low: 142 60% 38%;
+
+    --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+
+    --sidebar-background: 210 18% 95%;
+    --sidebar-foreground: 220 20% 35%;
+    --sidebar-primary: 142 60% 38%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 15% 90%;
+    --sidebar-accent-foreground: 220 20% 30%;
+    --sidebar-border: 210 15% 86%;
+    --sidebar-ring: 142 60% 38%;
   }
 }
 
