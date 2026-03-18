@@ -16,6 +16,8 @@ import InvestorReadyScore from "./InvestorReadyScore";
 import RegulatoryDeadlineTracker from "./RegulatoryDeadlineTracker";
 import BenchmarkVsIndustry from "./Benchmarkvsindustry";
 import PeerComparison from "./PeerComparison";
+import AssetCompare from "./AssetCompare";
+import ESGEntityPanel from "./ESGEntityPanel";
 
 
 interface HomePageProps {
@@ -55,6 +57,12 @@ export default function HomePage({ onNavigate }: HomePageProps) {
       {/* Main grid — Command Center layout */}
       <div className="px-6 py-4 space-y-4 relative z-10">
 
+        {/* ── NEW: Row 0 — Asset Compare + ESG Entities ── */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <AssetCompare />
+          <ESGEntityPanel />
+        </div>
+
         {/* Row 1: Score + Trends + Goals */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <ESGScoreOverview />
@@ -78,8 +86,6 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           <AttentionPanel />
           <QuickActions />
         </div>
-
-        {/* ── NEW FEATURES ── */}
 
         {/* Row 5: Investor-Ready Score + Regulatory Deadlines */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
