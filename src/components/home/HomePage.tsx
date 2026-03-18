@@ -58,10 +58,8 @@ export default function HomePage({ onNavigate }: HomePageProps) {
       <div className="px-6 py-4 space-y-4 relative z-10">
 
         {/* ── NEW: Row 0 — Asset Compare + ESG Entities ── */}
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <AssetCompare />
           <ESGEntityPanel />
-        </div>
 
         {/* Row 1: Score + Trends + Goals */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
