@@ -319,9 +319,9 @@ export default function GlobalSearch({ onNavigate }: GlobalSearchProps) {
       </button>
 
       {/* Modal Overlay */}
-      <AnimatePresence>
-        {open && (
-          <div className="fixed inset-0 z-50" onClick={() => setOpen(false)}>
+      {open && createPortal(
+        <AnimatePresence>
+          <div className="fixed inset-0 z-[9999]" onClick={() => setOpen(false)}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
