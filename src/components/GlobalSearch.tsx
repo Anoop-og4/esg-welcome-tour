@@ -850,8 +850,9 @@ export default function GlobalSearch({ onNavigate }: GlobalSearchProps) {
               </motion.div>
             </div>
           </div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }
