@@ -329,7 +329,7 @@ export default function GlobalSearch({ onNavigate }: GlobalSearchProps) {
               transition={{ duration: 0.15 }}
               className="absolute inset-0 bg-foreground/20 backdrop-blur-sm"
             />
-            <div className="flex items-start justify-center pt-[10vh] px-4" onClick={e => e.stopPropagation()}>
+            <div className="relative z-10 flex items-start justify-center pt-[10vh] px-4" onClick={e => e.stopPropagation()}>
               <motion.div
                 initial={{ opacity: 0, y: -10, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
