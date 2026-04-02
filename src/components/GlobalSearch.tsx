@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home, Leaf, Users, Building2, ShoppingBag, Settings,
@@ -318,9 +319,9 @@ export default function GlobalSearch({ onNavigate }: GlobalSearchProps) {
       </button>
 
       {/* Modal Overlay */}
-      <AnimatePresence>
-        {open && (
-          <div className="fixed inset-0 z-50" onClick={() => setOpen(false)}>
+      {open && createPortal(
+        <AnimatePresence>
+          <div className="fixed inset-0 z-[9999]" onClick={() => setOpen(false)}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -849,8 +850,9 @@ export default function GlobalSearch({ onNavigate }: GlobalSearchProps) {
               </motion.div>
             </div>
           </div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }
