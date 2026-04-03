@@ -106,8 +106,31 @@ function SidebarPreviewCard({ theme, isActive, onClick }: { theme: SidebarTheme;
   );
 }
 
+function LayoutPreviewCard({ layout, isActive, onClick }: { layout: SidebarLayout; isActive: boolean; onClick: () => void }) {
+  const l = sidebarLayouts[layout];
+  return (
+    <button
+      onClick={onClick}
+      className={`relative group rounded-xl border-2 p-4 transition-all duration-300 text-left ${
+        isActive
+          ? "border-primary shadow-[0_0_20px_hsl(142_70%_45%/0.2)] scale-[1.02]"
+          : "border-border/50 hover:border-border hover:shadow-md"
+      }`}
+    >
+      {isActive && (
+        <div className="absolute -top-2 -right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
+          <Check size={14} strokeWidth={3} />
+        </div>
+      )}
+      <div className="text-2xl mb-2">{l.icon}</div>
+      <p className={`text-sm font-semibold ${isActive ? "text-primary" : "text-foreground"}`}>{l.label}</p>
+      <p className="text-xs text-muted-foreground mt-1 leading-tight">{l.description}</p>
+    </button>
+  );
+}
+
 export default function OrganizationSettings({ onNavigate }: OrganizationSettingsProps) {
-  const { sidebarTheme, setSidebarTheme } = useSidebarTheme();
+  const { sidebarTheme, setSidebarTheme, sidebarLayout, setSidebarLayout } = useSidebarTheme();
 
   return (
     <div className="flex-1 overflow-auto">
