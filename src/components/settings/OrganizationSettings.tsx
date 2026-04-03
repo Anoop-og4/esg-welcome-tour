@@ -201,6 +201,40 @@ export default function OrganizationSettings({ onNavigate }: OrganizationSetting
             Your sidebar preference is saved automatically and will persist across sessions.
           </div>
         </motion.div>
+
+        {/* Sidebar Layout Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="glass-card glow-border p-6 mt-6"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <LayoutList size={18} />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">Sidebar Layout</h2>
+              <p className="text-sm text-muted-foreground">Choose your preferred navigation structure and interaction style</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {layoutOrder.map((layout) => (
+              <LayoutPreviewCard
+                key={layout}
+                layout={layout}
+                isActive={sidebarLayout === layout}
+                onClick={() => setSidebarLayout(layout)}
+              />
+            ))}
+          </div>
+
+          <div className="mt-4 flex items-center gap-2 rounded-lg bg-muted/50 px-4 py-2.5 text-xs text-muted-foreground">
+            <span className="text-primary">💡</span>
+            Layout style only affects structure and interaction — colors remain the same.
+          </div>
+        </motion.div>
       </div>
     </div>
   );
