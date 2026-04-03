@@ -1,15 +1,16 @@
 import { motion } from "framer-motion";
-import { Settings, Check, Monitor } from "lucide-react";
+import { Settings, Check, Monitor, LayoutList } from "lucide-react";
 import GlobalSearch from "@/components/GlobalSearch";
 import NotificationPanel from "@/components/notifications/NotificationPanel";
 import ThemeToggle from "@/components/ThemeToggle";
-import { useSidebarTheme, sidebarThemes, SidebarTheme } from "@/components/SidebarThemeProvider";
+import { useSidebarTheme, sidebarThemes, SidebarTheme, sidebarLayouts, SidebarLayout } from "@/components/SidebarThemeProvider";
 
 interface OrganizationSettingsProps {
   onNavigate: (view: string) => void;
 }
 
 const themeOrder: SidebarTheme[] = ["dark-intelligence", "light-green", "light-blue", "purple"];
+const layoutOrder: SidebarLayout[] = ["default", "collapsible", "icon-based", "compact"];
 
 function SidebarPreviewCard({ theme, isActive, onClick }: { theme: SidebarTheme; isActive: boolean; onClick: () => void }) {
   const t = sidebarThemes[theme];
@@ -105,8 +106,31 @@ function SidebarPreviewCard({ theme, isActive, onClick }: { theme: SidebarTheme;
   );
 }
 
+function LayoutPreviewCard({ layout, isActive, onClick }: { layout: SidebarLayout; isActive: boolean; onClick: () => void }) {
+  const l = sidebarLayouts[layout];
+  return (
+    <button
+      onClick={onClick}
+      className={`relative group rounded-xl border-2 p-4 transition-all duration-300 text-left ${
+        isActive
+          ? "border-primary shadow-[0_0_20px_hsl(142_70%_45%/0.2)] scale-[1.02]"
+          : "border-border/50 hover:border-border hover:shadow-md"
+      }`}
+    >
+      {isActive && (
+        <div className="absolute -top-2 -right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
+          <Check size={14} strokeWidth={3} />
+        </div>
+      )}
+      <div className="text-2xl mb-2">{l.icon}</div>
+      <p className={`text-sm font-semibold ${isActive ? "text-primary" : "text-foreground"}`}>{l.label}</p>
+      <p className="text-xs text-muted-foreground mt-1 leading-tight">{l.description}</p>
+    </button>
+  );
+}
+
 export default function OrganizationSettings({ onNavigate }: OrganizationSettingsProps) {
-  const { sidebarTheme, setSidebarTheme } = useSidebarTheme();
+  const { sidebarTheme, setSidebarTheme, sidebarLayout, setSidebarLayout } = useSidebarTheme();
 
   return (
     <div className="flex-1 overflow-auto">
@@ -175,6 +199,40 @@ export default function OrganizationSettings({ onNavigate }: OrganizationSetting
           <div className="mt-4 flex items-center gap-2 rounded-lg bg-muted/50 px-4 py-2.5 text-xs text-muted-foreground">
             <span className="text-primary">💡</span>
             Your sidebar preference is saved automatically and will persist across sessions.
+          </div>
+        </motion.div>
+
+        {/* Sidebar Layout Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="glass-card glow-border p-6 mt-6"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <LayoutList size={18} />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">Sidebar Layout</h2>
+              <p className="text-sm text-muted-foreground">Choose your preferred navigation structure and interaction style</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {layoutOrder.map((layout) => (
+              <LayoutPreviewCard
+                key={layout}
+                layout={layout}
+                isActive={sidebarLayout === layout}
+                onClick={() => setSidebarLayout(layout)}
+              />
+            ))}
+          </div>
+
+          <div className="mt-4 flex items-center gap-2 rounded-lg bg-muted/50 px-4 py-2.5 text-xs text-muted-foreground">
+            <span className="text-primary">💡</span>
+            Layout style only affects structure and interaction — colors remain the same.
           </div>
         </motion.div>
       </div>
