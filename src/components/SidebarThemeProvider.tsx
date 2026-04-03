@@ -20,6 +20,30 @@ const SidebarThemeContext = createContext<SidebarThemeContextType>({
 export const useSidebarTheme = () => useContext(SidebarThemeContext);
 
 const STORAGE_KEY = "sidebar_preference";
+const LAYOUT_STORAGE_KEY = "sidebar_layout_preference";
+
+export const sidebarLayouts: Record<SidebarLayout, { label: string; description: string; icon: string }> = {
+  default: {
+    label: "Default List",
+    description: "Vertical list with clean spacing and optional subsections",
+    icon: "☰",
+  },
+  collapsible: {
+    label: "Collapsible",
+    description: "Expandable sections with arrow indicators and smooth animation",
+    icon: "⊞",
+  },
+  "icon-based": {
+    label: "Icon-Based",
+    description: "Icons with labels, subsections lighter with better visual grouping",
+    icon: "⊡",
+  },
+  compact: {
+    label: "Compact / Mini",
+    description: "Icons only, tooltip on hover, expand on interaction",
+    icon: "◻",
+  },
+};
 
 export const sidebarThemes: Record<SidebarTheme, {
   label: string;
