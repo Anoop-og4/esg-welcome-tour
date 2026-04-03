@@ -6,6 +6,7 @@ import DashboardContent from "@/components/DashboardContent";
 import HelpContent from "@/components/HelpContent";
 import HelpStudio from "@/components/admin/HelpStudio";
 import HomePage from "@/components/home/HomePage";
+import OrganizationSettings from "@/components/settings/OrganizationSettings";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(false);
@@ -23,6 +24,7 @@ const Index = () => {
     if (activeView === "home") return <HomePage onNavigate={setActiveView} />;
     if (activeView === "help") return <HelpContent />;
     if (activeView === "admin") return <HelpStudio />;
+    if (activeView === "settings") return <OrganizationSettings onNavigate={setActiveView} />;
     return <DashboardContent onNavigate={setActiveView} />;
   };
 
