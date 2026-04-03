@@ -124,20 +124,31 @@ export function SidebarThemeProvider({ children }: { children: ReactNode }) {
     return "dark-intelligence";
   });
 
+  const [sidebarLayout, setSidebarLayoutState] = useState<SidebarLayout>(() => {
+    const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
+    if (saved && saved in sidebarLayouts) return saved as SidebarLayout;
+    return "default";
+  });
+
   const setSidebarTheme = (theme: SidebarTheme) => {
     setSidebarThemeState(theme);
     localStorage.setItem(STORAGE_KEY, theme);
   };
 
+  const setSidebarLayout = (layout: SidebarLayout) => {
+    setSidebarLayoutState(layout);
+    localStorage.setItem(LAYOUT_STORAGE_KEY, layout);
+  };
+
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && saved in sidebarThemes) {
-      setSidebarThemeState(saved as SidebarTheme);
-    }
+    if (saved && saved in sidebarThemes) setSidebarThemeState(saved as SidebarTheme);
+    const savedLayout = localStorage.getItem(LAYOUT_STORAGE_KEY);
+    if (savedLayout && savedLayout in sidebarLayouts) setSidebarLayoutState(savedLayout as SidebarLayout);
   }, []);
 
   return (
-    <SidebarThemeContext.Provider value={{ sidebarTheme, setSidebarTheme }}>
+    <SidebarThemeContext.Provider value={{ sidebarTheme, setSidebarTheme, sidebarLayout, setSidebarLayout }}>
       {children}
     </SidebarThemeContext.Provider>
   );
