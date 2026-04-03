@@ -1,10 +1,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export type SidebarTheme = "dark-intelligence" | "light-green" | "light-blue" | "purple";
+export type SidebarLayout = "default" | "collapsible" | "icon-based" | "compact";
 
 interface SidebarThemeContextType {
   sidebarTheme: SidebarTheme;
   setSidebarTheme: (theme: SidebarTheme) => void;
+  sidebarLayout: SidebarLayout;
+  setSidebarLayout: (layout: SidebarLayout) => void;
 }
 
 const SidebarThemeContext = createContext<SidebarThemeContextType>({
