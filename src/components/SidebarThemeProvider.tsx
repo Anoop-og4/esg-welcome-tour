@@ -13,6 +13,8 @@ interface SidebarThemeContextType {
 const SidebarThemeContext = createContext<SidebarThemeContextType>({
   sidebarTheme: "dark-intelligence",
   setSidebarTheme: () => {},
+  sidebarLayout: "default",
+  setSidebarLayout: () => {},
 });
 
 export const useSidebarTheme = () => useContext(SidebarThemeContext);
