@@ -1,15 +1,16 @@
 import { motion } from "framer-motion";
-import { Settings, Check, Monitor } from "lucide-react";
+import { Settings, Check, Monitor, LayoutList } from "lucide-react";
 import GlobalSearch from "@/components/GlobalSearch";
 import NotificationPanel from "@/components/notifications/NotificationPanel";
 import ThemeToggle from "@/components/ThemeToggle";
-import { useSidebarTheme, sidebarThemes, SidebarTheme } from "@/components/SidebarThemeProvider";
+import { useSidebarTheme, sidebarThemes, SidebarTheme, sidebarLayouts, SidebarLayout } from "@/components/SidebarThemeProvider";
 
 interface OrganizationSettingsProps {
   onNavigate: (view: string) => void;
 }
 
 const themeOrder: SidebarTheme[] = ["dark-intelligence", "light-green", "light-blue", "purple"];
+const layoutOrder: SidebarLayout[] = ["default", "collapsible", "icon-based", "compact"];
 
 function SidebarPreviewCard({ theme, isActive, onClick }: { theme: SidebarTheme; isActive: boolean; onClick: () => void }) {
   const t = sidebarThemes[theme];
