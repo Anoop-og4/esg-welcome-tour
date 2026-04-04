@@ -43,6 +43,16 @@ export const sidebarLayouts: Record<SidebarLayout, { label: string; description:
     description: "Icons only, tooltip on hover, expand on interaction",
     icon: "◻",
   },
+  "green-solid": {
+    label: "Green Solid",
+    description: "Strong green sidebar with white text — utility-focused, high contrast",
+    icon: "🟩",
+  },
+  "purple-gradient": {
+    label: "Purple Gradient",
+    description: "Purple gradient with orange accents — modern, premium feel",
+    icon: "🟪",
+  },
 };
 
 export const sidebarThemes: Record<SidebarTheme, {
