@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export type SidebarTheme = "dark-intelligence" | "light-green" | "light-blue" | "purple";
-export type SidebarLayout = "default" | "collapsible" | "icon-based" | "compact";
+export type SidebarLayout = "default" | "collapsible" | "icon-based" | "compact" | "green-solid" | "purple-gradient";
 
 interface SidebarThemeContextType {
   sidebarTheme: SidebarTheme;
@@ -42,6 +42,16 @@ export const sidebarLayouts: Record<SidebarLayout, { label: string; description:
     label: "Compact / Mini",
     description: "Icons only, tooltip on hover, expand on interaction",
     icon: "◻",
+  },
+  "green-solid": {
+    label: "Green Solid",
+    description: "Strong green sidebar with white text — utility-focused, high contrast",
+    icon: "🟩",
+  },
+  "purple-gradient": {
+    label: "Purple Gradient",
+    description: "Purple gradient with orange accents — modern, premium feel",
+    icon: "🟪",
   },
 };
 
