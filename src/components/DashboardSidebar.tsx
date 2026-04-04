@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, BarChart3, Target, HelpCircle, ChevronDown, ChevronRight } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, BarChart3, Target, HelpCircle, ChevronDown, ChevronRight, Plus, Link2, PieChart, Droplets, Trash2, Zap, Eye, LogOut } from "lucide-react";
 import { useSidebarTheme, sidebarThemes } from "@/components/SidebarThemeProvider";
 import { AnimatePresence, motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -8,7 +8,8 @@ interface NavItem {
   icon: typeof Home;
   label: string;
   key: string;
-  children?: { label: string; key: string }[];
+  badge?: number;
+  children?: { label: string; key: string; icon?: typeof Home }[];
 }
 
 const navItems: NavItem[] = [
@@ -16,15 +17,21 @@ const navItems: NavItem[] = [
   {
     icon: Leaf, label: "Environment", key: "environment",
     children: [
-      { label: "Emissions", key: "environment" },
-      { label: "Water & Waste", key: "environment" },
+      { label: "Dashboard", key: "environment", icon: PieChart },
+      { label: "Scope 1", key: "environment", icon: Zap },
+      { label: "Scope 2", key: "environment", icon: Zap },
+      { label: "Scope 3", key: "environment", icon: Zap },
+      { label: "Water", key: "environment", icon: Droplets },
+      { label: "Waste", key: "environment", icon: Trash2 },
+      { label: "Analytics", key: "environment", icon: BarChart3 },
+      { label: "Detailed View", key: "environment", icon: Eye },
     ],
   },
   {
     icon: Users, label: "Social", key: "social",
     children: [
-      { label: "Workforce", key: "social" },
-      { label: "Community", key: "social" },
+      { label: "Workforce", key: "social", icon: Users },
+      { label: "Community", key: "social", icon: Users },
     ],
   },
   { icon: Building2, label: "Governance", key: "governance" },
@@ -414,9 +421,229 @@ function ThemedCollapsibleLayout({ activeView, onViewChange, variant }: { active
   );
 }
 
+// ─── DRAWER LAYOUT (icon strip + sliding submenu panel) ───
+function DrawerLayout({ activeView, onViewChange }: { activeView: string; onViewChange: (v: string) => void }) {
+  const [openSection, setOpenSection] = useState<string | null>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
+
+  const allIconItems = [...navItems, ...bottomItems];
+
+  // Close drawer on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) {
+        setOpenSection(null);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleIconClick = (item: NavItem) => {
+    if (item.children?.length) {
+      setOpenSection(openSection === item.key ? null : item.key);
+    } else {
+      setOpenSection(null);
+      onViewChange(item.key);
+    }
+  };
+
+  const activeSection = allIconItems.find((i) => i.key === openSection);
+
+  return (
+    <div ref={drawerRef} className="flex h-screen relative" style={{ zIndex: 40 }}>
+      {/* Icon Strip */}
+      <div
+        className="flex h-full w-14 flex-col items-center py-4 shrink-0"
+        style={{ backgroundColor: "hsl(0 0% 100%)", borderRight: "1px solid hsl(0 0% 90%)" }}
+      >
+        {/* Logo */}
+        <div className="mb-6 flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: "hsl(145 60% 36%)" }}>
+          <Leaf size={18} style={{ color: "white" }} />
+        </div>
+
+        {/* Main nav icons */}
+        <nav className="flex flex-1 flex-col items-center gap-1">
+          <TooltipProvider delayDuration={200}>
+            {navItems.map((item) => {
+              const isActive = activeView === item.key || openSection === item.key;
+              return (
+                <Tooltip key={item.key + item.label}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => handleIconClick(item)}
+                      className="relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-150"
+                      style={{
+                        backgroundColor: isActive ? "hsl(145 55% 92%)" : "transparent",
+                        color: isActive ? "hsl(145 60% 32%)" : "hsl(220 10% 50%)",
+                      }}
+                      onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = "hsl(0 0% 95%)"; } }}
+                      onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = "transparent"; } }}
+                    >
+                      <item.icon size={20} />
+                      {item.badge && (
+                        <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold"
+                          style={{ backgroundColor: "hsl(145 60% 36%)", color: "white" }}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="text-xs font-medium">{item.label}</TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </TooltipProvider>
+        </nav>
+
+        {/* Bottom icons */}
+        <div className="flex flex-col items-center gap-1 pt-2" style={{ borderTop: "1px solid hsl(0 0% 90%)" }}>
+          <TooltipProvider delayDuration={200}>
+            {/* Toggle for dark mode indicator */}
+            <div className="mb-1 h-5 w-5 rounded-full" style={{ backgroundColor: "hsl(210 70% 50%)", border: "2px solid hsl(210 60% 70%)" }} />
+
+            {bottomItems.map((item) => {
+              const isActive = activeView === item.key;
+              return (
+                <Tooltip key={item.key}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => { setOpenSection(null); onViewChange(item.key); }}
+                      className="flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-150"
+                      style={{
+                        backgroundColor: isActive ? "hsl(145 55% 92%)" : "transparent",
+                        color: isActive ? "hsl(145 60% 32%)" : "hsl(220 10% 50%)",
+                      }}
+                      onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = "hsl(0 0% 95%)"; } }}
+                      onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = "transparent"; } }}
+                    >
+                      <item.icon size={20} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="text-xs font-medium">{item.label}</TooltipContent>
+                </Tooltip>
+              );
+            })}
+
+            {/* User avatar */}
+            <div className="mt-2 flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-bold"
+              style={{ backgroundColor: "hsl(145 60% 36%)", color: "white" }}>
+              DU
+            </div>
+
+            {/* Logout */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className="flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-150"
+                  style={{ color: "hsl(220 10% 50%)" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "hsl(0 0% 95%)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                >
+                  <LogOut size={18} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs font-medium">Logout</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+
+      {/* Sliding Submenu Drawer */}
+      <AnimatePresence>
+        {activeSection && activeSection.children && (
+          <motion.div
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 220, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="h-full overflow-hidden shrink-0"
+            style={{ backgroundColor: "hsl(145 60% 36%)" }}
+          >
+            <div className="flex h-full w-[220px] flex-col py-5">
+              {/* Section header */}
+              <div className="px-5 mb-1">
+                <h2 className="text-base font-bold" style={{ color: "white" }}>{activeSection.label}</h2>
+              </div>
+
+              {/* Divider */}
+              <div className="mx-5 my-3 h-px" style={{ backgroundColor: "hsla(0, 0%, 100%, 0.2)" }} />
+
+              {/* Submenu items */}
+              <nav className="flex-1 space-y-0.5 px-3 overflow-y-auto">
+                {activeSection.children!.map((child, i) => {
+                  const ChildIcon = child.icon;
+                  const isChildActive = i === 0; // First item active by default for demo
+                  return (
+                    <button
+                      key={child.label + i}
+                      onClick={() => { onViewChange(child.key); }}
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150"
+                      style={{
+                        backgroundColor: isChildActive ? "hsla(0, 0%, 100%, 0.15)" : "transparent",
+                        color: isChildActive ? "white" : "hsla(0, 0%, 100%, 0.8)",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isChildActive) {
+                          e.currentTarget.style.backgroundColor = "hsla(0, 0%, 100%, 0.1)";
+                          e.currentTarget.style.color = "white";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isChildActive) {
+                          e.currentTarget.style.backgroundColor = "transparent";
+                          e.currentTarget.style.color = "hsla(0, 0%, 100%, 0.8)";
+                        }
+                      }}
+                    >
+                      {ChildIcon && <ChildIcon size={16} />}
+                      {child.label}
+                      {child.label === "Dashboard" && (
+                        <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-md text-[10px] font-bold"
+                          style={{ backgroundColor: "hsla(0, 0%, 100%, 0.2)", color: "white" }}>
+                          1
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+
+              {/* Divider */}
+              <div className="mx-5 my-3 h-px" style={{ backgroundColor: "hsla(0, 0%, 100%, 0.2)" }} />
+
+              {/* CTA Button */}
+              <div className="px-3">
+                <button
+                  className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-150"
+                  style={{
+                    backgroundColor: "hsl(145 55% 28%)",
+                    color: "white",
+                    border: "1px solid hsla(0, 0%, 100%, 0.15)",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "hsl(145 50% 24%)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "hsl(145 55% 28%)"; }}
+                >
+                  <Plus size={16} />
+                  Add New Data
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function DashboardSidebar({ activeView, onViewChange }: DashboardSidebarProps) {
   const { sidebarTheme, sidebarLayout } = useSidebarTheme();
   const t = sidebarThemes[sidebarTheme];
+
+  // Drawer layout renders its own structure
+  if (sidebarLayout === "drawer") {
+    return <DrawerLayout activeView={activeView} onViewChange={onViewChange} />;
+  }
 
   // Themed layouts render their own <aside> with fixed colors
   if (sidebarLayout === "green-solid" || sidebarLayout === "purple-gradient") {
