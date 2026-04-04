@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export type SidebarTheme = "dark-intelligence" | "light-green" | "light-blue" | "purple";
-export type SidebarLayout = "default" | "collapsible" | "icon-based" | "compact" | "green-solid" | "purple-gradient";
+export type SidebarLayout = "default" | "collapsible" | "icon-based" | "compact" | "green-solid" | "purple-gradient" | "drawer";
 
 interface SidebarThemeContextType {
   sidebarTheme: SidebarTheme;
