@@ -53,6 +53,11 @@ export const sidebarLayouts: Record<SidebarLayout, { label: string; description:
     description: "Purple gradient with orange accents — modern, premium feel",
     icon: "🟪",
   },
+  drawer: {
+    label: "Drawer Panel",
+    description: "Icon strip with sliding submenu drawer — clean, modern navigation",
+    icon: "◧",
+  },
 };
 
 export const sidebarThemes: Record<SidebarTheme, {
