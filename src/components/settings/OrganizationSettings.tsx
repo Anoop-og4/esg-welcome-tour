@@ -10,7 +10,7 @@ interface OrganizationSettingsProps {
 }
 
 const themeOrder: SidebarTheme[] = ["dark-intelligence", "light-green", "light-blue", "purple"];
-const layoutOrder: SidebarLayout[] = ["default", "collapsible", "icon-based", "compact"];
+const layoutOrder: SidebarLayout[] = ["default", "collapsible", "icon-based", "compact", "green-solid", "purple-gradient"];
 
 function SidebarPreviewCard({ theme, isActive, onClick }: { theme: SidebarTheme; isActive: boolean; onClick: () => void }) {
   const t = sidebarThemes[theme];

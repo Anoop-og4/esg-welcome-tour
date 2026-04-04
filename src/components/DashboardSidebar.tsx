@@ -212,23 +212,16 @@ function CompactLayout({ activeView, onViewChange, t }: { activeView: string; on
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        {/* Logo */}
         <div className="mb-6 px-3 flex items-center gap-2 min-h-[2rem] overflow-hidden">
           <span className="h-5 w-5 rounded-md shrink-0 flex items-center justify-center text-xs font-bold" style={{ backgroundColor: t.logoAccent, color: t.activeBg }}>
             O
           </span>
           {hovered && (
-            <motion.span
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="text-sm font-bold whitespace-nowrap"
-              style={{ color: t.text }}
-            >
+            <motion.span initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} className="text-sm font-bold whitespace-nowrap" style={{ color: t.text }}>
               only<span style={{ color: t.logoAccent }}>good</span>
             </motion.span>
           )}
         </div>
-
         <nav className="flex-1 space-y-0.5 px-2 overflow-y-auto">
           {allItems.map((item, idx) => {
             const isActive = activeView === item.key;
@@ -251,24 +244,17 @@ function CompactLayout({ activeView, onViewChange, t }: { activeView: string; on
               >
                 <item.icon size={18} className="shrink-0" />
                 {hovered && (
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-sm font-medium whitespace-nowrap"
-                  >
+                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm font-medium whitespace-nowrap">
                     {item.label}
                   </motion.span>
                 )}
               </button>
             );
-
             if (!hovered) {
               return (
                 <Tooltip key={item.key}>
                   <TooltipTrigger asChild>{btn}</TooltipTrigger>
-                  <TooltipContent side="right" className="text-xs">
-                    {item.label}
-                  </TooltipContent>
+                  <TooltipContent side="right" className="text-xs">{item.label}</TooltipContent>
                 </Tooltip>
               );
             }
@@ -280,9 +266,162 @@ function CompactLayout({ activeView, onViewChange, t }: { activeView: string; on
   );
 }
 
+// ─── THEMED COLLAPSIBLE LAYOUT (used by green-solid & purple-gradient) ───
+const themedColors = {
+  "green-solid": {
+    bg: "hsl(145 60% 32%)",
+    gradient: "hsl(145 60% 32%)",
+    text: "hsla(0, 0%, 100%, 0.85)",
+    activeText: "hsl(0 0% 100%)",
+    activeBg: "hsl(145 55% 26%)",
+    hoverBg: "hsla(145, 50%, 28%, 1)",
+    borderColor: "hsla(145, 40%, 40%, 0.3)",
+    accentColor: "hsl(145 60% 42%)",
+    logoAccent: "hsl(0 0% 100%)",
+    ctaBg: "hsl(145 55% 26%)",
+    ctaText: "hsl(0 0% 100%)",
+    sectionHeader: "hsla(0, 0%, 100%, 0.5)",
+  },
+  "purple-gradient": {
+    bg: "linear-gradient(180deg, hsl(270 40% 35%), hsl(270 45% 20%))",
+    gradient: "linear-gradient(180deg, hsl(270 40% 35%), hsl(270 45% 20%))",
+    text: "hsla(0, 0%, 100%, 0.75)",
+    activeText: "hsl(0 0% 100%)",
+    activeBg: "hsl(25 90% 55%)",
+    hoverBg: "hsla(270, 35%, 40%, 1)",
+    borderColor: "hsla(270, 30%, 45%, 0.3)",
+    accentColor: "hsl(25 90% 55%)",
+    logoAccent: "hsl(25 90% 55%)",
+    ctaBg: "linear-gradient(135deg, hsl(270 40% 45%), hsl(270 50% 35%))",
+    ctaText: "hsl(0 0% 100%)",
+    sectionHeader: "hsla(0, 0%, 100%, 0.45)",
+  },
+};
+
+function ThemedCollapsibleLayout({ activeView, onViewChange, variant }: { activeView: string; onViewChange: (v: string) => void; variant: "green-solid" | "purple-gradient" }) {
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const toggle = (key: string) => setExpanded((p) => ({ ...p, [key]: !p[key] }));
+  const c = themedColors[variant];
+
+  return (
+    <aside className="hidden h-screen w-60 flex-col py-5 md:flex" style={{ background: c.gradient }}>
+      {/* Logo */}
+      <div className="mb-6 px-5 flex items-center gap-2">
+        <div className="h-7 w-7 rounded-lg flex items-center justify-center text-xs font-bold" style={{ backgroundColor: c.logoAccent, color: variant === "green-solid" ? c.bg : "hsl(270 40% 25%)" }}>
+          OG
+        </div>
+        <h1 className="text-base font-bold tracking-tight" style={{ color: c.activeText }}>
+          only<span style={{ color: c.logoAccent, opacity: variant === "green-solid" ? 0.9 : 1 }}>good</span>
+        </h1>
+      </div>
+
+      {/* Section header */}
+      <div className="px-5 mb-2">
+        <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: c.sectionHeader }}>
+          Navigation
+        </span>
+      </div>
+
+      <nav className="flex-1 space-y-0.5 px-3 overflow-y-auto">
+        {navItems.map((item) => {
+          const hasChildren = !!item.children?.length;
+          const isOpen = expanded[item.key];
+          const isActive = activeView === item.key && !hasChildren;
+
+          return (
+            <div key={item.key + item.label}>
+              <button
+                onClick={() => hasChildren ? toggle(item.key) : onViewChange(item.key)}
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150"
+                style={{
+                  backgroundColor: isActive ? c.activeBg : "transparent",
+                  color: isActive ? c.activeText : c.text,
+                }}
+                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = c.hoverBg; }}
+                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
+              >
+                <item.icon size={17} style={{ opacity: isActive ? 1 : 0.8 }} />
+                <span className="flex-1 text-left">{item.label}</span>
+                {hasChildren && (
+                  <motion.span animate={{ rotate: isOpen ? 0 : -90 }} transition={{ duration: 0.2 }}>
+                    <ChevronDown size={14} style={{ opacity: 0.5 }} />
+                  </motion.span>
+                )}
+              </button>
+              <AnimatePresence>
+                {hasChildren && isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.22 }}
+                    className="overflow-hidden"
+                  >
+                    {item.children!.map((child, i) => (
+                      <button
+                        key={child.label + i}
+                        onClick={() => onViewChange(child.key)}
+                        className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-xs transition-all duration-150"
+                        style={{ paddingLeft: "2.5rem", color: c.text, opacity: 0.75 }}
+                        onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.backgroundColor = c.hoverBg; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.75"; e.currentTarget.style.backgroundColor = "transparent"; }}
+                      >
+                        <span className="h-1 w-1 rounded-full" style={{ backgroundColor: c.text, opacity: 0.4 }} />
+                        {child.label}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </nav>
+
+      {/* Bottom section */}
+      <div className="px-3 pt-3" style={{ borderTop: `1px solid ${c.borderColor}` }}>
+        {bottomItems.map((item) => {
+          const isActive = activeView === item.key;
+          return (
+            <button
+              key={item.key}
+              onClick={() => onViewChange(item.key)}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150"
+              style={{
+                backgroundColor: isActive ? c.activeBg : "transparent",
+                color: isActive ? c.activeText : c.text,
+              }}
+              onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = c.hoverBg; }}
+              onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
+            >
+              <item.icon size={17} style={{ opacity: isActive ? 1 : 0.8 }} />
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* User avatar */}
+      <div className="px-4 pt-3 mt-2" style={{ borderTop: `1px solid ${c.borderColor}` }}>
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: c.accentColor, color: c.activeText }}>
+            DU
+          </div>
+          <span className="text-xs font-medium" style={{ color: c.text }}>Demo User</span>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
 export default function DashboardSidebar({ activeView, onViewChange }: DashboardSidebarProps) {
   const { sidebarTheme, sidebarLayout } = useSidebarTheme();
   const t = sidebarThemes[sidebarTheme];
+
+  // Themed layouts render their own <aside> with fixed colors
+  if (sidebarLayout === "green-solid" || sidebarLayout === "purple-gradient") {
+    return <ThemedCollapsibleLayout activeView={activeView} onViewChange={onViewChange} variant={sidebarLayout} />;
+  }
 
   if (sidebarLayout === "compact") {
     return (
