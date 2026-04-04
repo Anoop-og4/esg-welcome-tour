@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, BarChart3, Target, HelpCircle, ChevronDown, ChevronRight } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, BarChart3, Target, HelpCircle, ChevronDown, ChevronRight, Plus, Link2, PieChart, Droplets, Trash2, Zap, Eye, LogOut } from "lucide-react";
 import { useSidebarTheme, sidebarThemes } from "@/components/SidebarThemeProvider";
 import { AnimatePresence, motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -8,7 +8,8 @@ interface NavItem {
   icon: typeof Home;
   label: string;
   key: string;
-  children?: { label: string; key: string }[];
+  badge?: number;
+  children?: { label: string; key: string; icon?: typeof Home }[];
 }
 
 const navItems: NavItem[] = [
@@ -16,15 +17,21 @@ const navItems: NavItem[] = [
   {
     icon: Leaf, label: "Environment", key: "environment",
     children: [
-      { label: "Emissions", key: "environment" },
-      { label: "Water & Waste", key: "environment" },
+      { label: "Dashboard", key: "environment", icon: PieChart },
+      { label: "Scope 1", key: "environment", icon: Zap },
+      { label: "Scope 2", key: "environment", icon: Zap },
+      { label: "Scope 3", key: "environment", icon: Zap },
+      { label: "Water", key: "environment", icon: Droplets },
+      { label: "Waste", key: "environment", icon: Trash2 },
+      { label: "Analytics", key: "environment", icon: BarChart3 },
+      { label: "Detailed View", key: "environment", icon: Eye },
     ],
   },
   {
     icon: Users, label: "Social", key: "social",
     children: [
-      { label: "Workforce", key: "social" },
-      { label: "Community", key: "social" },
+      { label: "Workforce", key: "social", icon: Users },
+      { label: "Community", key: "social", icon: Users },
     ],
   },
   { icon: Building2, label: "Governance", key: "governance" },
