@@ -557,9 +557,14 @@ function DrawerLayout({ activeView, onViewChange }: { activeView: string; onView
         style={{ backgroundColor: "hsl(0 0% 100%)", borderRight: "1px solid hsl(0 0% 90%)" }}
       >
         {/* Logo */}
-        <div className="mb-6 flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: "hsl(145 60% 36%)" }}>
+        <motion.div
+          className="mb-6 flex h-9 w-9 items-center justify-center rounded-xl"
+          style={{ backgroundColor: "hsl(145 60% 36%)" }}
+          whileHover={{ scale: 1.08, rotate: 5 }}
+          transition={{ type: "spring", stiffness: 400, damping: 15 }}
+        >
           <Leaf size={18} style={{ color: "white" }} />
-        </div>
+        </motion.div>
 
         {/* Main nav icons */}
         <nav className="flex flex-1 flex-col items-center gap-1">
