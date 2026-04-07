@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, BarChart3, Target, HelpCircle, ChevronDown, ChevronRight, Plus, Link2, PieChart, Droplets, Trash2, Zap, Eye, LogOut } from "lucide-react";
+import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, BarChart3, Target, HelpCircle, ChevronDown, ChevronRight, Plus, Link2, PieChart, Droplets, Trash2, Zap, Eye, LogOut, GitBranch } from "lucide-react";
 import { useSidebarTheme, sidebarThemes } from "@/components/SidebarThemeProvider";
 import { AnimatePresence, motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -25,6 +25,7 @@ const navItems: NavItem[] = [
       { label: "Waste", key: "environment", icon: Trash2 },
       { label: "Analytics", key: "environment", icon: BarChart3 },
       { label: "Detailed View", key: "environment", icon: Eye },
+      { label: "Workflow", key: "environment", icon: GitBranch },
     ],
   },
   {
