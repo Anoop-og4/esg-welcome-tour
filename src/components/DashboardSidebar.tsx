@@ -62,9 +62,11 @@ function NavButton({ item, isActive, t, onClick, indent = false }: {
 }) {
   const Icon = (item as NavItem).icon;
   return (
-    <button
+    <motion.button
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all"
+      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium
+        transition-[background-color,color,border-color] duration-200 ease-out
+        motion-reduce:transition-none"
       style={{
         backgroundColor: isActive ? t.activeBg : "transparent",
         color: isActive ? t.activeText : t.text,
@@ -73,13 +75,31 @@ function NavButton({ item, isActive, t, onClick, indent = false }: {
         fontSize: indent ? "0.8rem" : undefined,
         opacity: indent ? 0.85 : 1,
       }}
+      whileHover={{ x: 2, transition: { duration: 0.15 } }}
+      whileTap={{ scale: 0.97, transition: { duration: 0.1 } }}
       onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = t.hoverBg; }}
       onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
     >
-      {Icon && <Icon size={indent ? 14 : 18} />}
+      {Icon && (
+        <motion.span
+          className="inline-flex shrink-0"
+          animate={{ scale: isActive ? 1.1 : 1 }}
+          transition={{ type: "spring", stiffness: 400, damping: 20 }}
+        >
+          <Icon size={indent ? 14 : 18} />
+        </motion.span>
+      )}
       {!Icon && indent && <span className="w-[14px]" />}
       {item.label}
-    </button>
+      {isActive && (
+        <motion.span
+          className="absolute left-0 top-1/2 h-4 w-0.5 rounded-full -translate-y-1/2"
+          style={{ backgroundColor: t.accentColor }}
+          layoutId="nav-active-indicator"
+          transition={{ type: "spring", stiffness: 350, damping: 30 }}
+        />
+      )}
+    </motion.button>
   );
 }
 
