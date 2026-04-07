@@ -574,24 +574,33 @@ function DrawerLayout({ activeView, onViewChange }: { activeView: string; onView
               return (
                 <Tooltip key={item.key + item.label}>
                   <TooltipTrigger asChild>
-                    <button
+                    <motion.button
                       onClick={() => handleIconClick(item)}
-                      className="relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-150"
+                      className="relative flex h-10 w-10 items-center justify-center rounded-xl
+                        transition-[background-color,color] duration-200 ease-out motion-reduce:transition-none"
                       style={{
                         backgroundColor: isActive ? "hsl(145 55% 92%)" : "transparent",
                         color: isActive ? "hsl(145 60% 32%)" : "hsl(220 10% 50%)",
                       }}
+                      whileHover={{ scale: 1.08 }}
+                      whileTap={{ scale: 0.92 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 20 }}
                       onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = "hsl(0 0% 95%)"; } }}
                       onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.backgroundColor = "transparent"; } }}
                     >
                       <item.icon size={20} />
                       {item.badge && (
-                        <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold"
-                          style={{ backgroundColor: "hsl(145 60% 36%)", color: "white" }}>
+                        <motion.span
+                          className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold"
+                          style={{ backgroundColor: "hsl(145 60% 36%)", color: "white" }}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                        >
                           {item.badge}
-                        </span>
+                        </motion.span>
                       )}
-                    </button>
+                    </motion.button>
                   </TooltipTrigger>
                   <TooltipContent side="right" className="text-xs font-medium">{item.label}</TooltipContent>
                 </Tooltip>
