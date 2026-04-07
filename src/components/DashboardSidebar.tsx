@@ -413,45 +413,68 @@ function ThemedCollapsibleLayout({ activeView, onViewChange, variant }: { active
 
           return (
             <div key={item.key + item.label}>
-              <button
+              <motion.button
                 onClick={() => hasChildren ? toggle(item.key) : onViewChange(item.key)}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150"
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
+                  transition-[background-color,color] duration-200 ease-out motion-reduce:transition-none"
                 style={{
                   backgroundColor: isActive ? c.activeBg : "transparent",
                   color: isActive ? c.activeText : c.text,
                 }}
+                whileHover={{ x: 2 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ duration: 0.15 }}
                 onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = c.hoverBg; }}
                 onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
               >
-                <item.icon size={17} style={{ opacity: isActive ? 1 : 0.8 }} />
+                <motion.span
+                  className="inline-flex shrink-0"
+                  animate={{ scale: isActive ? 1.1 : 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                >
+                  <item.icon size={17} style={{ opacity: isActive ? 1 : 0.8 }} />
+                </motion.span>
                 <span className="flex-1 text-left">{item.label}</span>
                 {hasChildren && (
-                  <motion.span animate={{ rotate: isOpen ? 0 : -90 }} transition={{ duration: 0.2 }}>
+                  <motion.span
+                    animate={{ rotate: isOpen ? 0 : -90 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  >
                     <ChevronDown size={14} style={{ opacity: 0.5 }} />
                   </motion.span>
                 )}
-              </button>
-              <AnimatePresence>
+              </motion.button>
+              <AnimatePresence initial={false}>
                 {hasChildren && isOpen && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.22 }}
+                    transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden"
                   >
                     {item.children!.map((child, i) => (
-                      <button
+                      <motion.button
                         key={child.label + i}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.03, duration: 0.2 }}
                         onClick={() => onViewChange(child.key)}
-                        className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-xs transition-all duration-150"
+                        className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-xs
+                          transition-[background-color,opacity] duration-200 ease-out motion-reduce:transition-none"
                         style={{ paddingLeft: "2.5rem", color: c.text, opacity: 0.75 }}
+                        whileHover={{ x: 2 }}
+                        whileTap={{ scale: 0.97 }}
                         onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.backgroundColor = c.hoverBg; }}
                         onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.75"; e.currentTarget.style.backgroundColor = "transparent"; }}
                       >
-                        <span className="h-1 w-1 rounded-full" style={{ backgroundColor: c.text, opacity: 0.4 }} />
+                        <motion.span
+                          className="h-1 w-1 rounded-full"
+                          style={{ backgroundColor: c.text, opacity: 0.4 }}
+                          whileHover={{ scale: 1.5 }}
+                        />
                         {child.label}
-                      </button>
+                      </motion.button>
                     ))}
                   </motion.div>
                 )}
