@@ -137,37 +137,75 @@ function CollapsibleLayout({ activeView, onViewChange, t }: { activeView: string
         {navItems.map((item) => {
           const hasChildren = !!item.children?.length;
           const isOpen = expanded[item.key];
+          const isActive = activeView === item.key && !hasChildren;
           return (
             <div key={item.key + item.label}>
-              <button
+              <motion.button
                 onClick={() => hasChildren ? toggle(item.key) : onViewChange(item.key)}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all"
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium
+                  transition-[background-color,color,border-color] duration-200 ease-out motion-reduce:transition-none"
                 style={{
-                  backgroundColor: activeView === item.key && !hasChildren ? t.activeBg : "transparent",
-                  color: activeView === item.key && !hasChildren ? t.activeText : t.text,
-                  borderLeft: activeView === item.key && !hasChildren ? `2px solid ${t.accentColor}` : "2px solid transparent",
+                  backgroundColor: isActive ? t.activeBg : "transparent",
+                  color: isActive ? t.activeText : t.text,
+                  borderLeft: isActive ? `2px solid ${t.accentColor}` : "2px solid transparent",
                 }}
-                onMouseEnter={(e) => { if (activeView !== item.key) e.currentTarget.style.backgroundColor = t.hoverBg; }}
-                onMouseLeave={(e) => { if (activeView !== item.key) e.currentTarget.style.backgroundColor = "transparent"; }}
+                whileHover={{ x: 2 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ duration: 0.15 }}
+                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = t.hoverBg; }}
+                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
               >
-                <item.icon size={18} />
+                <motion.span
+                  className="inline-flex shrink-0"
+                  animate={{ scale: isActive ? 1.1 : 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                >
+                  <item.icon size={18} />
+                </motion.span>
                 <span className="flex-1 text-left">{item.label}</span>
                 {hasChildren && (
-                  <motion.span animate={{ rotate: isOpen ? 0 : -90 }} transition={{ duration: 0.2 }}>
+                  <motion.span
+                    animate={{ rotate: isOpen ? 0 : -90 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  >
                     <ChevronDown size={14} style={{ color: t.text, opacity: 0.5 }} />
                   </motion.span>
                 )}
-              </button>
-              <AnimatePresence>
+              </motion.button>
+              <AnimatePresence initial={false}>
                 {hasChildren && isOpen && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden"
                   >
                     {item.children!.map((child, i) => (
+                      <motion.div
+                        key={child.label + i}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.03, duration: 0.2 }}
+                      >
+                        <NavButton item={child} isActive={false} t={t} onClick={() => onViewChange(child.key)} indent />
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </nav>
+      <div className="px-3 pt-3" style={{ borderTop: `1px solid ${t.borderColor}` }}>
+        {bottomItems.map((item) => (
+          <NavButton key={item.key} item={item} isActive={activeView === item.key} t={t} onClick={() => onViewChange(item.key)} />
+        ))}
+      </div>
+    </>
+  );
+}
                       <NavButton key={child.label + i} item={child} isActive={false} t={t} onClick={() => onViewChange(child.key)} indent />
                     ))}
                   </motion.div>
