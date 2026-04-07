@@ -206,23 +206,8 @@ function CollapsibleLayout({ activeView, onViewChange, t }: { activeView: string
     </>
   );
 }
-                      <NavButton key={child.label + i} item={child} isActive={false} t={t} onClick={() => onViewChange(child.key)} indent />
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          );
-        })}
-      </nav>
-      <div className="px-3 pt-3" style={{ borderTop: `1px solid ${t.borderColor}` }}>
-        {bottomItems.map((item) => (
-          <NavButton key={item.key} item={item} isActive={activeView === item.key} t={t} onClick={() => onViewChange(item.key)} />
-        ))}
-      </div>
-    </>
-  );
-}
+
+
 
 // ─── ICON-BASED LAYOUT ───
 function IconBasedLayout({ activeView, onViewChange, t }: { activeView: string; onViewChange: (v: string) => void; t: typeof sidebarThemes["dark-intelligence"] }) {
