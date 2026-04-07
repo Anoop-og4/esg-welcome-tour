@@ -256,31 +256,47 @@ function CompactLayout({ activeView, onViewChange, t }: { activeView: string; on
 
   return (
     <TooltipProvider delayDuration={100}>
-      <div
-        className="flex flex-col h-full transition-all duration-300"
-        style={{ width: hovered ? "14rem" : "4rem" }}
+      <motion.div
+        className="flex flex-col h-full motion-reduce:transition-none"
+        animate={{ width: hovered ? "14rem" : "4rem" }}
+        transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
         <div className="mb-6 px-3 flex items-center gap-2 min-h-[2rem] overflow-hidden">
-          <span className="h-5 w-5 rounded-md shrink-0 flex items-center justify-center text-xs font-bold" style={{ backgroundColor: t.logoAccent, color: t.activeBg }}>
+          <motion.span
+            className="h-5 w-5 rounded-md shrink-0 flex items-center justify-center text-xs font-bold"
+            style={{ backgroundColor: t.logoAccent, color: t.activeBg }}
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
+          >
             O
-          </span>
-          {hovered && (
-            <motion.span initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} className="text-sm font-bold whitespace-nowrap" style={{ color: t.text }}>
-              only<span style={{ color: t.logoAccent }}>good</span>
-            </motion.span>
-          )}
+          </motion.span>
+          <AnimatePresence>
+            {hovered && (
+              <motion.span
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -12 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="text-sm font-bold whitespace-nowrap"
+                style={{ color: t.text }}
+              >
+                only<span style={{ color: t.logoAccent }}>good</span>
+              </motion.span>
+            )}
+          </AnimatePresence>
         </div>
         <nav className="flex-1 space-y-0.5 px-2 overflow-y-auto">
           {allItems.map((item, idx) => {
             const isActive = activeView === item.key;
             const isBottom = idx >= navItems.length;
             const btn = (
-              <button
+              <motion.button
                 key={item.key}
                 onClick={() => onViewChange(item.key)}
-                className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 transition-all"
+                className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5
+                  transition-[background-color,color] duration-200 ease-out motion-reduce:transition-none"
                 style={{
                   backgroundColor: isActive ? t.activeBg : "transparent",
                   color: isActive ? t.activeText : t.text,
@@ -289,16 +305,33 @@ function CompactLayout({ activeView, onViewChange, t }: { activeView: string; on
                   marginTop: isBottom && idx === navItems.length ? "0.5rem" : undefined,
                   paddingTop: isBottom && idx === navItems.length ? "0.75rem" : undefined,
                 }}
+                whileHover={{ x: hovered ? 2 : 0 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.15 }}
                 onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = t.hoverBg; }}
                 onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
               >
-                <item.icon size={18} className="shrink-0" />
-                {hovered && (
-                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm font-medium whitespace-nowrap">
-                    {item.label}
-                  </motion.span>
-                )}
-              </button>
+                <motion.span
+                  className="inline-flex shrink-0"
+                  animate={{ scale: isActive ? 1.1 : 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                >
+                  <item.icon size={18} />
+                </motion.span>
+                <AnimatePresence>
+                  {hovered && (
+                    <motion.span
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="text-sm font-medium whitespace-nowrap overflow-hidden"
+                    >
+                      {item.label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
             );
             if (!hovered) {
               return (
@@ -311,7 +344,7 @@ function CompactLayout({ activeView, onViewChange, t }: { activeView: string; on
             return btn;
           })}
         </nav>
-      </div>
+      </motion.div>
     </TooltipProvider>
   );
 }
