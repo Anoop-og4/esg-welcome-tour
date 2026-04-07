@@ -721,7 +721,7 @@ function DrawerLayout({ activeView, onViewChange }: { activeView: string; onView
                           1
                         </span>
                       )}
-                    </button>
+                    </motion.button>
                   );
                 })}
               </nav>
