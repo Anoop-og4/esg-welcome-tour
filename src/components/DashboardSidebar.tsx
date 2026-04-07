@@ -669,7 +669,7 @@ function DrawerLayout({ activeView, onViewChange }: { activeView: string; onView
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: 220, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             className="h-full overflow-hidden shrink-0"
             style={{ backgroundColor: "hsl(145 60% 36%)" }}
           >
@@ -688,10 +688,14 @@ function DrawerLayout({ activeView, onViewChange }: { activeView: string; onView
                   const ChildIcon = child.icon;
                   const isChildActive = i === 0; // First item active by default for demo
                   return (
-                    <button
+                    <motion.button
                       key={child.label + i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.04, duration: 0.2 }}
                       onClick={() => { onViewChange(child.key); }}
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150"
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium
+                        transition-[background-color,color] duration-200 ease-out motion-reduce:transition-none"
                       style={{
                         backgroundColor: isChildActive ? "hsla(0, 0%, 100%, 0.15)" : "transparent",
                         color: isChildActive ? "white" : "hsla(0, 0%, 100%, 0.8)",
