@@ -220,21 +220,28 @@ function IconBasedLayout({ activeView, onViewChange, t }: { activeView: string; 
             <div key={item.key + item.label} style={{ marginTop: prevHasChildren ? "0.75rem" : "0.125rem" }}>
               <NavButton item={item} isActive={activeView === item.key} t={t} onClick={() => onViewChange(item.key)} />
               {item.children?.map((child, i) => (
-                <button
+                <motion.button
                   key={child.label + i}
                   onClick={() => onViewChange(child.key)}
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-xs transition-all"
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-xs
+                    transition-[background-color,opacity] duration-200 ease-out motion-reduce:transition-none"
                   style={{
                     paddingLeft: "2.5rem",
                     color: t.text,
                     opacity: 0.65,
                   }}
+                  whileHover={{ x: 2 }}
+                  whileTap={{ scale: 0.97 }}
                   onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.backgroundColor = t.hoverBg; }}
                   onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.65"; e.currentTarget.style.backgroundColor = "transparent"; }}
                 >
-                  <span className="h-1 w-1 rounded-full" style={{ backgroundColor: t.text, opacity: 0.4 }} />
+                  <motion.span
+                    className="h-1 w-1 rounded-full"
+                    style={{ backgroundColor: t.text, opacity: 0.4 }}
+                    whileHover={{ scale: 1.5 }}
+                  />
                   {child.label}
-                </button>
+                </motion.button>
               ))}
             </div>
           );
