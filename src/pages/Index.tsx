@@ -7,6 +7,7 @@ import HelpContent from "@/components/HelpContent";
 import HelpStudio from "@/components/admin/HelpStudio";
 import HomePage from "@/components/home/HomePage";
 import OrganizationSettings from "@/components/settings/OrganizationSettings";
+import WorkflowBuilder from "@/components/workflow/WorkflowBuilder";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(false);
@@ -25,6 +26,7 @@ const Index = () => {
     if (activeView === "help") return <HelpContent />;
     if (activeView === "admin") return <HelpStudio />;
     if (activeView === "settings") return <OrganizationSettings onNavigate={setActiveView} />;
+    if (activeView === "workflow") return <WorkflowBuilder />;
     return <DashboardContent onNavigate={setActiveView} />;
   };
 
