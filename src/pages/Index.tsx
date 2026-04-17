@@ -8,6 +8,7 @@ import HelpStudio from "@/components/admin/HelpStudio";
 import HomePage from "@/components/home/HomePage";
 import OrganizationSettings from "@/components/settings/OrganizationSettings";
 import WorkflowBuilder from "@/components/workflow/WorkflowBuilder";
+import PlayApp from "@/components/play/PlayApp";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(false);
@@ -27,6 +28,7 @@ const Index = () => {
     if (activeView === "admin") return <HelpStudio />;
     if (activeView === "settings") return <OrganizationSettings onNavigate={setActiveView} />;
     if (activeView === "workflow") return <WorkflowBuilder />;
+    if (activeView.startsWith("play")) return <PlayApp view={activeView} onNavigate={setActiveView} />;
     return <DashboardContent onNavigate={setActiveView} />;
   };
 
