@@ -46,6 +46,7 @@ const navItems: NavItem[] = [
     icon: Gamepad2, label: "Games", key: "play",
     children: [
       { label: "Play Hub", key: "play", icon: Sparkles },
+      { label: "🚗 Eco Drive", key: "play-ecodrive", icon: Zap },
       { label: "Daily Actions", key: "play-actions", icon: Flame },
       { label: "Challenges", key: "play-challenges", icon: Target },
       { label: "Leaderboard", key: "play-leaderboard", icon: Trophy },

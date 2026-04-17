@@ -6,6 +6,7 @@ import { ACTIONS, CHALLENGES, SPONSORED, challengeProgress, logAction } from "@/
 import { toast } from "@/hooks/use-toast";
 
 const tiles = [
+  { key: "play-ecodrive", label: "🚗 Eco Drive", emoji: "🏁", color: "from-lime-400 to-emerald-600" },
   { key: "play-actions", label: "Daily Actions", emoji: "⚡", color: "from-amber-400 to-orange-500" },
   { key: "play-challenges", label: "Challenges", emoji: "🎯", color: "from-rose-400 to-pink-500" },
   { key: "play-leaderboard", label: "Leaderboard", emoji: "🏆", color: "from-yellow-400 to-amber-500" },
