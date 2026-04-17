@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, BarChart3, Target, HelpCircle, ChevronDown, ChevronRight, Plus, Link2, PieChart, Droplets, Trash2, Zap, Eye, LogOut, GitBranch } from "lucide-react";
+import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, BarChart3, Target, HelpCircle, ChevronDown, ChevronRight, Plus, Link2, PieChart, Droplets, Trash2, Zap, Eye, LogOut, GitBranch, Gamepad2, Trophy, Flame, Award, UsersRound, Gift, Sparkles, User } from "lucide-react";
 import { useSidebarTheme, sidebarThemes } from "@/components/SidebarThemeProvider";
 import { AnimatePresence, motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -42,6 +42,19 @@ const navItems: NavItem[] = [
   { icon: Target, label: "Goals", key: "goals" },
   { icon: FileText, label: "Docs Hub", key: "docs" },
   { icon: Settings, label: "Admin", key: "admin" },
+  {
+    icon: Gamepad2, label: "Games", key: "play",
+    children: [
+      { label: "Play Hub", key: "play", icon: Sparkles },
+      { label: "Daily Actions", key: "play-actions", icon: Flame },
+      { label: "Challenges", key: "play-challenges", icon: Target },
+      { label: "Leaderboard", key: "play-leaderboard", icon: Trophy },
+      { label: "Teams", key: "play-teams", icon: UsersRound },
+      { label: "Badges", key: "play-badges", icon: Award },
+      { label: "Rewards", key: "play-rewards", icon: Gift },
+      { label: "Profile", key: "play-profile", icon: User },
+    ],
+  },
 ];
 
 const bottomItems: NavItem[] = [
