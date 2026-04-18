@@ -11,6 +11,7 @@ import PlayRewards from "./PlayRewards";
 import PlayProfile from "./PlayProfile";
 import PlayEcoDrive from "./PlayEcoDrive";
 import PlayBoxing from "./PlayBoxing";
+import PlayMultiplayer from "./PlayMultiplayer";
 
 interface Props {
   view: string;
@@ -36,6 +37,7 @@ export default function PlayApp({ view, onNavigate }: Props) {
       case "play-profile": return <PlayProfile />;
       case "play-ecodrive": return <PlayEcoDrive />;
       case "play-boxing": return <PlayBoxing />;
+      case "play-versus": return <PlayMultiplayer />;
       default: return <PlayHub onNavigate={onNavigate} />;
     }
   })();

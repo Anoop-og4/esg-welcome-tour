@@ -14,7 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      matches: {
+        Row: {
+          created_at: string
+          game: string
+          id: string
+          player1_avatar: string
+          player1_guest_id: string
+          player1_nickname: string
+          player1_ready: boolean
+          player1_score: number
+          player2_avatar: string | null
+          player2_guest_id: string | null
+          player2_nickname: string | null
+          player2_ready: boolean
+          player2_score: number
+          starts_at: string | null
+          status: string
+          updated_at: string
+          winner_guest_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          game: string
+          id?: string
+          player1_avatar?: string
+          player1_guest_id: string
+          player1_nickname: string
+          player1_ready?: boolean
+          player1_score?: number
+          player2_avatar?: string | null
+          player2_guest_id?: string | null
+          player2_nickname?: string | null
+          player2_ready?: boolean
+          player2_score?: number
+          starts_at?: string | null
+          status?: string
+          updated_at?: string
+          winner_guest_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          game?: string
+          id?: string
+          player1_avatar?: string
+          player1_guest_id?: string
+          player1_nickname?: string
+          player1_ready?: boolean
+          player1_score?: number
+          player2_avatar?: string | null
+          player2_guest_id?: string | null
+          player2_nickname?: string | null
+          player2_ready?: boolean
+          player2_score?: number
+          starts_at?: string | null
+          status?: string
+          updated_at?: string
+          winner_guest_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar: string
+          created_at: string
+          guest_id: string
+          id: string
+          losses: number
+          nickname: string
+          total_score: number
+          updated_at: string
+          wins: number
+        }
+        Insert: {
+          avatar?: string
+          created_at?: string
+          guest_id: string
+          id?: string
+          losses?: number
+          nickname: string
+          total_score?: number
+          updated_at?: string
+          wins?: number
+        }
+        Update: {
+          avatar?: string
+          created_at?: string
+          guest_id?: string
+          id?: string
+          losses?: number
+          nickname?: string
+          total_score?: number
+          updated_at?: string
+          wins?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
