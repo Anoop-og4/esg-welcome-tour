@@ -10,6 +10,7 @@ import PlayBadges from "./PlayBadges";
 import PlayRewards from "./PlayRewards";
 import PlayProfile from "./PlayProfile";
 import PlayEcoDrive from "./PlayEcoDrive";
+import PlayBoxing from "./PlayBoxing";
 
 interface Props {
   view: string;
@@ -34,6 +35,7 @@ export default function PlayApp({ view, onNavigate }: Props) {
       case "play-rewards": return <PlayRewards />;
       case "play-profile": return <PlayProfile />;
       case "play-ecodrive": return <PlayEcoDrive />;
+      case "play-boxing": return <PlayBoxing />;
       default: return <PlayHub onNavigate={onNavigate} />;
     }
   })();
