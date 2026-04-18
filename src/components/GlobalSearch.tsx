@@ -309,7 +309,8 @@ export default function GlobalSearch({ onNavigate }: GlobalSearchProps) {
       {/* Trigger Button */}
       <button
         onClick={() => setOpen(true)}
-        className="group flex items-center gap-2.5 rounded-xl border border-border bg-card px-4 py-2 text-sm text-muted-foreground shadow-sm transition-all hover:border-esg-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-label="Search"
+        className="group flex items-center gap-2.5 rounded-xl border border-border bg-card p-2 sm:px-4 sm:py-2 text-sm text-muted-foreground shadow-sm transition-all hover:border-esg-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Search size={15} className="text-muted-foreground group-hover:text-esg-primary transition-colors" />
         <span className="hidden sm:inline text-muted-foreground/80">Search ESG insights…</span>
