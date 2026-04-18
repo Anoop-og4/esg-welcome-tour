@@ -50,6 +50,7 @@ const navItems: NavItem[] = [
       { label: "Play Hub", key: "play", icon: Sparkles },
       { label: "🚗 Eco Drive", key: "play-ecodrive", icon: Zap },
       { label: "🥊 Power Punch", key: "play-boxing", icon: Flame },
+      { label: "⚔️ Versus (1v1)", key: "play-versus", icon: UsersRound },
       { label: "Daily Actions", key: "play-actions", icon: Flame },
       { label: "Challenges", key: "play-challenges", icon: Target },
       { label: "Leaderboard", key: "play-leaderboard", icon: Trophy },
