@@ -3,6 +3,8 @@ import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, 
 import { useSidebarTheme, sidebarThemes } from "@/components/SidebarThemeProvider";
 import { AnimatePresence, motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NavItem {
   icon: typeof Home;
@@ -66,6 +68,8 @@ const bottomItems: NavItem[] = [
 interface DashboardSidebarProps {
   activeView: string;
   onViewChange: (view: string) => void;
+  mobileOpen?: boolean;
+  onMobileOpenChange?: (open: boolean) => void;
 }
 
 function NavButton({ item, isActive, t, onClick, indent = false }: {
@@ -775,25 +779,28 @@ function DrawerLayout({ activeView, onViewChange }: { activeView: string; onView
   );
 }
 
-export default function DashboardSidebar({ activeView, onViewChange }: DashboardSidebarProps) {
+function SidebarInner({ activeView, onViewChange, onAfterNavigate }: { activeView: string; onViewChange: (v: string) => void; onAfterNavigate?: () => void }) {
   const { sidebarTheme, sidebarLayout } = useSidebarTheme();
   const t = sidebarThemes[sidebarTheme];
 
-  // Drawer layout renders its own structure
+  const handleViewChange = (v: string) => {
+    onViewChange(v);
+    onAfterNavigate?.();
+  };
+
   if (sidebarLayout === "drawer") {
-    return <DrawerLayout activeView={activeView} onViewChange={onViewChange} />;
+    return <DrawerLayout activeView={activeView} onViewChange={handleViewChange} />;
   }
 
-  // Themed layouts render their own <aside> with fixed colors
   if (sidebarLayout === "green-solid" || sidebarLayout === "purple-gradient") {
-    return <ThemedCollapsibleLayout activeView={activeView} onViewChange={onViewChange} variant={sidebarLayout} />;
+    return <ThemedCollapsibleLayout activeView={activeView} onViewChange={handleViewChange} variant={sidebarLayout} />;
   }
 
   if (sidebarLayout === "compact") {
     return (
-      <aside className="hidden h-screen flex-col py-6 md:flex" style={{ background: t.gradient }}>
-        <CompactLayout activeView={activeView} onViewChange={onViewChange} t={t} />
-      </aside>
+      <div className="flex h-full flex-col py-6" style={{ background: t.gradient }}>
+        <CompactLayout activeView={activeView} onViewChange={handleViewChange} t={t} />
+      </div>
     );
   }
 
@@ -802,7 +809,7 @@ export default function DashboardSidebar({ activeView, onViewChange }: Dashboard
     : DefaultLayout;
 
   return (
-    <aside className="hidden h-screen w-60 flex-col py-6 md:flex" style={{ background: t.gradient }}>
+    <div className="flex h-full w-full flex-col py-6" style={{ background: t.gradient }}>
       <div className="mb-8 px-6 flex items-center gap-2">
         <h1 className="font-display text-xl font-bold tracking-tight" style={{ color: t.text }}>
           only<span style={{ color: t.logoAccent }} className="neon-text">good</span>
@@ -812,7 +819,34 @@ export default function DashboardSidebar({ activeView, onViewChange }: Dashboard
           Live
         </span>
       </div>
-      <LayoutComponent activeView={activeView} onViewChange={onViewChange} t={t} />
+      <LayoutComponent activeView={activeView} onViewChange={handleViewChange} t={t} />
+    </div>
+  );
+}
+
+export default function DashboardSidebar({ activeView, onViewChange, mobileOpen, onMobileOpenChange }: DashboardSidebarProps) {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <Sheet open={!!mobileOpen} onOpenChange={(o) => onMobileOpenChange?.(o)}>
+        <SheetContent side="left" className="w-[280px] p-0 border-r border-border [&>button]:z-50">
+          <SidebarInner
+            activeView={activeView}
+            onViewChange={onViewChange}
+            onAfterNavigate={() => onMobileOpenChange?.(false)}
+          />
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // Desktop — keep existing widths/visibility
+  const { sidebarLayout } = useSidebarTheme();
+  const widthClass = sidebarLayout === "compact" ? "" : sidebarLayout === "drawer" ? "" : "w-60";
+  return (
+    <aside className={`hidden h-screen flex-col md:flex shrink-0 ${widthClass}`}>
+      <SidebarInner activeView={activeView} onViewChange={onViewChange} />
     </aside>
   );
 }
