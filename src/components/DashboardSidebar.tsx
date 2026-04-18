@@ -68,6 +68,8 @@ const bottomItems: NavItem[] = [
 interface DashboardSidebarProps {
   activeView: string;
   onViewChange: (view: string) => void;
+  mobileOpen?: boolean;
+  onMobileOpenChange?: (open: boolean) => void;
 }
 
 function NavButton({ item, isActive, t, onClick, indent = false }: {
