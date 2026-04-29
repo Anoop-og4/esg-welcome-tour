@@ -10,6 +10,7 @@ import OrganizationSettings from "@/components/settings/OrganizationSettings";
 import WorkflowBuilder from "@/components/workflow/WorkflowBuilder";
 import PlayApp from "@/components/play/PlayApp";
 import MobileTopBar from "@/components/MobileTopBar";
+import AyraChatbot from "@/components/chatbot/AyraChatbot";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(false);
@@ -49,6 +50,7 @@ const Index = () => {
       <AnimatePresence>
         {showWelcome && <WelcomeModal onClose={() => setShowWelcome(false)} />}
       </AnimatePresence>
+      <AyraChatbot />
     </div>
   );
 };
