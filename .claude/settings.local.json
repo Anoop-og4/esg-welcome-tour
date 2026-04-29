@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vite *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\user\\Desktop\\esg-welcome-tour\\src\\components\\chatbot"
+    ]
+  }
+}
