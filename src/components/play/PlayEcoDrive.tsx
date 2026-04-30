@@ -54,39 +54,39 @@ const ROAD_EDGE = 46;    // shoulder width
 const HIGH_KEY = "esgplay:ecodrive:high";
 
 const KIND_META: Record<ItemKind, { pts: number; bad?: boolean; power?: "shield" | "magnet" | "bonus" }> = {
-  leaf:    { pts: 10 },
-  recycle: { pts: 15 },
-  charge:  { pts: 20 },
+  leaf:    { pts: 15 },
+  recycle: { pts: 25 },
+  charge:  { pts: 35 },
   barrel:  { pts: 0, bad: true },
   smoke:   { pts: 0, bad: true },
-  shield:  { pts: 25, power: "shield" },
-  magnet:  { pts: 25, power: "magnet" },
-  bonus:   { pts: 25, power: "bonus" },
+  shield:  { pts: 50, power: "shield" },
+  magnet:  { pts: 50, power: "magnet" },
+  bonus:   { pts: 50, power: "bonus" },
 };
 
 const STAGES = [
   { speed: 0,   name: "Morning Drive"   },
-  { speed: 6,   name: "City Rush"       },
-  { speed: 7.5, name: "Highway Run"     },
-  { speed: 9,   name: "Overdrive"       },
-  { speed: 10.5, name: "Lightspeed"     },
+  { speed: 5.5, name: "City Rush"       },
+  { speed: 7,   name: "Highway Run"     },
+  { speed: 8.5, name: "Overdrive"       },
+  { speed: 10,  name: "Lightspeed"      },
 ];
 
 function pickKind(speed: number): ItemKind {
   const r = Math.random();
-  // Rare power-ups (~3%)
-  if (r < 0.03) {
+  // Power-ups more common (~6%) so runs feel rewarding
+  if (r < 0.06) {
     const powers: ItemKind[] = ["shield", "magnet", "bonus"];
     return powers[Math.floor(Math.random() * powers.length)];
   }
-  // Hazards scale with speed
-  const badShare = 0.30 + Math.min(0.18, (speed - 4) * 0.03);
-  if (r < 0.03 + badShare * 0.55) return "barrel";
-  if (r < 0.03 + badShare)        return "smoke";
+  // Hazards: fewer overall, gentler scaling with speed
+  const badShare = 0.16 + Math.min(0.10, (speed - 4) * 0.018);
+  if (r < 0.06 + badShare * 0.55) return "barrel";
+  if (r < 0.06 + badShare)        return "smoke";
   // Pickups
   const gr = Math.random();
-  if (gr < 0.42) return "leaf";
-  if (gr < 0.78) return "recycle";
+  if (gr < 0.40) return "leaf";
+  if (gr < 0.75) return "recycle";
   return "charge";
 }
 
