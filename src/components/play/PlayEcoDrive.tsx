@@ -640,7 +640,7 @@ export default function PlayEcoDrive() {
         g.speed = Math.min(11, g.speed + dt * 0.00018);
 
         // Battery drain (faster at higher speed)
-        g.battery -= dt * (0.0045 + g.speed * 0.00025);
+        g.battery -= dt * (0.0018 + g.speed * 0.00010);
 
         // Power-up timers
         if (g.shield > 0)  g.shield  = Math.max(0, g.shield  - dt);
@@ -687,11 +687,16 @@ export default function PlayEcoDrive() {
         const playerX = g.playerX;
         const playerY = PLAYER_Y_CENTER;
         const nextItems: RoadItem[] = [];
+        // Hazards (oil + smoke) crawl at a fixed slow rate so they stay
+        // dodgeable even at top speed; pickups still scale with g.speed.
+        const HAZARD_SPEED = 2.5;
         for (const it of g.items) {
-          it.y += g.speed * dt * 0.2;
+          const isBad = KIND_META[it.kind].bad;
+          const itemSpeed = isBad ? Math.min(g.speed, HAZARD_SPEED) : g.speed;
+          it.y += itemSpeed * dt * 0.2;
           it.wobble += dt * 0.006;
           // magnet pulls good items toward player
-          if (g.magnet > 0 && !KIND_META[it.kind].bad) {
+          if (g.magnet > 0 && !isBad) {
             const tx = playerX;
             const cx = laneCenter(it.lane) + it.vx;
             const pull = Math.max(0, 1 - Math.abs(it.y - playerY) / 280);
@@ -738,7 +743,7 @@ export default function PlayEcoDrive() {
               if (meta.power === "shield") { g.shield = 6000; toast({ title: "🛡️ Shield up!", description: "One hit blocked" }); }
               if (meta.power === "magnet") { g.magnet = 6000; toast({ title: "🧲 Magnet active", description: "Pulling pickups" }); }
               if (meta.power === "bonus")  { g.bonus  = 8000; toast({ title: "✨ 2× score", description: "Stack those points" }); }
-              if (it.kind === "charge")    { g.battery = Math.min(100, g.battery + 18); }
+              if (it.kind === "charge")    { g.battery = Math.min(100, g.battery + 28); }
 
               spawnParticles(ix, it.y, meta.power ? "#ffffff" : (it.kind === "charge" ? "#fbbf24" : "#4ade80"), 14, 3);
               continue;
