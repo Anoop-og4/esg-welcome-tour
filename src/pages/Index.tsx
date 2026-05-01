@@ -9,6 +9,7 @@ import HomePage from "@/components/home/HomePage";
 import OrganizationSettings from "@/components/settings/OrganizationSettings";
 import WorkflowBuilder from "@/components/workflow/WorkflowBuilder";
 import PlayApp from "@/components/play/PlayApp";
+import GoalModule from "@/components/goals/GoalModule";
 import MobileTopBar from "@/components/MobileTopBar";
 import OGChatbot from "@/components/chatbot/OGChatbot";
 
@@ -31,6 +32,7 @@ const Index = () => {
     if (activeView === "admin") return <HelpStudio />;
     if (activeView === "settings") return <OrganizationSettings onNavigate={setActiveView} />;
     if (activeView === "workflow") return <WorkflowBuilder />;
+    if (activeView === "goals") return <GoalModule />;
     if (activeView.startsWith("play")) return <PlayApp view={activeView} onNavigate={setActiveView} />;
     return <DashboardContent onNavigate={setActiveView} />;
   };
