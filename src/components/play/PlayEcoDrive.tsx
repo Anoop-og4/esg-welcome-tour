@@ -882,27 +882,48 @@ export default function PlayEcoDrive() {
     touchStart.current = null;
   };
 
-  // DPR-aware canvas resize
+  // DPR-aware, container-relative canvas resize.
+  // Game logic stays in ROAD_W × ROAD_H units; the transform stretches
+  // those units to fill the actual displayed pixel size, so the box
+  // can grow on desktop without changing the simulation.
   useEffect(() => {
     const c = canvasRef.current;
     if (!c) return;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    c.width = ROAD_W * dpr;
-    c.height = ROAD_H * dpr;
-    c.style.width = "100%";
-    c.style.height = `${ROAD_H}px`;
-    const ctx = c.getContext("2d")!;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const resize = () => {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const rect = c.getBoundingClientRect();
+      const w = Math.max(1, rect.width);
+      const h = Math.max(1, rect.height);
+      c.width = Math.round(w * dpr);
+      c.height = Math.round(h * dpr);
+      const sx = (w * dpr) / ROAD_W;
+      const sy = (h * dpr) / ROAD_H;
+      const ctx = c.getContext("2d")!;
+      ctx.setTransform(sx, 0, 0, sy, 0, 0);
+    };
+
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(c);
+    window.addEventListener("resize", resize);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", resize);
+    };
   }, []);
 
   const xpPreview = Math.floor(hud.coins / 2);
   const batteryColor = hud.battery > 40 ? "bg-emerald-500" : hud.battery > 15 ? "bg-amber-500" : "bg-rose-500";
 
   return (
-    <div className="space-y-4 pb-8" ref={wrapRef}>
-      {/* Header / HUD */}
-      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-        <div className="flex items-start justify-between gap-3">
+    <div
+      ref={wrapRef}
+      className="pb-8 space-y-4 lg:space-y-0 lg:grid lg:gap-6 lg:items-start lg:grid-cols-[300px_minmax(0,1fr)_300px]"
+    >
+      {/* Header / HUD — top on mobile, left column on desktop */}
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm lg:order-1 lg:sticky lg:top-4">
+        <div className="flex items-start justify-between gap-3 lg:flex-col lg:items-stretch lg:gap-4">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">Arcade · ESG Series</p>
             <h2 className="text-xl font-extrabold tracking-tight">Eco Drive</h2>
@@ -968,10 +989,13 @@ export default function PlayEcoDrive() {
         </div>
       </div>
 
+      {/* Game column — center on desktop, fills viewport height for a bigger box on big screens */}
+      <div className="space-y-4 lg:order-2 lg:flex lg:flex-col lg:items-center lg:gap-4 lg:space-y-0">
+
       {/* Canvas / stage */}
       <div
-        className="relative mx-auto overflow-hidden rounded-3xl shadow-2xl select-none bg-black"
-        style={{ width: "100%", maxWidth: ROAD_W, height: ROAD_H }}
+        className="relative mx-auto overflow-hidden rounded-3xl shadow-2xl select-none bg-black w-full max-w-[360px] lg:max-w-none lg:w-auto lg:h-[min(88vh,900px)]"
+        style={{ aspectRatio: `${ROAD_W} / ${ROAD_H}` }}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
@@ -1083,7 +1107,7 @@ export default function PlayEcoDrive() {
       </div>
 
       {/* Mobile controls */}
-      <div className="grid grid-cols-2 gap-3 max-w-[380px] mx-auto">
+      <div className="grid grid-cols-2 gap-3 max-w-[380px] mx-auto w-full lg:max-w-[420px]">
         <button
           onTouchStart={(e) => { e.preventDefault(); moveLane(-1); }}
           onClick={() => moveLane(-1)}
@@ -1102,20 +1126,22 @@ export default function PlayEcoDrive() {
         </button>
       </div>
 
-      {/* Legend */}
-      <div className="rounded-2xl border border-border bg-card p-4">
+      </div>{/* /Game column */}
+
+      {/* Legend — bottom on mobile, right column on desktop */}
+      <div className="rounded-2xl border border-border bg-card p-4 lg:order-3 lg:sticky lg:top-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Pickups &amp; hazards</p>
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <LegendRow color="emerald" label="Leaf"    value="+10" desc="Green XP" />
-          <LegendRow color="sky"     label="Recycle" value="+15" desc="Clean loop" />
-          <LegendRow color="amber"   label="Charge"  value="+20" desc="Battery boost" />
+        <div className="grid grid-cols-2 gap-2 text-sm lg:grid-cols-1">
+          <LegendRow color="emerald" label="Leaf"    value="+15" desc="Green XP" />
+          <LegendRow color="sky"     label="Recycle" value="+25" desc="Clean loop" />
+          <LegendRow color="amber"   label="Charge"  value="+35" desc="Battery boost" />
           <LegendRow color="blue"    label="Shield"  value="Power" desc="Absorb 1 hit" />
           <LegendRow color="rose"    label="Magnet"  value="Power" desc="Pulls pickups" />
           <LegendRow color="purple"  label="2× Score" value="Power" desc="Double points" />
           <LegendRow color="zinc"    label="Oil"     value="Crash" desc="Avoid" hazard />
           <LegendRow color="zinc"    label="Smoke"   value="Crash" desc="Avoid" hazard />
         </div>
-        <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
           <span>Every 2 pickups = 1 ESG XP · Environmental 🌍</span>
           <span className="tabular-nums">Next payout: +{xpPreview} XP</span>
         </div>
