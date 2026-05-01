@@ -919,10 +919,10 @@ export default function PlayEcoDrive() {
   return (
     <div
       ref={wrapRef}
-      className="pb-8 space-y-4 lg:space-y-0 lg:grid lg:gap-6 lg:items-start lg:grid-cols-[300px_minmax(0,1fr)_300px]"
+      className="pb-8 space-y-4 lg:space-y-0 lg:flex lg:gap-6 lg:items-start lg:justify-center"
     >
       {/* Header / HUD — top on mobile, left column on desktop */}
-      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm lg:order-1 lg:sticky lg:top-4">
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm lg:w-[300px] lg:flex-none lg:sticky lg:top-4">
         <div className="flex items-start justify-between gap-3 lg:flex-col lg:items-stretch lg:gap-4">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">Arcade · ESG Series</p>
@@ -990,7 +990,7 @@ export default function PlayEcoDrive() {
       </div>
 
       {/* Game column — center on desktop, fills viewport height for a bigger box on big screens */}
-      <div className="space-y-4 lg:order-2 lg:flex lg:flex-col lg:items-center lg:gap-4 lg:space-y-0">
+      <div className="space-y-4 lg:flex-none lg:flex lg:flex-col lg:items-center lg:gap-4 lg:space-y-0">
 
       {/* Canvas / stage */}
       <div
@@ -1129,7 +1129,7 @@ export default function PlayEcoDrive() {
       </div>{/* /Game column */}
 
       {/* Legend — bottom on mobile, right column on desktop */}
-      <div className="rounded-2xl border border-border bg-card p-4 lg:order-3 lg:sticky lg:top-4">
+      <div className="rounded-2xl border border-border bg-card p-4 lg:w-[300px] lg:flex-none lg:sticky lg:top-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Pickups &amp; hazards</p>
         <div className="grid grid-cols-2 gap-2 text-sm lg:grid-cols-1">
           <LegendRow color="emerald" label="Leaf"    value="+15" desc="Green XP" />
