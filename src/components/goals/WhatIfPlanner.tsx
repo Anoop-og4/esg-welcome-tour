@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Lock, ArrowDown, ArrowUp, Trophy, FileDown, Save, Lock as LockIcon } from "lucide-react";
-import ActionBuilder from "./ActionBuilder";
+import ScenarioAssistant from "./ScenarioAssistant";
 import ScenarioTable from "./ScenarioTable";
 import TrajectoryChart from "./TrajectoryChart";
 import ScenarioDrawer from "./ScenarioDrawer";
@@ -73,7 +73,7 @@ export default function WhatIfPlanner() {
       {/* Builder + Table */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-2">
-          <ActionBuilder onAdd={handleAdd} />
+          <ScenarioAssistant onAdd={handleAdd} />
         </div>
         <div className="lg:col-span-3">
           <ScenarioTable scenarios={scenarios} onRemove={handleRemove} onView={setViewing} />
