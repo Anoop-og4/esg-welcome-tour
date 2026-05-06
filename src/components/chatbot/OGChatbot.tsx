@@ -539,12 +539,12 @@ function TopicList({
 }) {
   return (
     <motion.div
-      className="space-y-1"
+      className="space-y-1.5"
       initial="hidden"
       animate="visible"
       variants={{
         visible: {
-          transition: { staggerChildren: 0.03, delayChildren: 0.55 },
+          transition: { staggerChildren: 0.018, delayChildren: 0.18 },
         },
       }}
     >
@@ -572,74 +572,68 @@ function TopicRow({
   const Icon = topic.icon;
   const count = topic.suggestions.length;
   const isSurprise = topic.id === SURPRISE_TOPIC_ID;
+  const [hover, setHover] = useState(false);
 
   return (
     <motion.button
       type="button"
       onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       variants={{
-        hidden: { opacity: 0, y: 6 },
+        hidden: { opacity: 0, y: 4 },
         visible: { opacity: 1, y: 0 },
       }}
-      transition={{ duration: 0.32, ease: EASE }}
-      whileTap={{ scale: 0.992 }}
-      className="group relative flex w-full items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/[0.035]"
+      transition={{ duration: 0.22, ease: EASE }}
+      whileTap={{ scale: 0.995 }}
+      className="group relative flex w-full items-center gap-3 overflow-hidden text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22C55E]/40"
+      style={{
+        padding: "14px 16px",
+        borderRadius: 14,
+        background: hover ? C.accentSoft : "transparent",
+        border: `1px solid ${hover ? "rgba(34,197,94,0.18)" : C.borderSoft}`,
+      }}
     >
-      {/* Left accent rail — single signature hover */}
-      <span
-        aria-hidden
-        className="absolute left-0 top-2 bottom-2 w-[2px] origin-center scale-y-0 rounded-r-full transition-transform duration-300 ease-out group-hover:scale-y-100"
-        style={{ background: "hsl(var(--primary))" }}
-      />
-
       <div
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-300"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors"
         style={{
-          background:
-            variant === "special"
-              ? "hsl(var(--primary) / 0.10)"
-              : "hsl(0 0% 100% / 0.035)",
-          border: "1px solid hsl(0 0% 100% / 0.05)",
+          background: variant === "special" ? "rgba(34,197,94,0.10)" : C.surfaceAlt,
+          border: `1px solid ${C.borderSoft}`,
         }}
       >
         <Icon
-          size={15}
-          strokeWidth={1.85}
-          className="transition-colors duration-300 group-hover:text-[hsl(var(--primary))]"
-          style={{
-            color: isSurprise
-              ? "hsl(var(--primary))"
-              : "hsl(var(--foreground) / 0.6)",
-          }}
+          size={16}
+          strokeWidth={1.9}
+          style={{ color: isSurprise || hover ? C.accent : C.text2 }}
         />
       </div>
 
       <div className="min-w-0 flex-1">
         <div
-          className="font-display text-[13.5px] font-semibold tracking-tight transition-transform duration-300 group-hover:translate-x-[3px]"
-          style={{ color: "hsl(var(--foreground) / 0.92)" }}
+          className="font-display text-[14px] font-semibold tracking-tight"
+          style={{ color: C.text }}
         >
           {topic.label}
         </div>
         <div
-          className="truncate text-[11.5px] leading-snug transition-transform duration-300 group-hover:translate-x-[3px]"
-          style={{ color: "hsl(var(--foreground) / 0.45)" }}
+          className="truncate text-[12px] leading-snug"
+          style={{ color: C.text2 }}
         >
           {topic.description}
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2.5">
         <span
-          className="tabular-nums text-[10.5px]"
-          style={{ color: "hsl(var(--foreground) / 0.38)" }}
+          className="tabular-nums text-[11px]"
+          style={{ color: C.muted }}
         >
-          {isSurprise ? "random" : count}
+          {isSurprise ? "curated mix" : `${count} questions`}
         </span>
         <ChevronRight
-          size={13}
-          className="opacity-30 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-70"
-          style={{ color: "hsl(var(--foreground))" }}
+          size={15}
+          className="transition-transform duration-200 group-hover:translate-x-0.5"
+          style={{ color: hover ? C.accent : C.muted }}
         />
       </div>
     </motion.button>
@@ -650,41 +644,37 @@ function TopicRow({
 
 function TopicIntro({ topic }: { topic: Topic }) {
   const isSurprise = topic.id === SURPRISE_TOPIC_ID;
+  const subtitle =
+    topic.id === "emissions"
+      ? "Explore Scope 1, 2, and 3 emissions across summaries, trends, and YoY comparisons."
+      : topic.description;
+  const meta = isSurprise
+    ? null
+    : `${topic.suggestions.length} questions · FY2022–FY2024 · Last updated 2 hours ago`;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.36, ease: EASE }}
-      className="space-y-1"
+      transition={{ duration: 0.22, ease: EASE }}
+      className="space-y-1.5 pb-1"
     >
       <h3
         className="font-display font-semibold tracking-tight"
-        style={{
-          fontSize: 19,
-          letterSpacing: "-0.025em",
-          color: "hsl(var(--foreground) / 0.95)",
-        }}
+        style={{ fontSize: 19, letterSpacing: "-0.025em", color: C.text }}
       >
         {topic.label}
       </h3>
-      <p
-        className="text-[12px] leading-relaxed"
-        style={{ color: "hsl(var(--foreground) / 0.5)" }}
-      >
-        {topic.description}
-        {!isSurprise && (
-          <>
-            {" — "}
-            <span
-              className="tabular-nums"
-              style={{ color: "hsl(var(--foreground) / 0.7)" }}
-            >
-              {topic.suggestions.length}
-            </span>{" "}
-            curated questions
-          </>
-        )}
+      <p className="text-[12.5px] leading-relaxed" style={{ color: C.text2 }}>
+        {subtitle}
       </p>
+      {meta && (
+        <div
+          className="text-[11px] tabular-nums pt-0.5"
+          style={{ color: C.muted }}
+        >
+          {meta}
+        </div>
+      )}
     </motion.div>
   );
 }
