@@ -477,10 +477,9 @@ function Header({
 
 /* ───────────────────────────── Greeting ──────────────────────────────── */
 
-const GREETING_LINE = "What do you want to know?";
+const GREETING_LINE = "What do you want to analyze?";
 
 function Greeting() {
-  // Letter-by-letter rise — one-time signature, ~600ms total
   const letters = useMemo(() => GREETING_LINE.split(""), []);
   return (
     <div className="pt-2">
@@ -489,13 +488,13 @@ function Greeting() {
         style={{
           fontSize: 22,
           letterSpacing: "-0.025em",
-          color: "hsl(var(--foreground) / 0.96)",
+          color: C.text,
         }}
         initial="hidden"
         animate="visible"
         variants={{
           visible: {
-            transition: { staggerChildren: 0.018, delayChildren: 0.05 },
+            transition: { staggerChildren: 0.012, delayChildren: 0.02 },
           },
         }}
         aria-label={GREETING_LINE}
@@ -505,10 +504,10 @@ function Greeting() {
             key={i}
             aria-hidden
             variants={{
-              hidden: { opacity: 0, y: 6 },
+              hidden: { opacity: 0, y: 4 },
               visible: { opacity: 1, y: 0 },
             }}
-            transition={{ duration: 0.35, ease: EASE }}
+            transition={{ duration: 0.22, ease: EASE }}
             style={{ display: "inline-block", whiteSpace: "pre" }}
           >
             {ch}
@@ -518,12 +517,12 @@ function Greeting() {
 
       <motion.p
         className="mt-1.5 text-[12.5px] leading-relaxed"
-        style={{ color: "hsl(var(--foreground) / 0.5)" }}
-        initial={{ opacity: 0, y: 4 }}
+        style={{ color: C.text2 }}
+        initial={{ opacity: 0, y: 3 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.4, ease: EASE }}
+        transition={{ duration: 0.2, delay: 0.18, ease: EASE }}
       >
-        Type your question, or pick a topic below.
+        Search or choose a topic below.
       </motion.p>
     </div>
   );
