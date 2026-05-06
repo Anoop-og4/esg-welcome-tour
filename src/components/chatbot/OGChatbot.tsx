@@ -325,14 +325,14 @@ function DrawerShell({
       <motion.div
         className="absolute inset-0"
         style={{
-          background: "hsl(220 25% 4% / 0.42)",
-          backdropFilter: "blur(10px) saturate(140%)",
-          WebkitBackdropFilter: "blur(10px) saturate(140%)",
+          background: "rgba(31, 41, 51, 0.32)",
+          backdropFilter: "blur(8px) saturate(140%)",
+          WebkitBackdropFilter: "blur(8px) saturate(140%)",
         }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.28, ease: EASE }}
+        transition={{ duration: 0.18, ease: EASE }}
         onClick={onClose}
       />
 
@@ -346,29 +346,20 @@ function DrawerShell({
           right: 12,
           bottom: 12,
           width: "min(490px, calc(100vw - 24px))",
-          background: "hsl(var(--card) / 0.82)",
-          backdropFilter: "blur(28px) saturate(170%)",
-          WebkitBackdropFilter: "blur(28px) saturate(170%)",
-          border: "1px solid hsl(0 0% 100% / 0.07)",
+          background: "rgba(255, 255, 255, 0.92)",
+          backdropFilter: "blur(24px) saturate(160%)",
+          WebkitBackdropFilter: "blur(24px) saturate(160%)",
+          border: `1px solid ${C.borderSoft}`,
           borderRadius: 22,
           boxShadow:
-            "0 40px 80px -16px hsl(220 30% 2% / 0.6), 0 0 0 1px hsl(0 0% 100% / 0.04) inset",
+            "0 24px 60px -16px rgba(31, 41, 51, 0.18), 0 2px 6px rgba(31, 41, 51, 0.04)",
+          color: C.text,
         }}
-        initial={{ opacity: 0, x: 24, scale: 0.985 }}
+        initial={{ opacity: 0, x: 16, scale: 0.99 }}
         animate={{ opacity: 1, x: 0, scale: 1 }}
-        exit={{ opacity: 0, x: 24, scale: 0.985 }}
-        transition={{ type: "spring", stiffness: 320, damping: 36, mass: 0.85 }}
+        exit={{ opacity: 0, x: 16, scale: 0.99 }}
+        transition={{ type: "spring", stiffness: 400, damping: 38, mass: 0.7 }}
       >
-        {/* Top ambient glow */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[140%] -translate-x-1/2 rounded-full"
-          style={{
-            background:
-              "radial-gradient(ellipse at center, hsl(var(--primary) / 0.16) 0%, transparent 60%)",
-            filter: "blur(24px)",
-          }}
-        />
         {children}
       </motion.aside>
     </div>
