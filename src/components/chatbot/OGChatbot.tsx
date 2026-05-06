@@ -185,11 +185,11 @@ export default function OGChatbot() {
                   {view === "welcome" && (
                     <motion.div
                       key="welcome"
-                      initial={{ opacity: 0, y: 4 }}
+                      initial={{ opacity: 0, y: 3 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -4 }}
-                      transition={{ duration: 0.22, ease: EASE }}
-                      className="space-y-6"
+                      exit={{ opacity: 0, y: -3 }}
+                      transition={{ duration: 0.16, ease: EASE }}
+                      className="space-y-5"
                     >
                       <Greeting />
                       <TopicList
@@ -205,8 +205,8 @@ export default function OGChatbot() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2, ease: EASE }}
-                      className="space-y-4"
+                      transition={{ duration: 0.14, ease: EASE }}
+                      className="space-y-3"
                     >
                       <TopicIntro topic={activeTopic} />
                       <QuestionList
@@ -219,10 +219,10 @@ export default function OGChatbot() {
                   {view === "chat" && (
                     <motion.div
                       key="chat"
-                      initial={{ opacity: 0, y: 6 }}
+                      initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -6 }}
-                      transition={{ duration: 0.3, ease: EASE }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.2, ease: EASE }}
                       className="flex flex-col gap-5 py-2"
                     >
                       {messages.map((m, i) => (
