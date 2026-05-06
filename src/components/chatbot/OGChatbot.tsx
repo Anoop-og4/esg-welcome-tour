@@ -243,6 +243,7 @@ export default function OGChatbot() {
               onQuickPrompt={(p) => sendMessage(p)}
               context={activeTopic?.label}
               showQuickPrompts={view === "welcome" && !input}
+              view={view}
             />
           </DrawerShell>
         )}
