@@ -138,7 +138,7 @@ export const TOPICS: Topic[] = [
 
 export const SURPRISE_TOPIC: Topic = {
   id: SURPRISE_TOPIC_ID,
-  label: "Surprise me",
+  label: "Find key insights",
   description: "A curated mix from across your data",
   icon: Sparkles,
   suggestions: [],

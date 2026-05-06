@@ -40,6 +40,20 @@ interface Message {
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
+// Light enterprise palette
+const C = {
+  text: "#1F2933",
+  text2: "#6B7280",
+  muted: "#9CA3AF",
+  border: "#D8DEE4",
+  borderSoft: "#E5E9EF",
+  surface: "#FFFFFF",
+  surfaceAlt: "#F7F8FA",
+  accent: "#22C55E",
+  accentSoft: "rgba(34, 197, 94, 0.07)",
+  accentSel: "rgba(34, 197, 94, 0.10)",
+};
+
 const QUICK_PROMPTS = [
   "What's our footprint this FY?",
   "Compare emissions YoY",
@@ -171,11 +185,11 @@ export default function OGChatbot() {
                   {view === "welcome" && (
                     <motion.div
                       key="welcome"
-                      initial={{ opacity: 0, y: 4 }}
+                      initial={{ opacity: 0, y: 3 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -4 }}
-                      transition={{ duration: 0.22, ease: EASE }}
-                      className="space-y-6"
+                      exit={{ opacity: 0, y: -3 }}
+                      transition={{ duration: 0.16, ease: EASE }}
+                      className="space-y-5"
                     >
                       <Greeting />
                       <TopicList
@@ -191,8 +205,8 @@ export default function OGChatbot() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2, ease: EASE }}
-                      className="space-y-4"
+                      transition={{ duration: 0.14, ease: EASE }}
+                      className="space-y-3"
                     >
                       <TopicIntro topic={activeTopic} />
                       <QuestionList
@@ -205,10 +219,10 @@ export default function OGChatbot() {
                   {view === "chat" && (
                     <motion.div
                       key="chat"
-                      initial={{ opacity: 0, y: 6 }}
+                      initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -6 }}
-                      transition={{ duration: 0.3, ease: EASE }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.2, ease: EASE }}
                       className="flex flex-col gap-5 py-2"
                     >
                       {messages.map((m, i) => (
@@ -229,6 +243,7 @@ export default function OGChatbot() {
               onQuickPrompt={(p) => sendMessage(p)}
               context={activeTopic?.label}
               showQuickPrompts={view === "welcome" && !input}
+              view={view}
             />
           </DrawerShell>
         )}
@@ -311,14 +326,14 @@ function DrawerShell({
       <motion.div
         className="absolute inset-0"
         style={{
-          background: "hsl(220 25% 4% / 0.42)",
-          backdropFilter: "blur(10px) saturate(140%)",
-          WebkitBackdropFilter: "blur(10px) saturate(140%)",
+          background: "rgba(31, 41, 51, 0.32)",
+          backdropFilter: "blur(8px) saturate(140%)",
+          WebkitBackdropFilter: "blur(8px) saturate(140%)",
         }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.28, ease: EASE }}
+        transition={{ duration: 0.18, ease: EASE }}
         onClick={onClose}
       />
 
@@ -332,29 +347,20 @@ function DrawerShell({
           right: 12,
           bottom: 12,
           width: "min(490px, calc(100vw - 24px))",
-          background: "hsl(var(--card) / 0.82)",
-          backdropFilter: "blur(28px) saturate(170%)",
-          WebkitBackdropFilter: "blur(28px) saturate(170%)",
-          border: "1px solid hsl(0 0% 100% / 0.07)",
+          background: "rgba(255, 255, 255, 0.92)",
+          backdropFilter: "blur(24px) saturate(160%)",
+          WebkitBackdropFilter: "blur(24px) saturate(160%)",
+          border: `1px solid ${C.borderSoft}`,
           borderRadius: 22,
           boxShadow:
-            "0 40px 80px -16px hsl(220 30% 2% / 0.6), 0 0 0 1px hsl(0 0% 100% / 0.04) inset",
+            "0 24px 60px -16px rgba(31, 41, 51, 0.18), 0 2px 6px rgba(31, 41, 51, 0.04)",
+          color: C.text,
         }}
-        initial={{ opacity: 0, x: 24, scale: 0.985 }}
+        initial={{ opacity: 0, x: 16, scale: 0.99 }}
         animate={{ opacity: 1, x: 0, scale: 1 }}
-        exit={{ opacity: 0, x: 24, scale: 0.985 }}
-        transition={{ type: "spring", stiffness: 320, damping: 36, mass: 0.85 }}
+        exit={{ opacity: 0, x: 16, scale: 0.99 }}
+        transition={{ type: "spring", stiffness: 400, damping: 38, mass: 0.7 }}
       >
-        {/* Top ambient glow */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[140%] -translate-x-1/2 rounded-full"
-          style={{
-            background:
-              "radial-gradient(ellipse at center, hsl(var(--primary) / 0.16) 0%, transparent 60%)",
-            filter: "blur(24px)",
-          }}
-        />
         {children}
       </motion.aside>
     </div>
@@ -380,7 +386,7 @@ function Header({
   return (
     <div
       className="relative z-10 flex shrink-0 items-center justify-between px-4 py-3.5"
-      style={{ borderBottom: "1px solid hsl(0 0% 100% / 0.05)" }}
+      style={{ borderBottom: `1px solid ${C.borderSoft}` }}
     >
       <div className="flex items-center gap-2.5">
         <AnimatePresence mode="wait" initial={false}>
@@ -390,20 +396,17 @@ function Header({
               type="button"
               onClick={onBack}
               aria-label="Back"
-              className="flex h-7 w-7 items-center justify-center rounded-lg"
+              className="flex h-7 w-7 items-center justify-center rounded-lg focus:outline-none focus-visible:ring-2"
               style={{
-                background: "hsl(0 0% 100% / 0.04)",
-                color: "hsl(var(--foreground) / 0.7)",
+                background: C.surfaceAlt,
+                color: C.text2,
               }}
-              whileHover={{
-                backgroundColor: "hsl(0 0% 100% / 0.08)",
-                x: -1,
-              }}
+              whileHover={{ backgroundColor: "#EEF1F5", x: -1 }}
               whileTap={{ scale: 0.92 }}
               initial={{ opacity: 0, x: 6 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 6 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15 }}
             >
               <ArrowLeft size={14} />
             </motion.button>
@@ -414,11 +417,11 @@ function Header({
 
         {view === "topic" && activeTopic && (
           <motion.span
-            initial={{ opacity: 0, y: 4 }}
+            initial={{ opacity: 0, y: 3 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.18 }}
             className="font-display text-[13.5px] font-semibold tracking-tight"
-            style={{ color: "hsl(var(--foreground) / 0.92)" }}
+            style={{ color: C.text }}
           >
             {activeTopic.label}
           </motion.span>
@@ -426,11 +429,11 @@ function Header({
 
         {view === "chat" && (
           <motion.span
-            initial={{ opacity: 0, y: 4 }}
+            initial={{ opacity: 0, y: 3 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.18 }}
             className="text-[12.5px]"
-            style={{ color: "hsl(var(--foreground) / 0.55)" }}
+            style={{ color: C.text2 }}
           >
             Conversation
           </motion.span>
@@ -443,13 +446,13 @@ function Header({
             type="button"
             onClick={onNewChat}
             aria-label="New chat"
-            className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em]"
+            className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] focus:outline-none focus-visible:ring-2"
             style={{
-              background: "hsl(0 0% 100% / 0.04)",
-              color: "hsl(var(--foreground) / 0.65)",
-              border: "1px solid hsl(0 0% 100% / 0.05)",
+              background: C.surfaceAlt,
+              color: C.text2,
+              border: `1px solid ${C.borderSoft}`,
             }}
-            whileHover={{ backgroundColor: "hsl(0 0% 100% / 0.08)" }}
+            whileHover={{ backgroundColor: "#EEF1F5" }}
             whileTap={{ scale: 0.96 }}
             initial={{ opacity: 0, x: 6 }}
             animate={{ opacity: 1, x: 0 }}
@@ -463,8 +466,8 @@ function Header({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="ml-1 flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-white/[0.06]"
-          style={{ color: "hsl(var(--foreground) / 0.55)" }}
+          className="ml-1 flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-[#EEF1F5] focus:outline-none focus-visible:ring-2"
+          style={{ color: C.text2 }}
         >
           <X size={14} />
         </button>
@@ -475,10 +478,9 @@ function Header({
 
 /* ───────────────────────────── Greeting ──────────────────────────────── */
 
-const GREETING_LINE = "What do you want to know?";
+const GREETING_LINE = "What do you want to analyze?";
 
 function Greeting() {
-  // Letter-by-letter rise — one-time signature, ~600ms total
   const letters = useMemo(() => GREETING_LINE.split(""), []);
   return (
     <div className="pt-2">
@@ -487,13 +489,13 @@ function Greeting() {
         style={{
           fontSize: 22,
           letterSpacing: "-0.025em",
-          color: "hsl(var(--foreground) / 0.96)",
+          color: C.text,
         }}
         initial="hidden"
         animate="visible"
         variants={{
           visible: {
-            transition: { staggerChildren: 0.018, delayChildren: 0.05 },
+            transition: { staggerChildren: 0.012, delayChildren: 0.02 },
           },
         }}
         aria-label={GREETING_LINE}
@@ -503,10 +505,10 @@ function Greeting() {
             key={i}
             aria-hidden
             variants={{
-              hidden: { opacity: 0, y: 6 },
+              hidden: { opacity: 0, y: 4 },
               visible: { opacity: 1, y: 0 },
             }}
-            transition={{ duration: 0.35, ease: EASE }}
+            transition={{ duration: 0.22, ease: EASE }}
             style={{ display: "inline-block", whiteSpace: "pre" }}
           >
             {ch}
@@ -516,12 +518,12 @@ function Greeting() {
 
       <motion.p
         className="mt-1.5 text-[12.5px] leading-relaxed"
-        style={{ color: "hsl(var(--foreground) / 0.5)" }}
-        initial={{ opacity: 0, y: 4 }}
+        style={{ color: C.text2 }}
+        initial={{ opacity: 0, y: 3 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.4, ease: EASE }}
+        transition={{ duration: 0.2, delay: 0.18, ease: EASE }}
       >
-        Type your question, or pick a topic below.
+        Search or choose a topic below.
       </motion.p>
     </div>
   );
@@ -538,12 +540,12 @@ function TopicList({
 }) {
   return (
     <motion.div
-      className="space-y-1"
+      className="space-y-1.5"
       initial="hidden"
       animate="visible"
       variants={{
         visible: {
-          transition: { staggerChildren: 0.03, delayChildren: 0.55 },
+          transition: { staggerChildren: 0.018, delayChildren: 0.18 },
         },
       }}
     >
@@ -571,74 +573,68 @@ function TopicRow({
   const Icon = topic.icon;
   const count = topic.suggestions.length;
   const isSurprise = topic.id === SURPRISE_TOPIC_ID;
+  const [hover, setHover] = useState(false);
 
   return (
     <motion.button
       type="button"
       onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       variants={{
-        hidden: { opacity: 0, y: 6 },
+        hidden: { opacity: 0, y: 4 },
         visible: { opacity: 1, y: 0 },
       }}
-      transition={{ duration: 0.32, ease: EASE }}
-      whileTap={{ scale: 0.992 }}
-      className="group relative flex w-full items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/[0.035]"
+      transition={{ duration: 0.22, ease: EASE }}
+      whileTap={{ scale: 0.995 }}
+      className="group relative flex w-full items-center gap-3 overflow-hidden text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22C55E]/40"
+      style={{
+        padding: "14px 16px",
+        borderRadius: 14,
+        background: hover ? C.accentSoft : "transparent",
+        border: `1px solid ${hover ? "rgba(34,197,94,0.18)" : C.borderSoft}`,
+      }}
     >
-      {/* Left accent rail — single signature hover */}
-      <span
-        aria-hidden
-        className="absolute left-0 top-2 bottom-2 w-[2px] origin-center scale-y-0 rounded-r-full transition-transform duration-300 ease-out group-hover:scale-y-100"
-        style={{ background: "hsl(var(--primary))" }}
-      />
-
       <div
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-300"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors"
         style={{
-          background:
-            variant === "special"
-              ? "hsl(var(--primary) / 0.10)"
-              : "hsl(0 0% 100% / 0.035)",
-          border: "1px solid hsl(0 0% 100% / 0.05)",
+          background: variant === "special" ? "rgba(34,197,94,0.10)" : C.surfaceAlt,
+          border: `1px solid ${C.borderSoft}`,
         }}
       >
         <Icon
-          size={15}
-          strokeWidth={1.85}
-          className="transition-colors duration-300 group-hover:text-[hsl(var(--primary))]"
-          style={{
-            color: isSurprise
-              ? "hsl(var(--primary))"
-              : "hsl(var(--foreground) / 0.6)",
-          }}
+          size={16}
+          strokeWidth={1.9}
+          style={{ color: isSurprise || hover ? C.accent : C.text2 }}
         />
       </div>
 
       <div className="min-w-0 flex-1">
         <div
-          className="font-display text-[13.5px] font-semibold tracking-tight transition-transform duration-300 group-hover:translate-x-[3px]"
-          style={{ color: "hsl(var(--foreground) / 0.92)" }}
+          className="font-display text-[14px] font-semibold tracking-tight"
+          style={{ color: C.text }}
         >
           {topic.label}
         </div>
         <div
-          className="truncate text-[11.5px] leading-snug transition-transform duration-300 group-hover:translate-x-[3px]"
-          style={{ color: "hsl(var(--foreground) / 0.45)" }}
+          className="truncate text-[12px] leading-snug"
+          style={{ color: C.text2 }}
         >
           {topic.description}
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2.5">
         <span
-          className="tabular-nums text-[10.5px]"
-          style={{ color: "hsl(var(--foreground) / 0.38)" }}
+          className="tabular-nums text-[11px]"
+          style={{ color: C.muted }}
         >
-          {isSurprise ? "random" : count}
+          {isSurprise ? "curated mix" : `${count} questions`}
         </span>
         <ChevronRight
-          size={13}
-          className="opacity-30 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-70"
-          style={{ color: "hsl(var(--foreground))" }}
+          size={15}
+          className="transition-transform duration-200 group-hover:translate-x-0.5"
+          style={{ color: hover ? C.accent : C.muted }}
         />
       </div>
     </motion.button>
@@ -649,41 +645,37 @@ function TopicRow({
 
 function TopicIntro({ topic }: { topic: Topic }) {
   const isSurprise = topic.id === SURPRISE_TOPIC_ID;
+  const subtitle =
+    topic.id === "emissions"
+      ? "Explore Scope 1, 2, and 3 emissions across summaries, trends, and YoY comparisons."
+      : topic.description;
+  const meta = isSurprise
+    ? null
+    : `${topic.suggestions.length} questions · FY2022–FY2024 · Last updated 2 hours ago`;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.36, ease: EASE }}
-      className="space-y-1"
+      transition={{ duration: 0.22, ease: EASE }}
+      className="space-y-1.5 pb-1"
     >
       <h3
         className="font-display font-semibold tracking-tight"
-        style={{
-          fontSize: 19,
-          letterSpacing: "-0.025em",
-          color: "hsl(var(--foreground) / 0.95)",
-        }}
+        style={{ fontSize: 19, letterSpacing: "-0.025em", color: C.text }}
       >
         {topic.label}
       </h3>
-      <p
-        className="text-[12px] leading-relaxed"
-        style={{ color: "hsl(var(--foreground) / 0.5)" }}
-      >
-        {topic.description}
-        {!isSurprise && (
-          <>
-            {" — "}
-            <span
-              className="tabular-nums"
-              style={{ color: "hsl(var(--foreground) / 0.7)" }}
-            >
-              {topic.suggestions.length}
-            </span>{" "}
-            curated questions
-          </>
-        )}
+      <p className="text-[12.5px] leading-relaxed" style={{ color: C.text2 }}>
+        {subtitle}
       </p>
+      {meta && (
+        <div
+          className="text-[11px] tabular-nums pt-0.5"
+          style={{ color: C.muted }}
+        >
+          {meta}
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -732,9 +724,10 @@ function QuestionList({
       animate="visible"
       variants={{
         visible: {
-          transition: { staggerChildren: 0.04, delayChildren: 0.18 },
+          transition: { staggerChildren: 0.022, delayChildren: 0.06 },
         },
       }}
+      className="space-y-0.5"
     >
       {flat.map((item) => {
         if (item.kind === "label") {
@@ -745,21 +738,21 @@ function QuestionList({
                 hidden: { opacity: 0 },
                 visible: { opacity: 1 },
               }}
-              transition={{ duration: 0.32, ease: EASE }}
-              className={`flex items-center gap-2 px-0.5 mb-2 ${
-                item.isFirst ? "" : "mt-5"
+              transition={{ duration: 0.2, ease: EASE }}
+              className={`flex items-center gap-2 px-1 mb-1.5 ${
+                item.isFirst ? "mt-1" : "mt-6"
               }`}
             >
               <span
-                className="text-[9.5px] font-semibold uppercase tracking-[0.16em]"
-                style={{ color: "hsl(var(--foreground) / 0.4)" }}
+                className="text-[10px] font-semibold uppercase tracking-[0.16em]"
+                style={{ color: C.muted }}
               >
                 {item.text}
               </span>
               <span
                 aria-hidden
                 className="h-px flex-1"
-                style={{ background: "hsl(0 0% 100% / 0.05)" }}
+                style={{ background: C.borderSoft }}
               />
             </motion.div>
           );
@@ -783,33 +776,36 @@ function QuestionRow({
   suggestion: Suggestion;
   onClick: () => void;
 }) {
+  const [hover, setHover] = useState(false);
   return (
     <motion.button
       type="button"
       onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       variants={{
-        hidden: { opacity: 0, y: 12, scale: 0.985, filter: "blur(4px)" },
-        visible: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
+        hidden: { opacity: 0, y: 4 },
+        visible: { opacity: 1, y: 0 },
       }}
-      transition={{ duration: 0.46, ease: EASE }}
-      whileTap={{ scale: 0.995 }}
-      className="group relative flex w-full items-center gap-2 rounded-lg px-2.5 py-2.5 text-left transition-colors hover:bg-white/[0.03]"
+      transition={{ duration: 0.22, ease: EASE }}
+      whileTap={{ scale: 0.997 }}
+      className="group relative flex w-full items-center gap-2 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22C55E]/40"
+      style={{
+        padding: "10px 12px",
+        borderRadius: 12,
+        background: hover ? C.accentSoft : "transparent",
+      }}
     >
       <span
-        aria-hidden
-        className="absolute left-0 top-2.5 bottom-2.5 w-[2px] origin-center scale-y-0 rounded-r-full transition-transform duration-300 ease-out group-hover:scale-y-100"
-        style={{ background: "hsl(var(--primary))" }}
-      />
-      <span
-        className="flex-1 text-[13px] leading-snug transition-transform duration-300 group-hover:translate-x-[3px]"
-        style={{ color: "hsl(var(--foreground) / 0.82)" }}
+        className="flex-1 text-[13px] leading-snug"
+        style={{ color: C.text }}
       >
         {suggestion.text}
       </span>
       <ChevronRight
-        size={13}
-        className="shrink-0 opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-60"
-        style={{ color: "hsl(var(--primary))" }}
+        size={14}
+        className="shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
+        style={{ color: hover ? C.accent : C.muted }}
       />
     </motion.button>
   );
@@ -825,30 +821,23 @@ function Message({ message, index }: { message: Message; index: number }) {
 function UserMessage({ content, index }: { content: string; index: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
+      initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease: EASE, delay: Math.min(index * 0.02, 0.08) }}
+      transition={{ duration: 0.2, ease: EASE, delay: Math.min(index * 0.015, 0.06) }}
       className="space-y-1.5"
     >
       <div className="flex items-center gap-1.5 px-0.5">
         <span
-          className="text-[9.5px] font-semibold uppercase tracking-[0.16em]"
-          style={{ color: "hsl(var(--foreground) / 0.42)" }}
+          className="text-[10px] font-semibold uppercase tracking-[0.16em]"
+          style={{ color: C.muted }}
         >
           You asked
         </span>
-        <span
-          aria-hidden
-          className="h-px flex-1"
-          style={{ background: "hsl(0 0% 100% / 0.05)" }}
-        />
+        <span aria-hidden className="h-px flex-1" style={{ background: C.borderSoft }} />
       </div>
       <p
         className="font-display text-[15px] font-semibold leading-snug tracking-tight px-0.5"
-        style={{
-          color: "hsl(var(--foreground) / 0.96)",
-          letterSpacing: "-0.015em",
-        }}
+        style={{ color: C.text, letterSpacing: "-0.015em" }}
       >
         {content}
       </p>
@@ -879,58 +868,35 @@ function OGMessage({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.34, ease: EASE, delay: Math.min(index * 0.02, 0.1) }}
+      transition={{ duration: 0.24, ease: EASE, delay: Math.min(index * 0.015, 0.08) }}
       className="space-y-2.5 rounded-xl p-3.5"
       style={{
-        background: "hsl(0 0% 100% / 0.025)",
-        border: "1px solid hsl(0 0% 100% / 0.05)",
+        background: C.surfaceAlt,
+        border: `1px solid ${C.borderSoft}`,
       }}
     >
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <OGMark size={11} showDot={false} />
-          <span
-            aria-hidden
-            className="h-2 w-px"
-            style={{ background: "hsl(0 0% 100% / 0.1)" }}
-          />
-          <span
-            className="text-[10px] tabular-nums"
-            style={{ color: "hsl(var(--foreground) / 0.42)" }}
-          >
+          <span aria-hidden className="h-2 w-px" style={{ background: C.border }} />
+          <span className="text-[10px] tabular-nums" style={{ color: C.muted }}>
             {time}
           </span>
         </div>
-        <span
-          className="text-[10px]"
-          style={{ color: "hsl(var(--foreground) / 0.4)" }}
-        >
-          checked{" "}
-          <span
-            className="tabular-nums"
-            style={{ color: "hsl(var(--foreground) / 0.6)" }}
-          >
-            4
-          </span>{" "}
-          sources
+        <span className="text-[10px]" style={{ color: C.muted }}>
+          checked <span className="tabular-nums" style={{ color: C.text2 }}>4</span> sources
         </span>
       </div>
 
-      {/* Body */}
-      <p
-        className="text-[13.5px] leading-relaxed"
-        style={{ color: "hsl(var(--foreground) / 0.88)" }}
-      >
+      <p className="text-[13.5px] leading-relaxed" style={{ color: C.text }}>
         {content}
       </p>
 
-      {/* Footer */}
       <div
         className="flex items-center justify-between pt-2"
-        style={{ borderTop: "1px solid hsl(0 0% 100% / 0.04)" }}
+        style={{ borderTop: `1px solid ${C.borderSoft}` }}
       >
         <div className="flex flex-wrap items-center gap-1">
           {["Scope 1", "Scope 2", "Facilities"].map((src) => (
@@ -938,9 +904,9 @@ function OGMessage({
               key={src}
               className="rounded-full px-1.5 py-0.5 text-[10px] tabular-nums"
               style={{
-                background: "hsl(var(--primary) / 0.08)",
-                color: "hsl(var(--primary))",
-                border: "1px solid hsl(var(--primary) / 0.14)",
+                background: "rgba(34,197,94,0.10)",
+                color: C.accent,
+                border: "1px solid rgba(34,197,94,0.22)",
               }}
             >
               {src}
@@ -952,16 +918,16 @@ function OGMessage({
             type="button"
             onClick={handleCopy}
             aria-label="Copy"
-            className="flex h-6 w-6 items-center justify-center rounded-md transition-colors hover:bg-white/[0.06]"
-            style={{ color: "hsl(var(--foreground) / 0.5)" }}
+            className="flex h-6 w-6 items-center justify-center rounded-md transition-colors hover:bg-[#EEF1F5]"
+            style={{ color: C.text2 }}
           >
             <Copy size={11} />
           </button>
           <button
             type="button"
             aria-label="Regenerate"
-            className="flex h-6 w-6 items-center justify-center rounded-md transition-colors hover:bg-white/[0.06]"
-            style={{ color: "hsl(var(--foreground) / 0.5)" }}
+            className="flex h-6 w-6 items-center justify-center rounded-md transition-colors hover:bg-[#EEF1F5]"
+            style={{ color: C.text2 }}
           >
             <RotateCcw size={11} />
           </button>
@@ -973,9 +939,9 @@ function OGMessage({
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.18 }}
             className="text-[10px] tabular-nums"
-            style={{ color: "hsl(var(--primary))" }}
+            style={{ color: C.accent }}
           >
             Copied
           </motion.div>
@@ -991,31 +957,26 @@ function Thinking() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.16 }}
       className="space-y-2"
     >
       <div className="flex items-center gap-2 px-0.5">
         <OGMark size={11} showDot={false} />
-        <span
-          className="text-[10.5px]"
-          style={{ color: "hsl(var(--foreground) / 0.55)" }}
-        >
+        <span className="text-[10.5px]" style={{ color: C.text2 }}>
           thinking…
         </span>
       </div>
-      {/* Scanline — the signature thinking effect */}
       <div
         className="relative h-px overflow-hidden rounded-full"
-        style={{ background: "hsl(0 0% 100% / 0.05)" }}
+        style={{ background: C.borderSoft }}
       >
         <motion.div
           className="absolute top-0 h-full w-1/3"
           style={{
-            background:
-              "linear-gradient(90deg, transparent, hsl(var(--primary)), transparent)",
+            background: `linear-gradient(90deg, transparent, ${C.accent}, transparent)`,
           }}
           animate={{ x: ["-100%", "300%"] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
     </motion.div>
@@ -1032,6 +993,7 @@ function Composer({
   onQuickPrompt,
   context,
   showQuickPrompts,
+  view,
 }: {
   inputRef: React.RefObject<HTMLTextAreaElement>;
   value: string;
@@ -1040,6 +1002,7 @@ function Composer({
   onQuickPrompt: (p: string) => void;
   context?: string;
   showQuickPrompts: boolean;
+  view: View;
 }) {
   const [focused, setFocused] = useState(false);
   const hasText = value.trim().length > 0;
@@ -1061,15 +1024,42 @@ function Composer({
     }
   };
 
-  const placeholder = context
-    ? `Ask about ${context.toLowerCase()}…`
-    : "Ask anything about your ESG data…";
+  const placeholder =
+    view === "topic" && context
+      ? `Ask about ${context.toLowerCase()}...`
+      : "Ask about emissions, energy, waste, or facilities...";
 
   return (
     <div
       className="relative shrink-0 px-4 pb-3 pt-2"
-      style={{ borderTop: "1px solid hsl(0 0% 100% / 0.05)" }}
+      style={{ borderTop: `1px solid ${C.borderSoft}` }}
     >
+      {view === "topic" && (
+        <div
+          className="mb-2 flex items-center justify-between rounded-lg px-3 py-2"
+          style={{
+            background: C.surfaceAlt,
+            border: `1px solid ${C.borderSoft}`,
+          }}
+        >
+          <div>
+            <div
+              className="text-[10px] font-semibold uppercase tracking-[0.14em]"
+              style={{ color: C.muted }}
+            >
+              Data available
+            </div>
+            <div className="text-[11.5px] tabular-nums" style={{ color: C.text2 }}>
+              FY2022–FY2024 · 42 facilities · Scope 1–3 coverage
+            </div>
+          </div>
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ background: C.accent, boxShadow: `0 0 0 3px ${C.accentSoft}` }}
+          />
+        </div>
+      )}
+
       <AnimatePresence initial={false}>
         {showQuickPrompts && (
           <motion.div
@@ -1077,7 +1067,7 @@ function Composer({
             initial={{ opacity: 0, height: 0, y: -4 }}
             animate={{ opacity: 1, height: "auto", y: 0 }}
             exit={{ opacity: 0, height: 0, y: -4 }}
-            transition={{ duration: 0.25, ease: EASE }}
+            transition={{ duration: 0.18, ease: EASE }}
             className="mb-2 flex flex-wrap gap-1.5 overflow-hidden"
           >
             {QUICK_PROMPTS.map((p) => (
@@ -1085,11 +1075,11 @@ function Composer({
                 key={p}
                 type="button"
                 onClick={() => onQuickPrompt(p)}
-                className="rounded-full px-2.5 py-1 text-[11px] transition-colors hover:bg-white/[0.06]"
+                className="rounded-full px-2.5 py-1 text-[11px] transition-colors hover:bg-[#EEF1F5]"
                 style={{
-                  background: "hsl(0 0% 100% / 0.03)",
-                  border: "1px solid hsl(0 0% 100% / 0.06)",
-                  color: "hsl(var(--foreground) / 0.7)",
+                  background: C.surfaceAlt,
+                  border: `1px solid ${C.borderSoft}`,
+                  color: C.text2,
                 }}
               >
                 {p}
@@ -1102,29 +1092,11 @@ function Composer({
       <div
         className="relative flex items-end gap-2 rounded-2xl px-3 py-2.5 transition-colors"
         style={{
-          background: "hsl(0 0% 100% / 0.03)",
-          border: `1px solid ${
-            focused ? "hsl(var(--primary) / 0.35)" : "hsl(0 0% 100% / 0.06)"
-          }`,
+          background: C.surface,
+          border: `1px solid ${focused ? "rgba(34,197,94,0.45)" : C.border}`,
+          boxShadow: focused ? "0 0 0 3px rgba(34,197,94,0.12)" : "none",
         }}
       >
-        {/* Signature: scanline focus rail */}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-x-3 top-0 h-px overflow-hidden"
-        >
-          <motion.span
-            className="block h-full origin-center"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent, hsl(var(--primary)), transparent)",
-            }}
-            initial={false}
-            animate={focused ? { scaleX: 1, opacity: 1 } : { scaleX: 0, opacity: 0 }}
-            transition={{ duration: 0.45, ease: EASE }}
-          />
-        </span>
-
         <textarea
           ref={inputRef}
           rows={1}
@@ -1134,9 +1106,9 @@ function Composer({
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           placeholder={placeholder}
-          className="og-scroll flex-1 resize-none bg-transparent px-1 py-1 text-[13.5px] leading-relaxed outline-none placeholder:text-[hsl(var(--foreground)/0.32)]"
+          className="og-scroll flex-1 resize-none bg-transparent px-1 py-1 text-[13.5px] leading-relaxed outline-none"
           style={{
-            color: "hsl(var(--foreground) / 0.92)",
+            color: C.text,
             maxHeight: 132,
           }}
         />
@@ -1151,14 +1123,14 @@ function Composer({
                 aria-label="Send"
                 className="flex h-7 w-7 items-center justify-center rounded-lg"
                 style={{
-                  background: "hsl(var(--primary))",
-                  color: "hsl(var(--primary-foreground))",
-                  boxShadow: "0 4px 12px -4px hsl(var(--primary) / 0.55)",
+                  background: C.accent,
+                  color: "#fff",
+                  boxShadow: "0 4px 10px -4px rgba(34,197,94,0.55)",
                 }}
-                initial={{ scale: 0.7, opacity: 0 }}
+                initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.7, opacity: 0 }}
-                transition={{ duration: 0.18, ease: EASE }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.14, ease: EASE }}
                 whileHover={{ scale: 1.06 }}
                 whileTap={{ scale: 0.92 }}
               >
@@ -1170,14 +1142,14 @@ function Composer({
                 aria-hidden
                 className="flex h-7 items-center gap-0.5 rounded-lg px-1.5 text-[10px] tabular-nums"
                 style={{
-                  background: "hsl(0 0% 100% / 0.04)",
-                  color: "hsl(var(--foreground) / 0.42)",
-                  border: "1px solid hsl(0 0% 100% / 0.05)",
+                  background: C.surfaceAlt,
+                  color: C.muted,
+                  border: `1px solid ${C.borderSoft}`,
                 }}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.18 }}
+                transition={{ duration: 0.14 }}
               >
                 <CornerDownLeft size={10} strokeWidth={2.2} />
                 <span className="pl-0.5 pr-0.5">to send</span>
@@ -1189,22 +1161,22 @@ function Composer({
 
       <div
         className="mt-2 flex items-center justify-between px-1 text-[10px]"
-        style={{ color: "hsl(var(--foreground) / 0.32)" }}
+        style={{ color: C.muted }}
       >
         <span className="flex items-center gap-1">
           <kbd
             className="inline-flex h-4 items-center rounded px-1 text-[9px] font-semibold"
             style={{
-              background: "hsl(0 0% 100% / 0.04)",
-              border: "1px solid hsl(0 0% 100% / 0.06)",
-              color: "hsl(var(--foreground) / 0.55)",
+              background: C.surfaceAlt,
+              border: `1px solid ${C.borderSoft}`,
+              color: C.text2,
             }}
           >
             /
           </kbd>
           <span>for commands</span>
         </span>
-        <span>OG can miss the mark — verify critical numbers.</span>
+        <span>Verify critical numbers before reporting.</span>
       </div>
     </div>
   );
@@ -1217,13 +1189,13 @@ function FadeMask({ side }: { side: "top" | "bottom" }) {
     <div
       aria-hidden
       className={`pointer-events-none absolute inset-x-0 z-10 ${
-        side === "top" ? "top-0 h-5" : "bottom-0 h-7"
+        side === "top" ? "top-0 h-4" : "bottom-0 h-5"
       }`}
       style={{
         background:
           side === "top"
-            ? "linear-gradient(180deg, hsl(var(--card) / 0.85), transparent)"
-            : "linear-gradient(0deg, hsl(var(--card) / 0.9), transparent)",
+            ? "linear-gradient(180deg, rgba(255,255,255,0.95), transparent)"
+            : "linear-gradient(0deg, rgba(255,255,255,0.95), transparent)",
       }}
     />
   );
