@@ -820,30 +820,23 @@ function Message({ message, index }: { message: Message; index: number }) {
 function UserMessage({ content, index }: { content: string; index: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
+      initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease: EASE, delay: Math.min(index * 0.02, 0.08) }}
+      transition={{ duration: 0.2, ease: EASE, delay: Math.min(index * 0.015, 0.06) }}
       className="space-y-1.5"
     >
       <div className="flex items-center gap-1.5 px-0.5">
         <span
-          className="text-[9.5px] font-semibold uppercase tracking-[0.16em]"
-          style={{ color: "hsl(var(--foreground) / 0.42)" }}
+          className="text-[10px] font-semibold uppercase tracking-[0.16em]"
+          style={{ color: C.muted }}
         >
           You asked
         </span>
-        <span
-          aria-hidden
-          className="h-px flex-1"
-          style={{ background: "hsl(0 0% 100% / 0.05)" }}
-        />
+        <span aria-hidden className="h-px flex-1" style={{ background: C.borderSoft }} />
       </div>
       <p
         className="font-display text-[15px] font-semibold leading-snug tracking-tight px-0.5"
-        style={{
-          color: "hsl(var(--foreground) / 0.96)",
-          letterSpacing: "-0.015em",
-        }}
+        style={{ color: C.text, letterSpacing: "-0.015em" }}
       >
         {content}
       </p>
@@ -874,58 +867,35 @@ function OGMessage({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.34, ease: EASE, delay: Math.min(index * 0.02, 0.1) }}
+      transition={{ duration: 0.24, ease: EASE, delay: Math.min(index * 0.015, 0.08) }}
       className="space-y-2.5 rounded-xl p-3.5"
       style={{
-        background: "hsl(0 0% 100% / 0.025)",
-        border: "1px solid hsl(0 0% 100% / 0.05)",
+        background: C.surfaceAlt,
+        border: `1px solid ${C.borderSoft}`,
       }}
     >
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <OGMark size={11} showDot={false} />
-          <span
-            aria-hidden
-            className="h-2 w-px"
-            style={{ background: "hsl(0 0% 100% / 0.1)" }}
-          />
-          <span
-            className="text-[10px] tabular-nums"
-            style={{ color: "hsl(var(--foreground) / 0.42)" }}
-          >
+          <span aria-hidden className="h-2 w-px" style={{ background: C.border }} />
+          <span className="text-[10px] tabular-nums" style={{ color: C.muted }}>
             {time}
           </span>
         </div>
-        <span
-          className="text-[10px]"
-          style={{ color: "hsl(var(--foreground) / 0.4)" }}
-        >
-          checked{" "}
-          <span
-            className="tabular-nums"
-            style={{ color: "hsl(var(--foreground) / 0.6)" }}
-          >
-            4
-          </span>{" "}
-          sources
+        <span className="text-[10px]" style={{ color: C.muted }}>
+          checked <span className="tabular-nums" style={{ color: C.text2 }}>4</span> sources
         </span>
       </div>
 
-      {/* Body */}
-      <p
-        className="text-[13.5px] leading-relaxed"
-        style={{ color: "hsl(var(--foreground) / 0.88)" }}
-      >
+      <p className="text-[13.5px] leading-relaxed" style={{ color: C.text }}>
         {content}
       </p>
 
-      {/* Footer */}
       <div
         className="flex items-center justify-between pt-2"
-        style={{ borderTop: "1px solid hsl(0 0% 100% / 0.04)" }}
+        style={{ borderTop: `1px solid ${C.borderSoft}` }}
       >
         <div className="flex flex-wrap items-center gap-1">
           {["Scope 1", "Scope 2", "Facilities"].map((src) => (
@@ -933,9 +903,9 @@ function OGMessage({
               key={src}
               className="rounded-full px-1.5 py-0.5 text-[10px] tabular-nums"
               style={{
-                background: "hsl(var(--primary) / 0.08)",
-                color: "hsl(var(--primary))",
-                border: "1px solid hsl(var(--primary) / 0.14)",
+                background: "rgba(34,197,94,0.10)",
+                color: C.accent,
+                border: "1px solid rgba(34,197,94,0.22)",
               }}
             >
               {src}
@@ -947,16 +917,16 @@ function OGMessage({
             type="button"
             onClick={handleCopy}
             aria-label="Copy"
-            className="flex h-6 w-6 items-center justify-center rounded-md transition-colors hover:bg-white/[0.06]"
-            style={{ color: "hsl(var(--foreground) / 0.5)" }}
+            className="flex h-6 w-6 items-center justify-center rounded-md transition-colors hover:bg-[#EEF1F5]"
+            style={{ color: C.text2 }}
           >
             <Copy size={11} />
           </button>
           <button
             type="button"
             aria-label="Regenerate"
-            className="flex h-6 w-6 items-center justify-center rounded-md transition-colors hover:bg-white/[0.06]"
-            style={{ color: "hsl(var(--foreground) / 0.5)" }}
+            className="flex h-6 w-6 items-center justify-center rounded-md transition-colors hover:bg-[#EEF1F5]"
+            style={{ color: C.text2 }}
           >
             <RotateCcw size={11} />
           </button>
@@ -968,9 +938,9 @@ function OGMessage({
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.18 }}
             className="text-[10px] tabular-nums"
-            style={{ color: "hsl(var(--primary))" }}
+            style={{ color: C.accent }}
           >
             Copied
           </motion.div>
