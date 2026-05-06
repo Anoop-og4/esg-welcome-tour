@@ -723,9 +723,10 @@ function QuestionList({
       animate="visible"
       variants={{
         visible: {
-          transition: { staggerChildren: 0.04, delayChildren: 0.18 },
+          transition: { staggerChildren: 0.022, delayChildren: 0.06 },
         },
       }}
+      className="space-y-0.5"
     >
       {flat.map((item) => {
         if (item.kind === "label") {
@@ -736,21 +737,21 @@ function QuestionList({
                 hidden: { opacity: 0 },
                 visible: { opacity: 1 },
               }}
-              transition={{ duration: 0.32, ease: EASE }}
-              className={`flex items-center gap-2 px-0.5 mb-2 ${
-                item.isFirst ? "" : "mt-5"
+              transition={{ duration: 0.2, ease: EASE }}
+              className={`flex items-center gap-2 px-1 mb-1.5 ${
+                item.isFirst ? "mt-1" : "mt-6"
               }`}
             >
               <span
-                className="text-[9.5px] font-semibold uppercase tracking-[0.16em]"
-                style={{ color: "hsl(var(--foreground) / 0.4)" }}
+                className="text-[10px] font-semibold uppercase tracking-[0.16em]"
+                style={{ color: C.muted }}
               >
                 {item.text}
               </span>
               <span
                 aria-hidden
                 className="h-px flex-1"
-                style={{ background: "hsl(0 0% 100% / 0.05)" }}
+                style={{ background: C.borderSoft }}
               />
             </motion.div>
           );
@@ -774,33 +775,36 @@ function QuestionRow({
   suggestion: Suggestion;
   onClick: () => void;
 }) {
+  const [hover, setHover] = useState(false);
   return (
     <motion.button
       type="button"
       onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       variants={{
-        hidden: { opacity: 0, y: 12, scale: 0.985, filter: "blur(4px)" },
-        visible: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
+        hidden: { opacity: 0, y: 4 },
+        visible: { opacity: 1, y: 0 },
       }}
-      transition={{ duration: 0.46, ease: EASE }}
-      whileTap={{ scale: 0.995 }}
-      className="group relative flex w-full items-center gap-2 rounded-lg px-2.5 py-2.5 text-left transition-colors hover:bg-white/[0.03]"
+      transition={{ duration: 0.22, ease: EASE }}
+      whileTap={{ scale: 0.997 }}
+      className="group relative flex w-full items-center gap-2 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22C55E]/40"
+      style={{
+        padding: "10px 12px",
+        borderRadius: 12,
+        background: hover ? C.accentSoft : "transparent",
+      }}
     >
       <span
-        aria-hidden
-        className="absolute left-0 top-2.5 bottom-2.5 w-[2px] origin-center scale-y-0 rounded-r-full transition-transform duration-300 ease-out group-hover:scale-y-100"
-        style={{ background: "hsl(var(--primary))" }}
-      />
-      <span
-        className="flex-1 text-[13px] leading-snug transition-transform duration-300 group-hover:translate-x-[3px]"
-        style={{ color: "hsl(var(--foreground) / 0.82)" }}
+        className="flex-1 text-[13px] leading-snug"
+        style={{ color: C.text }}
       >
         {suggestion.text}
       </span>
       <ChevronRight
-        size={13}
-        className="shrink-0 opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-60"
-        style={{ color: "hsl(var(--primary))" }}
+        size={14}
+        className="shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
+        style={{ color: hover ? C.accent : C.muted }}
       />
     </motion.button>
   );
