@@ -956,31 +956,26 @@ function Thinking() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.16 }}
       className="space-y-2"
     >
       <div className="flex items-center gap-2 px-0.5">
         <OGMark size={11} showDot={false} />
-        <span
-          className="text-[10.5px]"
-          style={{ color: "hsl(var(--foreground) / 0.55)" }}
-        >
+        <span className="text-[10.5px]" style={{ color: C.text2 }}>
           thinking…
         </span>
       </div>
-      {/* Scanline — the signature thinking effect */}
       <div
         className="relative h-px overflow-hidden rounded-full"
-        style={{ background: "hsl(0 0% 100% / 0.05)" }}
+        style={{ background: C.borderSoft }}
       >
         <motion.div
           className="absolute top-0 h-full w-1/3"
           style={{
-            background:
-              "linear-gradient(90deg, transparent, hsl(var(--primary)), transparent)",
+            background: `linear-gradient(90deg, transparent, ${C.accent}, transparent)`,
           }}
           animate={{ x: ["-100%", "300%"] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
     </motion.div>
@@ -997,6 +992,7 @@ function Composer({
   onQuickPrompt,
   context,
   showQuickPrompts,
+  view,
 }: {
   inputRef: React.RefObject<HTMLTextAreaElement>;
   value: string;
@@ -1005,6 +1001,7 @@ function Composer({
   onQuickPrompt: (p: string) => void;
   context?: string;
   showQuickPrompts: boolean;
+  view: View;
 }) {
   const [focused, setFocused] = useState(false);
   const hasText = value.trim().length > 0;
@@ -1026,15 +1023,42 @@ function Composer({
     }
   };
 
-  const placeholder = context
-    ? `Ask about ${context.toLowerCase()}…`
-    : "Ask anything about your ESG data…";
+  const placeholder =
+    view === "topic" && context
+      ? `Ask about ${context.toLowerCase()}...`
+      : "Ask about emissions, energy, waste, or facilities...";
 
   return (
     <div
       className="relative shrink-0 px-4 pb-3 pt-2"
-      style={{ borderTop: "1px solid hsl(0 0% 100% / 0.05)" }}
+      style={{ borderTop: `1px solid ${C.borderSoft}` }}
     >
+      {view === "topic" && (
+        <div
+          className="mb-2 flex items-center justify-between rounded-lg px-3 py-2"
+          style={{
+            background: C.surfaceAlt,
+            border: `1px solid ${C.borderSoft}`,
+          }}
+        >
+          <div>
+            <div
+              className="text-[10px] font-semibold uppercase tracking-[0.14em]"
+              style={{ color: C.muted }}
+            >
+              Data available
+            </div>
+            <div className="text-[11.5px] tabular-nums" style={{ color: C.text2 }}>
+              FY2022–FY2024 · 42 facilities · Scope 1–3 coverage
+            </div>
+          </div>
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ background: C.accent, boxShadow: `0 0 0 3px ${C.accentSoft}` }}
+          />
+        </div>
+      )}
+
       <AnimatePresence initial={false}>
         {showQuickPrompts && (
           <motion.div
@@ -1042,7 +1066,7 @@ function Composer({
             initial={{ opacity: 0, height: 0, y: -4 }}
             animate={{ opacity: 1, height: "auto", y: 0 }}
             exit={{ opacity: 0, height: 0, y: -4 }}
-            transition={{ duration: 0.25, ease: EASE }}
+            transition={{ duration: 0.18, ease: EASE }}
             className="mb-2 flex flex-wrap gap-1.5 overflow-hidden"
           >
             {QUICK_PROMPTS.map((p) => (
@@ -1050,11 +1074,11 @@ function Composer({
                 key={p}
                 type="button"
                 onClick={() => onQuickPrompt(p)}
-                className="rounded-full px-2.5 py-1 text-[11px] transition-colors hover:bg-white/[0.06]"
+                className="rounded-full px-2.5 py-1 text-[11px] transition-colors hover:bg-[#EEF1F5]"
                 style={{
-                  background: "hsl(0 0% 100% / 0.03)",
-                  border: "1px solid hsl(0 0% 100% / 0.06)",
-                  color: "hsl(var(--foreground) / 0.7)",
+                  background: C.surfaceAlt,
+                  border: `1px solid ${C.borderSoft}`,
+                  color: C.text2,
                 }}
               >
                 {p}
@@ -1067,29 +1091,11 @@ function Composer({
       <div
         className="relative flex items-end gap-2 rounded-2xl px-3 py-2.5 transition-colors"
         style={{
-          background: "hsl(0 0% 100% / 0.03)",
-          border: `1px solid ${
-            focused ? "hsl(var(--primary) / 0.35)" : "hsl(0 0% 100% / 0.06)"
-          }`,
+          background: C.surface,
+          border: `1px solid ${focused ? "rgba(34,197,94,0.45)" : C.border}`,
+          boxShadow: focused ? "0 0 0 3px rgba(34,197,94,0.12)" : "none",
         }}
       >
-        {/* Signature: scanline focus rail */}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-x-3 top-0 h-px overflow-hidden"
-        >
-          <motion.span
-            className="block h-full origin-center"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent, hsl(var(--primary)), transparent)",
-            }}
-            initial={false}
-            animate={focused ? { scaleX: 1, opacity: 1 } : { scaleX: 0, opacity: 0 }}
-            transition={{ duration: 0.45, ease: EASE }}
-          />
-        </span>
-
         <textarea
           ref={inputRef}
           rows={1}
@@ -1099,9 +1105,9 @@ function Composer({
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           placeholder={placeholder}
-          className="og-scroll flex-1 resize-none bg-transparent px-1 py-1 text-[13.5px] leading-relaxed outline-none placeholder:text-[hsl(var(--foreground)/0.32)]"
+          className="og-scroll flex-1 resize-none bg-transparent px-1 py-1 text-[13.5px] leading-relaxed outline-none"
           style={{
-            color: "hsl(var(--foreground) / 0.92)",
+            color: C.text,
             maxHeight: 132,
           }}
         />
@@ -1116,14 +1122,14 @@ function Composer({
                 aria-label="Send"
                 className="flex h-7 w-7 items-center justify-center rounded-lg"
                 style={{
-                  background: "hsl(var(--primary))",
-                  color: "hsl(var(--primary-foreground))",
-                  boxShadow: "0 4px 12px -4px hsl(var(--primary) / 0.55)",
+                  background: C.accent,
+                  color: "#fff",
+                  boxShadow: "0 4px 10px -4px rgba(34,197,94,0.55)",
                 }}
-                initial={{ scale: 0.7, opacity: 0 }}
+                initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.7, opacity: 0 }}
-                transition={{ duration: 0.18, ease: EASE }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.14, ease: EASE }}
                 whileHover={{ scale: 1.06 }}
                 whileTap={{ scale: 0.92 }}
               >
@@ -1135,14 +1141,14 @@ function Composer({
                 aria-hidden
                 className="flex h-7 items-center gap-0.5 rounded-lg px-1.5 text-[10px] tabular-nums"
                 style={{
-                  background: "hsl(0 0% 100% / 0.04)",
-                  color: "hsl(var(--foreground) / 0.42)",
-                  border: "1px solid hsl(0 0% 100% / 0.05)",
+                  background: C.surfaceAlt,
+                  color: C.muted,
+                  border: `1px solid ${C.borderSoft}`,
                 }}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.18 }}
+                transition={{ duration: 0.14 }}
               >
                 <CornerDownLeft size={10} strokeWidth={2.2} />
                 <span className="pl-0.5 pr-0.5">to send</span>
@@ -1154,22 +1160,22 @@ function Composer({
 
       <div
         className="mt-2 flex items-center justify-between px-1 text-[10px]"
-        style={{ color: "hsl(var(--foreground) / 0.32)" }}
+        style={{ color: C.muted }}
       >
         <span className="flex items-center gap-1">
           <kbd
             className="inline-flex h-4 items-center rounded px-1 text-[9px] font-semibold"
             style={{
-              background: "hsl(0 0% 100% / 0.04)",
-              border: "1px solid hsl(0 0% 100% / 0.06)",
-              color: "hsl(var(--foreground) / 0.55)",
+              background: C.surfaceAlt,
+              border: `1px solid ${C.borderSoft}`,
+              color: C.text2,
             }}
           >
             /
           </kbd>
           <span>for commands</span>
         </span>
-        <span>OG can miss the mark — verify critical numbers.</span>
+        <span>Verify critical numbers before reporting.</span>
       </div>
     </div>
   );
@@ -1182,13 +1188,13 @@ function FadeMask({ side }: { side: "top" | "bottom" }) {
     <div
       aria-hidden
       className={`pointer-events-none absolute inset-x-0 z-10 ${
-        side === "top" ? "top-0 h-5" : "bottom-0 h-7"
+        side === "top" ? "top-0 h-4" : "bottom-0 h-5"
       }`}
       style={{
         background:
           side === "top"
-            ? "linear-gradient(180deg, hsl(var(--card) / 0.85), transparent)"
-            : "linear-gradient(0deg, hsl(var(--card) / 0.9), transparent)",
+            ? "linear-gradient(180deg, rgba(255,255,255,0.95), transparent)"
+            : "linear-gradient(0deg, rgba(255,255,255,0.95), transparent)",
       }}
     />
   );
