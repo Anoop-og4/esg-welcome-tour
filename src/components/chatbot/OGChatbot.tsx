@@ -40,6 +40,20 @@ interface Message {
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
+// Light enterprise palette
+const C = {
+  text: "#1F2933",
+  text2: "#6B7280",
+  muted: "#9CA3AF",
+  border: "#D8DEE4",
+  borderSoft: "#E5E9EF",
+  surface: "#FFFFFF",
+  surfaceAlt: "#F7F8FA",
+  accent: "#22C55E",
+  accentSoft: "rgba(34, 197, 94, 0.07)",
+  accentSel: "rgba(34, 197, 94, 0.10)",
+};
+
 const QUICK_PROMPTS = [
   "What's our footprint this FY?",
   "Compare emissions YoY",
