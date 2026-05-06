@@ -385,7 +385,7 @@ function Header({
   return (
     <div
       className="relative z-10 flex shrink-0 items-center justify-between px-4 py-3.5"
-      style={{ borderBottom: "1px solid hsl(0 0% 100% / 0.05)" }}
+      style={{ borderBottom: `1px solid ${C.borderSoft}` }}
     >
       <div className="flex items-center gap-2.5">
         <AnimatePresence mode="wait" initial={false}>
@@ -395,20 +395,17 @@ function Header({
               type="button"
               onClick={onBack}
               aria-label="Back"
-              className="flex h-7 w-7 items-center justify-center rounded-lg"
+              className="flex h-7 w-7 items-center justify-center rounded-lg focus:outline-none focus-visible:ring-2"
               style={{
-                background: "hsl(0 0% 100% / 0.04)",
-                color: "hsl(var(--foreground) / 0.7)",
+                background: C.surfaceAlt,
+                color: C.text2,
               }}
-              whileHover={{
-                backgroundColor: "hsl(0 0% 100% / 0.08)",
-                x: -1,
-              }}
+              whileHover={{ backgroundColor: "#EEF1F5", x: -1 }}
               whileTap={{ scale: 0.92 }}
               initial={{ opacity: 0, x: 6 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 6 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15 }}
             >
               <ArrowLeft size={14} />
             </motion.button>
@@ -419,11 +416,11 @@ function Header({
 
         {view === "topic" && activeTopic && (
           <motion.span
-            initial={{ opacity: 0, y: 4 }}
+            initial={{ opacity: 0, y: 3 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.18 }}
             className="font-display text-[13.5px] font-semibold tracking-tight"
-            style={{ color: "hsl(var(--foreground) / 0.92)" }}
+            style={{ color: C.text }}
           >
             {activeTopic.label}
           </motion.span>
@@ -431,11 +428,11 @@ function Header({
 
         {view === "chat" && (
           <motion.span
-            initial={{ opacity: 0, y: 4 }}
+            initial={{ opacity: 0, y: 3 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.18 }}
             className="text-[12.5px]"
-            style={{ color: "hsl(var(--foreground) / 0.55)" }}
+            style={{ color: C.text2 }}
           >
             Conversation
           </motion.span>
@@ -448,13 +445,13 @@ function Header({
             type="button"
             onClick={onNewChat}
             aria-label="New chat"
-            className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em]"
+            className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] focus:outline-none focus-visible:ring-2"
             style={{
-              background: "hsl(0 0% 100% / 0.04)",
-              color: "hsl(var(--foreground) / 0.65)",
-              border: "1px solid hsl(0 0% 100% / 0.05)",
+              background: C.surfaceAlt,
+              color: C.text2,
+              border: `1px solid ${C.borderSoft}`,
             }}
-            whileHover={{ backgroundColor: "hsl(0 0% 100% / 0.08)" }}
+            whileHover={{ backgroundColor: "#EEF1F5" }}
             whileTap={{ scale: 0.96 }}
             initial={{ opacity: 0, x: 6 }}
             animate={{ opacity: 1, x: 0 }}
@@ -468,8 +465,8 @@ function Header({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="ml-1 flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-white/[0.06]"
-          style={{ color: "hsl(var(--foreground) / 0.55)" }}
+          className="ml-1 flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-[#EEF1F5] focus:outline-none focus-visible:ring-2"
+          style={{ color: C.text2 }}
         >
           <X size={14} />
         </button>
