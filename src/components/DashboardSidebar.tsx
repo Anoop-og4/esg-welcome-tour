@@ -43,6 +43,7 @@ const navItems: NavItem[] = [
   { icon: BarChart3, label: "Operations", key: "operations" },
   { icon: Target, label: "Goals", key: "goals" },
   { icon: FileText, label: "Docs Hub", key: "docs" },
+  { icon: History, label: "Audit History", key: "audit" },
   { icon: Settings, label: "Admin", key: "admin" },
   {
     icon: Gamepad2, label: "Games", key: "play",
