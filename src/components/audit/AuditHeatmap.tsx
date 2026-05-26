@@ -200,18 +200,15 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
 
       {hover && (
         <div
-          className="pointer-events-none absolute z-10 rounded-md px-3.5 py-2.5 text-xs shadow-2xl"
+          className="pointer-events-none absolute z-10 rounded-lg px-3.5 py-2.5 text-xs bg-popover text-popover-foreground border border-border shadow-modal"
           style={{
             left: Math.min(hover.x + 20, Math.max(0, width - 240)),
             top: hover.y + 32,
-            background: "linear-gradient(180deg, #f5f0e0, #ede4c8)",
-            border: "1px solid #c9a84c",
-            color: "#064e3b",
             minWidth: 220,
-            fontFamily: "'IBM Plex Sans', sans-serif",
+            backdropFilter: "blur(12px)",
           }}
         >
-          <div className="font-semibold mb-2 pb-1.5" style={{ borderBottom: "1px solid rgba(6,78,59,0.15)", fontFamily: "'Libre Baskerville', serif" }}>
+          <div className="font-semibold mb-2 pb-1.5 border-b border-border/60">
             {new Date(hover.date).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", year: "numeric" })}
           </div>
           {hover.parts.length === 0 && <div style={{ opacity: 0.6 }}>No activity recorded</div>}
