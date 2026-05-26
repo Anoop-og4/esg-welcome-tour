@@ -87,7 +87,7 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
             key={m.col + m.label}
             x={m.col * (cell + gap) + leftPad}
             y={14}
-            fill="#7a8a82"
+            fill="hsl(var(--muted-foreground))"
             fontSize={10.5}
             fontFamily="'IBM Plex Mono', monospace"
             letterSpacing="0.05em"
@@ -101,7 +101,7 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
               key={i}
               x={0}
               y={topPad + i * (cell + gap) + cell * 0.7}
-              fill="#7a8a82"
+              fill="hsl(var(--muted-foreground))"
               fontSize={10}
               fontFamily="'IBM Plex Mono', monospace"
             >
