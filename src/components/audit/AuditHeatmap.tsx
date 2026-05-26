@@ -125,8 +125,8 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
                   <rect
                     key={date}
                     x={x} y={y} width={cell} height={cell} rx={rx}
-                    fill="rgba(201,168,76,0.06)"
-                    stroke="rgba(201,168,76,0.10)"
+                    fill="hsl(var(--secondary) / 0.4)"
+                    stroke="hsl(var(--border) / 0.6)"
                     strokeWidth={0.5}
                   />
                 );
