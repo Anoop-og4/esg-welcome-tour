@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { AuditEvent, ACTION_META, AuditActionType } from "./auditData";
 
@@ -11,23 +11,19 @@ interface Props {
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
 
-function blendColors(parts: { color: string; weight: number }[]) {
-  const total = parts.reduce((s, p) => s + p.weight, 0);
-  if (total === 0) return "transparent";
-  let r = 0, g = 0, b = 0;
-  for (const p of parts) {
-    const hex = p.color.replace("#", "");
-    const cr = parseInt(hex.slice(0, 2), 16);
-    const cg = parseInt(hex.slice(2, 4), 16);
-    const cb = parseInt(hex.slice(4, 6), 16);
-    const w = p.weight / total;
-    r += cr * w; g += cg * w; b += cb * w;
-  }
-  return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
-}
-
 export default function AuditHeatmap({ year, events, activeTypes }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
   const [hover, setHover] = useState<{ x: number; y: number; date: string; parts: { type: AuditActionType; count: number }[] } | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const e of entries) setContainerWidth(e.contentRect.width);
+    });
+    ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, []);
 
   const byDate = useMemo(() => {
     const m = new Map<string, { type: AuditActionType; count: number }[]>();
@@ -37,6 +33,8 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
       arr.push({ type: e.type, count: e.count });
       m.set(e.date, arr);
     }
+    // Sort each day's parts by count desc so dominant action leads
+    for (const [, v] of m) v.sort((a, b) => b.count - a.count);
     return m;
   }, [events, activeTypes]);
 
@@ -71,17 +69,19 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
     return { weeks, monthLabels };
   }, [year]);
 
-  const cell = 14;
-  const gap = 4;
-  const leftPad = 32;
+  const leftPad = 34;
   const topPad = 22;
-  const width = weeks.length * (cell + gap) + leftPad;
+  // Responsive cell size: fill the container width
+  const available = Math.max(0, containerWidth - leftPad);
+  const slot = weeks.length > 0 ? available / weeks.length : 0;
+  const gap = Math.max(2, Math.min(5, slot * 0.18));
+  const cell = Math.max(8, Math.min(22, slot - gap));
+  const width = containerWidth || weeks.length * (cell + gap) + leftPad;
   const height = 7 * (cell + gap) + topPad + 8;
 
   return (
-    <div className="relative overflow-x-auto">
-      <svg width={width} height={height} style={{ minWidth: width }}>
-        {/* Month labels */}
+    <div ref={containerRef} className="relative w-full">
+      <svg width={width} height={height}>
         {monthLabels.map((m) => (
           <text
             key={m.col + m.label}
@@ -95,13 +95,12 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
             {m.label.toUpperCase()}
           </text>
         ))}
-        {/* Day labels */}
         {DAY_LABELS.map((d, i) => (
           d ? (
             <text
               key={i}
               x={0}
-              y={topPad + i * (cell + gap) + 11}
+              y={topPad + i * (cell + gap) + cell * 0.7}
               fill="#7a8a82"
               fontSize={10}
               fontFamily="'IBM Plex Mono', monospace"
@@ -116,38 +115,83 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
               if (!date) return null;
               const parts = byDate.get(date);
               const total = parts?.reduce((s, p) => s + p.count, 0) || 0;
-              const hasData = !!parts;
-              const fill = hasData
-                ? blendColors(parts!.map(p => ({ color: ACTION_META[p.type].color, weight: p.count })))
-                : "rgba(201, 168, 76, 0.05)";
-              const opacity = hasData ? Math.min(1, 0.45 + total * 0.07) : 1;
+              const hasData = !!parts && parts.length > 0;
+              const x = wi * (cell + gap);
+              const y = di * (cell + gap);
+              const rx = Math.max(1.5, cell * 0.18);
+
+              if (!hasData) {
+                return (
+                  <rect
+                    key={date}
+                    x={x} y={y} width={cell} height={cell} rx={rx}
+                    fill="rgba(201,168,76,0.06)"
+                    stroke="rgba(201,168,76,0.10)"
+                    strokeWidth={0.5}
+                  />
+                );
+              }
+
+              // Render proportional horizontal segments — one stripe per action type
+              let offset = 0;
+              const clipId = `clip-${date}`;
+              const segs = parts!.map((p) => {
+                const h = (p.count / total) * cell;
+                const seg = { ...p, y: offset, h };
+                offset += h;
+                return seg;
+              });
+              const opacity = Math.min(1, 0.55 + total * 0.05);
+
               return (
-                <motion.rect
+                <motion.g
                   key={date}
-                  x={wi * (cell + gap)}
-                  y={di * (cell + gap)}
-                  width={cell}
-                  height={cell}
-                  rx={2.5}
-                  fill={fill}
-                  fillOpacity={opacity}
-                  stroke={hasData ? "rgba(245,240,224,0.08)" : "rgba(201,168,76,0.07)"}
-                  strokeWidth={0.5}
                   initial={{ scale: 0.7, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: (wi * 7 + di) * 0.0006, duration: 0.18 }}
-                  style={{ cursor: hasData ? "pointer" : "default" }}
+                  transition={{ delay: (wi * 7 + di) * 0.0005, duration: 0.18 }}
+                  style={{ cursor: "pointer", transformOrigin: `${x + cell / 2}px ${y + cell / 2}px` }}
+                  whileHover={{ scale: 1.35 }}
                   onMouseEnter={() => {
                     setHover({
-                      x: wi * (cell + gap) + leftPad + cell / 2,
-                      y: di * (cell + gap) + topPad,
+                      x: x + leftPad + cell / 2,
+                      y: y + topPad,
                       date,
-                      parts: parts || [],
+                      parts: parts!,
                     });
                   }}
                   onMouseLeave={() => setHover(null)}
-                  whileHover={{ scale: 1.35 }}
-                />
+                >
+                  <defs>
+                    <clipPath id={clipId}>
+                      <rect x={x} y={y} width={cell} height={cell} rx={rx} />
+                    </clipPath>
+                  </defs>
+                  <g clipPath={`url(#${clipId})`} opacity={opacity}>
+                    {segs.map((s) => (
+                      <rect
+                        key={s.type}
+                        x={x}
+                        y={y + s.y}
+                        width={cell}
+                        height={s.h + 0.4}
+                        fill={ACTION_META[s.type].color}
+                      />
+                    ))}
+                  </g>
+                  <rect
+                    x={x} y={y} width={cell} height={cell} rx={rx}
+                    fill="none"
+                    stroke="rgba(6,78,59,0.15)"
+                    strokeWidth={0.5}
+                  />
+                  {parts!.length >= 3 && (
+                    <polygon
+                      points={`${x + cell - cell * 0.28},${y} ${x + cell},${y} ${x + cell},${y + cell * 0.28}`}
+                      fill="#fbf9f1"
+                      opacity={0.85}
+                    />
+                  )}
+                </motion.g>
               );
             })
           )}
@@ -158,12 +202,12 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
         <div
           className="pointer-events-none absolute z-10 rounded-md px-3.5 py-2.5 text-xs shadow-2xl"
           style={{
-            left: Math.min(hover.x + 20, 600),
+            left: Math.min(hover.x + 20, Math.max(0, width - 240)),
             top: hover.y + 32,
             background: "linear-gradient(180deg, #f5f0e0, #ede4c8)",
             border: "1px solid #c9a84c",
             color: "#064e3b",
-            minWidth: 200,
+            minWidth: 220,
             fontFamily: "'IBM Plex Sans', sans-serif",
           }}
         >
@@ -171,13 +215,20 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
             {new Date(hover.date).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", year: "numeric" })}
           </div>
           {hover.parts.length === 0 && <div style={{ opacity: 0.6 }}>No activity recorded</div>}
-          {hover.parts.map((p) => (
-            <div key={p.type} className="flex items-center gap-2 py-0.5">
-              <span className="h-2.5 w-2.5 rounded-sm" style={{ background: ACTION_META[p.type].color }} />
-              <span className="flex-1">{ACTION_META[p.type].label}</span>
-              <span className="font-mono font-semibold" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{p.count}</span>
-            </div>
-          ))}
+          {hover.parts.map((p) => {
+            const total = hover.parts.reduce((s, x) => s + x.count, 0);
+            const pct = Math.round((p.count / total) * 100);
+            return (
+              <div key={p.type} className="flex items-center gap-2 py-0.5">
+                <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ background: ACTION_META[p.type].color }} />
+                <span className="flex-1">{ACTION_META[p.type].label}</span>
+                <span className="font-mono font-semibold tabular-nums" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                  {p.count}
+                  <span style={{ opacity: 0.55, marginLeft: 6 }}>{pct}%</span>
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
