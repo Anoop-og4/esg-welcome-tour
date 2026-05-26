@@ -181,14 +181,14 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
                   <rect
                     x={x} y={y} width={cell} height={cell} rx={rx}
                     fill="none"
-                    stroke="rgba(6,78,59,0.15)"
+                    stroke="hsl(var(--border) / 0.8)"
                     strokeWidth={0.5}
                   />
                   {parts!.length >= 3 && (
                     <polygon
                       points={`${x + cell - cell * 0.28},${y} ${x + cell},${y} ${x + cell},${y + cell * 0.28}`}
-                      fill="#fbf9f1"
-                      opacity={0.85}
+                      fill="hsl(var(--background))"
+                      opacity={0.9}
                     />
                   )}
                 </motion.g>
