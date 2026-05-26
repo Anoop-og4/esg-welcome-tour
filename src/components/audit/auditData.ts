@@ -8,14 +8,15 @@ export type AuditActionType =
   | "access"       // Access / login / view sensitive data
   | "export";      // Report exported / downloaded
 
+// All colors live within the Emerald Prestige range (deep emerald → sage → gold → copper)
 export const ACTION_META: Record<AuditActionType, { label: string; short: string; color: string; soft: string; description: string }> = {
-  disclosure: { label: "Disclosure recorded",  short: "Disclosure", color: "#0d7a5f", soft: "rgba(13,122,95,0.18)",  description: "ESG data point or disclosure entered" },
-  evidence:   { label: "Evidence attached",    short: "Evidence",   color: "#c9a84c", soft: "rgba(201,168,76,0.22)", description: "Supporting document uploaded" },
-  approval:   { label: "Approved",             short: "Approval",   color: "#3b8c5f", soft: "rgba(59,140,95,0.20)",  description: "Reviewer / auditor sign-off" },
-  rejection:  { label: "Sent back for review", short: "Rejection",  color: "#d97706", soft: "rgba(217,119,6,0.20)",  description: "Returned to preparer" },
-  deletion:   { label: "Record deleted",       short: "Deletion",   color: "#b91c1c", soft: "rgba(185,28,28,0.20)",  description: "Retraction or removal" },
-  access:     { label: "Sensitive access",     short: "Access",     color: "#7c5cff", soft: "rgba(124,92,255,0.18)", description: "Privileged data viewed" },
-  export:     { label: "Report exported",      short: "Export",     color: "#0891b2", soft: "rgba(8,145,178,0.18)",  description: "Downloaded for regulator / board" },
+  disclosure: { label: "Disclosure recorded",  short: "Disclosure", color: "#064e3b", soft: "rgba(6,78,59,0.18)",     description: "ESG data point or disclosure entered" },
+  evidence:   { label: "Evidence attached",    short: "Evidence",   color: "#c9a84c", soft: "rgba(201,168,76,0.22)",  description: "Supporting document uploaded" },
+  approval:   { label: "Approved",             short: "Approval",   color: "#0d7a5f", soft: "rgba(13,122,95,0.20)",   description: "Reviewer / auditor sign-off" },
+  rejection:  { label: "Sent back for review", short: "Rejection",  color: "#a8741a", soft: "rgba(168,116,26,0.20)",  description: "Returned to preparer" },
+  deletion:   { label: "Record deleted",       short: "Deletion",   color: "#7c3a1d", soft: "rgba(124,58,29,0.20)",   description: "Retraction or removal" },
+  access:     { label: "Sensitive access",     short: "Access",     color: "#5a8a5c", soft: "rgba(90,138,92,0.20)",   description: "Privileged data viewed" },
+  export:     { label: "Report exported",      short: "Export",     color: "#2d6a55", soft: "rgba(45,106,85,0.20)",   description: "Downloaded for regulator / board" },
 };
 
 export const ACTION_TYPES = Object.keys(ACTION_META) as AuditActionType[];
