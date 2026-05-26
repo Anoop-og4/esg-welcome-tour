@@ -87,7 +87,7 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
             key={m.col + m.label}
             x={m.col * (cell + gap) + leftPad}
             y={14}
-            fill="#7a8a82"
+            fill="hsl(var(--muted-foreground))"
             fontSize={10.5}
             fontFamily="'IBM Plex Mono', monospace"
             letterSpacing="0.05em"
@@ -101,7 +101,7 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
               key={i}
               x={0}
               y={topPad + i * (cell + gap) + cell * 0.7}
-              fill="#7a8a82"
+              fill="hsl(var(--muted-foreground))"
               fontSize={10}
               fontFamily="'IBM Plex Mono', monospace"
             >
@@ -125,8 +125,8 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
                   <rect
                     key={date}
                     x={x} y={y} width={cell} height={cell} rx={rx}
-                    fill="rgba(201,168,76,0.06)"
-                    stroke="rgba(201,168,76,0.10)"
+                    fill="hsl(var(--secondary) / 0.4)"
+                    stroke="hsl(var(--border) / 0.6)"
                     strokeWidth={0.5}
                   />
                 );
@@ -181,14 +181,14 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
                   <rect
                     x={x} y={y} width={cell} height={cell} rx={rx}
                     fill="none"
-                    stroke="rgba(6,78,59,0.15)"
+                    stroke="hsl(var(--border) / 0.8)"
                     strokeWidth={0.5}
                   />
                   {parts!.length >= 3 && (
                     <polygon
                       points={`${x + cell - cell * 0.28},${y} ${x + cell},${y} ${x + cell},${y + cell * 0.28}`}
-                      fill="#fbf9f1"
-                      opacity={0.85}
+                      fill="hsl(var(--background))"
+                      opacity={0.9}
                     />
                   )}
                 </motion.g>
@@ -200,18 +200,15 @@ export default function AuditHeatmap({ year, events, activeTypes }: Props) {
 
       {hover && (
         <div
-          className="pointer-events-none absolute z-10 rounded-md px-3.5 py-2.5 text-xs shadow-2xl"
+          className="pointer-events-none absolute z-10 rounded-lg px-3.5 py-2.5 text-xs bg-popover text-popover-foreground border border-border shadow-modal"
           style={{
             left: Math.min(hover.x + 20, Math.max(0, width - 240)),
             top: hover.y + 32,
-            background: "linear-gradient(180deg, #f5f0e0, #ede4c8)",
-            border: "1px solid #c9a84c",
-            color: "#064e3b",
             minWidth: 220,
-            fontFamily: "'IBM Plex Sans', sans-serif",
+            backdropFilter: "blur(12px)",
           }}
         >
-          <div className="font-semibold mb-2 pb-1.5" style={{ borderBottom: "1px solid rgba(6,78,59,0.15)", fontFamily: "'Libre Baskerville', serif" }}>
+          <div className="font-semibold mb-2 pb-1.5 border-b border-border/60">
             {new Date(hover.date).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric", year: "numeric" })}
           </div>
           {hover.parts.length === 0 && <div style={{ opacity: 0.6 }}>No activity recorded</div>}
