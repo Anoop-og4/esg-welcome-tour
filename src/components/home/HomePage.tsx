@@ -143,6 +143,9 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           </div>
         </div>
 
+        {/* News & Insights */}
+        <NewsInsights />
+
         {/* Tabbed secondary section */}
         <div className="glass-card glow-border overflow-hidden">
           <div className="flex items-center gap-1 border-b border-border/60 px-2 pt-2 overflow-x-auto">
