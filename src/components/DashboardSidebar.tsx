@@ -16,51 +16,11 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { icon: Home, label: "Home", key: "home" },
-  {
-    icon: Leaf, label: "Environment", key: "environment",
-    children: [
-      { label: "Dashboard", key: "environment", icon: PieChart },
-      { label: "Scope 1", key: "environment", icon: Zap },
-      { label: "Scope 2", key: "environment", icon: Zap },
-      { label: "Scope 3", key: "environment", icon: Zap },
-      { label: "Water", key: "environment", icon: Droplets },
-      { label: "Waste", key: "environment", icon: Trash2 },
-      { label: "Analytics", key: "environment", icon: BarChart3 },
-      { label: "Detailed View", key: "environment", icon: Eye },
-      { label: "Workflow", key: "workflow", icon: GitBranch },
-    ],
-  },
-  {
-    icon: Users, label: "Social", key: "social",
-    children: [
-      { label: "Workforce", key: "social", icon: Users },
-      { label: "Community", key: "social", icon: Users },
-    ],
-  },
-  { icon: Building2, label: "Governance", key: "governance" },
-  { icon: Shield, label: "Customers", key: "customers" },
-  { icon: ShoppingBag, label: "Products", key: "products" },
-  { icon: BarChart3, label: "Operations", key: "operations" },
+  { icon: Leaf, label: "Environment", key: "environment" },
   { icon: Target, label: "Goals", key: "goals" },
-  { icon: FileText, label: "Docs Hub", key: "docs" },
   { icon: History, label: "Audit History", key: "audit" },
-  { icon: Settings, label: "Admin", key: "admin" },
-  {
-    icon: Gamepad2, label: "Games", key: "play",
-    children: [
-      { label: "Play Hub", key: "play", icon: Sparkles },
-      { label: "🚗 Eco Drive", key: "play-ecodrive", icon: Zap },
-      { label: "🥊 Power Punch", key: "play-boxing", icon: Flame },
-      { label: "⚔️ Versus (1v1)", key: "play-versus", icon: UsersRound },
-      { label: "Daily Actions", key: "play-actions", icon: Flame },
-      { label: "Challenges", key: "play-challenges", icon: Target },
-      { label: "Leaderboard", key: "play-leaderboard", icon: Trophy },
-      { label: "Teams", key: "play-teams", icon: UsersRound },
-      { label: "Badges", key: "play-badges", icon: Award },
-      { label: "Rewards", key: "play-rewards", icon: Gift },
-      { label: "Profile", key: "play-profile", icon: User },
-    ],
-  },
+  { icon: FileText, label: "Help Studio", key: "admin" },
+  { icon: Gamepad2, label: "Games", key: "play" },
 ];
 
 const bottomItems: NavItem[] = [
