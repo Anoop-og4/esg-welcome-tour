@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, TrendingUp, AlertTriangle, Target, Globe2, BarChart3 } from "lucide-react";
+import NewsInsights from "./NewsInsights";
 import GlobalSearch from "@/components/GlobalSearch";
 import NotificationPanel from "@/components/notifications/NotificationPanel";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -141,6 +142,9 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             <EmissionTrends />
           </div>
         </div>
+
+        {/* News & Insights */}
+        <NewsInsights />
 
         {/* Tabbed secondary section */}
         <div className="glass-card glow-border overflow-hidden">
