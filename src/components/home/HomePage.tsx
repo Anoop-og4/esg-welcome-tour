@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, TrendingUp, AlertTriangle, Target, Globe2, BarChart3 } from "lucide-react";
+import { Sparkles, TrendingUp, TrendingDown, AlertTriangle, Target, Globe2, BarChart3, Gauge, Factory, ShieldAlert, BadgeCheck } from "lucide-react";
 import NewsInsights from "./NewsInsights";
 import GlobalSearch from "@/components/GlobalSearch";
 import NotificationPanel from "@/components/notifications/NotificationPanel";
