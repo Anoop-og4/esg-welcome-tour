@@ -229,7 +229,6 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             );
           })}
 
-          ))}
         </motion.div>
 
         {/* Primary focus: Score + Trends */}
