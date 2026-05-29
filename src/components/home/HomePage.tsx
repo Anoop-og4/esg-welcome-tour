@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, TrendingUp, AlertTriangle, Target, Globe2, BarChart3 } from "lucide-react";
+import { Sparkles, TrendingUp, TrendingDown, AlertTriangle, Target, Globe2, BarChart3, Gauge, Factory, ShieldAlert, BadgeCheck } from "lucide-react";
 import NewsInsights from "./NewsInsights";
 import GlobalSearch from "@/components/GlobalSearch";
 import NotificationPanel from "@/components/notifications/NotificationPanel";
@@ -25,12 +25,97 @@ interface HomePageProps {
 }
 
 const kpis = [
-  { label: "ESG Score", value: "78", delta: "+3.2", trend: "up", hint: "vs last quarter" },
-  { label: "Total Emissions", value: "271.8K", unit: "tCO₂e", delta: "-4.1%", trend: "down", hint: "YoY" },
-  { label: "Goals On Track", value: "12", unit: "/ 18", delta: "67%", trend: "up", hint: "completion" },
-  { label: "Open Risks", value: "5", delta: "2 high", trend: "warn", hint: "needs review" },
-  { label: "Compliance", value: "94%", delta: "CSRD ready", trend: "up", hint: "frameworks" },
+  {
+    label: "ESG Score",
+    value: "78",
+    unit: "/100",
+    delta: "+3.2",
+    trend: "up",
+    hint: "vs last quarter",
+    icon: Gauge,
+    spark: [68, 70, 69, 72, 74, 73, 76, 78],
+  },
+  {
+    label: "Total Emissions",
+    value: "271.8K",
+    unit: "tCO₂e",
+    delta: "-4.1%",
+    trend: "down",
+    hint: "YoY",
+    icon: Factory,
+    spark: [300, 295, 288, 290, 282, 278, 274, 271],
+  },
+  {
+    label: "Goals On Track",
+    value: "12",
+    unit: "/ 18",
+    delta: "67%",
+    trend: "up",
+    hint: "completion",
+    icon: Target,
+    spark: [6, 7, 8, 9, 10, 11, 11, 12],
+  },
+  {
+    label: "Open Risks",
+    value: "5",
+    delta: "2 high",
+    trend: "warn",
+    hint: "needs review",
+    icon: ShieldAlert,
+    spark: [9, 8, 8, 7, 7, 6, 6, 5],
+  },
+  {
+    label: "Compliance",
+    value: "94%",
+    delta: "CSRD ready",
+    trend: "up",
+    hint: "frameworks",
+    icon: BadgeCheck,
+    spark: [82, 84, 86, 88, 90, 91, 93, 94],
+  },
 ];
+
+function Sparkline({ data, trend }: { data: number[]; trend: string }) {
+  const w = 100;
+  const h = 28;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const points = data.map((d, i) => {
+    const x = (i / (data.length - 1)) * w;
+    const y = h - ((d - min) / range) * h;
+    return [x, y] as const;
+  });
+  const line = points.map(([x, y]) => `${x},${y}`).join(" ");
+  const area = `0,${h} ${line} ${w},${h}`;
+  const stroke =
+    trend === "up"
+      ? "hsl(var(--success))"
+      : trend === "down"
+      ? "hsl(var(--info))"
+      : "hsl(var(--warning))";
+  const gid = `spark-${Math.random().toString(36).slice(2, 8)}`;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full h-7">
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={stroke} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={stroke} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={area} fill={`url(#${gid})`} />
+      <polyline
+        points={line}
+        fill="none"
+        stroke={stroke}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 
 type TabKey = "performance" | "operations" | "intelligence" | "benchmark";
 
@@ -106,31 +191,44 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           transition={{ duration: 0.4, delay: 0.05 }}
           className="grid grid-cols-2 md:grid-cols-5 gap-3"
         >
-          {kpis.map((k, i) => (
-            <motion.div
-              key={k.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08 + i * 0.04 }}
-              className="glass-card glow-border p-4 group cursor-default"
-            >
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{k.label}</p>
-              <div className="flex items-baseline gap-1.5 mt-1.5">
-                <span className="font-display text-2xl font-bold text-foreground">{k.value}</span>
-                {k.unit && <span className="text-xs text-muted-foreground">{k.unit}</span>}
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <span
-                  className={`text-[11px] font-semibold ${
-                    k.trend === "up" ? "text-success" : k.trend === "down" ? "text-info" : "text-warning"
-                  }`}
-                >
-                  {k.delta}
-                </span>
-                <span className="text-[10px] text-muted-foreground">{k.hint}</span>
-              </div>
-            </motion.div>
-          ))}
+          {kpis.map((k, i) => {
+            const Icon = k.icon;
+            const TrendIcon = k.trend === "down" ? TrendingDown : k.trend === "warn" ? AlertTriangle : TrendingUp;
+            const trendColor =
+              k.trend === "up" ? "text-success" : k.trend === "down" ? "text-info" : "text-warning";
+            return (
+              <motion.div
+                key={k.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.08 + i * 0.04 }}
+                whileHover={{ y: -3 }}
+                className="glass-card glow-border p-4 group cursor-default relative overflow-hidden"
+              >
+                <div className="flex items-start justify-between">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{k.label}</p>
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20 transition-transform group-hover:scale-110">
+                    <Icon size={14} />
+                  </div>
+                </div>
+                <div className="flex items-baseline gap-1.5 mt-2">
+                  <span className="font-display text-2xl font-bold text-foreground">{k.value}</span>
+                  {k.unit && <span className="text-xs text-muted-foreground">{k.unit}</span>}
+                </div>
+                <div className="mt-2 -mx-1">
+                  <Sparkline data={k.spark} trend={k.trend} />
+                </div>
+                <div className="flex items-center justify-between mt-1.5">
+                  <span className={`flex items-center gap-1 text-[11px] font-semibold ${trendColor}`}>
+                    <TrendIcon size={11} />
+                    {k.delta}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">{k.hint}</span>
+                </div>
+              </motion.div>
+            );
+          })}
+
         </motion.div>
 
         {/* Primary focus: Score + Trends */}
