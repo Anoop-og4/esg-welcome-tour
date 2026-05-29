@@ -6,7 +6,6 @@ import GlobalSearch from "@/components/GlobalSearch";
 import NotificationPanel from "@/components/notifications/NotificationPanel";
 import ThemeToggle from "@/components/ThemeToggle";
 import ESGScoreOverview from "./ESGScoreOverview";
-import EmissionTrends from "./EmissionTrends";
 import SustainabilityGoals from "./SustainabilityGoals";
 import SupplyChainIntelligence from "./SupplyChainIntelligence";
 import CarbonCostSimulator from "./CarbonCostSimulator";
@@ -237,11 +236,12 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             <ESGScoreOverview />
           </div>
           <div className="lg:col-span-2">
-            <EmissionTrends />
+            <GlobalImpactMap />
           </div>
         </div>
 
-        {/* News & Insights */}
+        {/* Latest ESG News — verified ingestion, AI summary, impact score,
+            framework mapping, suggested action & Ask AI */}
         <NewsInsights />
 
         {/* Tabbed secondary section */}
