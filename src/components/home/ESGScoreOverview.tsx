@@ -75,9 +75,9 @@ export default function ESGScoreOverview() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="glass-card glow-border p-6"
+      className="glass-card glow-border p-6 h-full"
     >
-      <div className="flex flex-col items-center gap-6 lg:flex-row lg:gap-10">
+      <div className="flex h-full flex-col items-center justify-center gap-6 lg:flex-row lg:gap-10">
         <div className="flex flex-col items-center gap-1">
           <ScoreRing score={overall} />
           <span className="mt-1 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary shadow-glow-sm">

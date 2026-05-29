@@ -24,6 +24,7 @@ import {
   CheckCircle2,
   RadioTower,
   ShieldCheck,
+  MapPin,
   type LucideIcon,
 } from "lucide-react";
 
@@ -53,6 +54,8 @@ interface ESGSignal {
   impactKind: ImpactKind;
   confidence: number;
   frameworks: string[];
+  /** Facility/supplier labels (must match GlobalImpactMap markers) this signal impacts. */
+  affects: string[];
   suggestedAction: string;
   askPrompts: string[];
 }
@@ -74,6 +77,7 @@ const signals: ESGSignal[] = [
     impactKind: "risk",
     confidence: 91,
     frameworks: ["CSRD", "ESRS E1–S4", "GRI", "ISSB S1"],
+    affects: ["Munich HQ"],
     suggestedAction:
       "Review your CSRD readiness — your compliance score is 94%. Close the remaining ESRS data gaps before Q3.",
     askPrompts: [
@@ -98,6 +102,7 @@ const signals: ESGSignal[] = [
     impactKind: "risk",
     confidence: 87,
     frameworks: ["SEC Climate", "GHG Protocol", "ESRS E1", "TCFD"],
+    affects: ["Chicago DC", "Lagos Supplier", "Delhi Supplier"],
     suggestedAction:
       "Map your top 10 suppliers' emissions to prepare Scope 3 disclosure and close the tier-2 coverage gap first.",
     askPrompts: [
@@ -122,6 +127,7 @@ const signals: ESGSignal[] = [
     impactKind: "opportunity",
     confidence: 79,
     frameworks: ["GRI 302 (Energy)", "ESRS E1", "RE100", "CDP Climate"],
+    affects: ["São Paulo Ops", "Sydney Office"],
     suggestedAction:
       "Consider shifting 2 more facilities to renewable PPAs to cut emissions ~4%.",
     askPrompts: [
@@ -146,6 +152,7 @@ const signals: ESGSignal[] = [
     impactKind: "risk",
     confidence: 84,
     frameworks: ["GRI 303 (Water)", "CDP Water", "ESRS E3", "TCFD"],
+    affects: ["Shanghai Plant", "Delhi Supplier"],
     suggestedAction:
       "Re-run the site water-stress overlay and add the 2 newly reclassified geographies to the quarterly supplier risk review.",
     askPrompts: [
@@ -412,6 +419,11 @@ function SignalRow({
               {signal.category}
             </span>
             {signal.verified && <BadgeCheck size={11} className="text-success" />}
+            {signal.affects.length > 0 && (
+              <span className="inline-flex items-center gap-0.5 text-[9px] font-medium text-primary/80">
+                <MapPin size={9} /> {signal.affects.length}
+              </span>
+            )}
             <span className="ml-auto text-[10px] text-muted-foreground">{signal.ingestedAgo}</span>
           </div>
           <p
@@ -527,6 +539,27 @@ function DetailPanel({ signal }: { signal: ESGSignal }) {
         </div>
       </div>
 
+      {signal.affects.length > 0 && (
+        <div>
+          <div className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <MapPin size={12} className="text-primary" /> Linked sites · highlighted on map
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {signal.affects.map((loc, i) => (
+              <motion.span
+                key={loc}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.06 }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-primary/20 bg-primary/5 px-2.5 py-1 text-[11px] font-medium text-foreground"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" /> {loc}
+              </motion.span>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="rounded-xl border border-warning/20 bg-gradient-to-br from-warning/[0.08] to-transparent p-3.5">
         <div className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-warning">
           <Lightbulb size={12} /> Suggested Action
@@ -571,12 +604,27 @@ function DetailPanel({ signal }: { signal: ESGSignal }) {
 
 /* ------------------------------ Feed shell ------------------------------ */
 
-export default function NewsInsights() {
+export default function NewsInsights({
+  onHighlight,
+}: {
+  onHighlight?: (locations: string[], label: string) => void;
+} = {}) {
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [sort, setSort] = useState<"relevance" | "latest">("relevance");
   const [activeId, setActiveId] = useState<string>(signals[0].id);
 
-  const visible = filter === "all" ? signals : signals.filter((s) => s.pillar === filter);
+  const filtered = filter === "all" ? signals : signals.filter((s) => s.pillar === filter);
+  const visible = [...filtered].sort((a, b) =>
+    sort === "relevance"
+      ? b.impactScore - a.impactScore
+      : signals.indexOf(a) - signals.indexOf(b)
+  );
   const active = signals.find((s) => s.id === activeId) ?? signals[0];
+
+  // Cross-highlight the active signal's facilities/suppliers on the Global Impact map.
+  useEffect(() => {
+    onHighlight?.(active.affects, active.title);
+  }, [active, onHighlight]);
 
   const verifiedCount = signals.filter((s) => s.verified).length;
   const highImpact = signals.filter((s) => s.impactScore >= 80).length;
@@ -629,6 +677,22 @@ export default function NewsInsights() {
             {f.label}
           </button>
         ))}
+
+        <div className="ml-auto inline-flex rounded-lg border border-border bg-secondary/30 p-0.5 text-[10px] font-medium">
+          {(["relevance", "latest"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setSort(s)}
+              className={`rounded-md px-2 py-1 capitalize transition-colors ${
+                sort === s
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">

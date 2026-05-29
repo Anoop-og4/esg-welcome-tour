@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MapPin, Factory, Truck, AlertTriangle } from "lucide-react";
+import { MapPin, Factory, Truck, AlertTriangle, Sparkles } from "lucide-react";
 
 const markers = [
   { label: "Munich HQ", type: "facility", x: 52, y: 32, status: "ok" },
@@ -22,18 +22,36 @@ const typeIcons: Record<string, typeof MapPin> = {
   supplier: Truck,
 };
 
-export default function GlobalImpactMap() {
+export default function GlobalImpactMap({
+  highlighted = [],
+  highlightLabel = "",
+}: {
+  highlighted?: string[];
+  highlightLabel?: string;
+}) {
+  const hasHighlight = highlighted.length > 0;
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.25 }}
-      className="glass-card glow-border p-6"
+      className="glass-card glow-border p-6 h-full flex flex-col"
     >
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="font-display text-lg font-bold text-foreground">Global Impact</h2>
-          <p className="text-xs text-muted-foreground">Facilities, suppliers & emission hotspots</p>
+          {hasHighlight ? (
+            <motion.p
+              key={highlightLabel}
+              initial={{ opacity: 0, y: -3 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary"
+            >
+              <Sparkles size={10} /> {highlighted.length} site{highlighted.length > 1 ? "s" : ""} linked to selected signal
+            </motion.p>
+          ) : (
+            <p className="text-xs text-muted-foreground">Facilities, suppliers & emission hotspots</p>
+          )}
         </div>
         <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-primary" /> OK</span>
@@ -42,7 +60,7 @@ export default function GlobalImpactMap() {
         </div>
       </div>
 
-      <div className="relative h-[240px] w-full rounded-xl bg-secondary/30 border border-border overflow-hidden">
+      <div className="relative flex-1 min-h-[240px] w-full rounded-xl bg-secondary/30 border border-border overflow-hidden">
         {/* Grid pattern */}
         <div className="absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: `radial-gradient(circle, hsl(var(--neon-green)) 0.5px, transparent 0.5px)`,
@@ -60,17 +78,25 @@ export default function GlobalImpactMap() {
         {/* Markers */}
         {markers.map((m, i) => {
           const Icon = typeIcons[m.type] || MapPin;
+          const isHi = highlighted.includes(m.label);
+          const dimmed = hasHighlight && !isHi;
           return (
             <motion.div
               key={m.label}
               initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+              animate={{ scale: isHi ? 1.3 : 1, opacity: dimmed ? 0.2 : 1 }}
               transition={{ delay: 0.5 + i * 0.08, type: "spring", stiffness: 300 }}
               className="absolute group"
-              style={{ left: `${m.x}%`, top: `${m.y}%`, transform: "translate(-50%, -50%)" }}
+              style={{ left: `${m.x}%`, top: `${m.y}%`, transform: "translate(-50%, -50%)", zIndex: isHi ? 20 : 1 }}
             >
-              {m.status === "alert" && (
-                <span className="absolute -inset-2 animate-ping rounded-full opacity-30" style={{ background: statusColors[m.status] }} />
+              {(m.status === "alert" || isHi) && (
+                <span
+                  className="absolute -inset-2 animate-ping rounded-full opacity-40"
+                  style={{ background: isHi ? "hsl(var(--primary))" : statusColors[m.status] }}
+                />
+              )}
+              {isHi && (
+                <span className="absolute -inset-[5px] rounded-full ring-2 ring-primary ring-offset-2 ring-offset-secondary/30" />
               )}
               <div
                 className="relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-background shadow-md cursor-pointer"
@@ -78,7 +104,11 @@ export default function GlobalImpactMap() {
               >
                 <Icon size={11} className="text-background" />
               </div>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
+              <div
+                className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-1 z-10 ${
+                  isHi ? "block" : "hidden group-hover:block"
+                }`}
+              >
                 <div className="rounded-md bg-popover px-2 py-1 text-[10px] font-medium text-popover-foreground whitespace-nowrap shadow-lg border border-border">
                   {m.label}
                 </div>

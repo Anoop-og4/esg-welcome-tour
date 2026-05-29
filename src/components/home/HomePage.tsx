@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, TrendingUp, TrendingDown, AlertTriangle, Target, Globe2, BarChart3, Gauge, Factory, ShieldAlert, BadgeCheck } from "lucide-react";
 import NewsInsights from "./NewsInsights";
@@ -127,6 +127,13 @@ const tabs: { key: TabKey; label: string; icon: typeof TrendingUp }[] = [
 
 export default function HomePage({ onNavigate }: HomePageProps) {
   const [tab, setTab] = useState<TabKey>("performance");
+  const [mapHighlight, setMapHighlight] = useState<{ locations: string[]; label: string }>({
+    locations: [],
+    label: "",
+  });
+  const handleHighlight = useCallback((locations: string[], label: string) => {
+    setMapHighlight({ locations, label });
+  }, []);
 
   return (
     <div className="flex-1 overflow-auto intelligence-grid">
@@ -236,13 +243,13 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             <ESGScoreOverview />
           </div>
           <div className="lg:col-span-2">
-            <GlobalImpactMap />
+            <GlobalImpactMap highlighted={mapHighlight.locations} highlightLabel={mapHighlight.label} />
           </div>
         </div>
 
         {/* Latest ESG News — verified ingestion, AI summary, impact score,
             framework mapping, suggested action & Ask AI */}
-        <NewsInsights />
+        <NewsInsights onHighlight={handleHighlight} />
 
         {/* Tabbed secondary section */}
         <div className="glass-card glow-border overflow-hidden">
