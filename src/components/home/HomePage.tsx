@@ -191,30 +191,44 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           transition={{ duration: 0.4, delay: 0.05 }}
           className="grid grid-cols-2 md:grid-cols-5 gap-3"
         >
-          {kpis.map((k, i) => (
-            <motion.div
-              key={k.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08 + i * 0.04 }}
-              className="glass-card glow-border p-4 group cursor-default"
-            >
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{k.label}</p>
-              <div className="flex items-baseline gap-1.5 mt-1.5">
-                <span className="font-display text-2xl font-bold text-foreground">{k.value}</span>
-                {k.unit && <span className="text-xs text-muted-foreground">{k.unit}</span>}
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <span
-                  className={`text-[11px] font-semibold ${
-                    k.trend === "up" ? "text-success" : k.trend === "down" ? "text-info" : "text-warning"
-                  }`}
-                >
-                  {k.delta}
-                </span>
-                <span className="text-[10px] text-muted-foreground">{k.hint}</span>
-              </div>
-            </motion.div>
+          {kpis.map((k, i) => {
+            const Icon = k.icon;
+            const TrendIcon = k.trend === "down" ? TrendingDown : k.trend === "warn" ? AlertTriangle : TrendingUp;
+            const trendColor =
+              k.trend === "up" ? "text-success" : k.trend === "down" ? "text-info" : "text-warning";
+            return (
+              <motion.div
+                key={k.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.08 + i * 0.04 }}
+                whileHover={{ y: -3 }}
+                className="glass-card glow-border p-4 group cursor-default relative overflow-hidden"
+              >
+                <div className="flex items-start justify-between">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{k.label}</p>
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20 transition-transform group-hover:scale-110">
+                    <Icon size={14} />
+                  </div>
+                </div>
+                <div className="flex items-baseline gap-1.5 mt-2">
+                  <span className="font-display text-2xl font-bold text-foreground">{k.value}</span>
+                  {k.unit && <span className="text-xs text-muted-foreground">{k.unit}</span>}
+                </div>
+                <div className="mt-2 -mx-1">
+                  <Sparkline data={k.spark} trend={k.trend} />
+                </div>
+                <div className="flex items-center justify-between mt-1.5">
+                  <span className={`flex items-center gap-1 text-[11px] font-semibold ${trendColor}`}>
+                    <TrendIcon size={11} />
+                    {k.delta}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">{k.hint}</span>
+                </div>
+              </motion.div>
+            );
+          })}
+
           ))}
         </motion.div>
 
