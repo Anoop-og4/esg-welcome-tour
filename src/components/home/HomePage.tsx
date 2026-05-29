@@ -25,12 +25,97 @@ interface HomePageProps {
 }
 
 const kpis = [
-  { label: "ESG Score", value: "78", delta: "+3.2", trend: "up", hint: "vs last quarter" },
-  { label: "Total Emissions", value: "271.8K", unit: "tCO₂e", delta: "-4.1%", trend: "down", hint: "YoY" },
-  { label: "Goals On Track", value: "12", unit: "/ 18", delta: "67%", trend: "up", hint: "completion" },
-  { label: "Open Risks", value: "5", delta: "2 high", trend: "warn", hint: "needs review" },
-  { label: "Compliance", value: "94%", delta: "CSRD ready", trend: "up", hint: "frameworks" },
+  {
+    label: "ESG Score",
+    value: "78",
+    unit: "/100",
+    delta: "+3.2",
+    trend: "up",
+    hint: "vs last quarter",
+    icon: Gauge,
+    spark: [68, 70, 69, 72, 74, 73, 76, 78],
+  },
+  {
+    label: "Total Emissions",
+    value: "271.8K",
+    unit: "tCO₂e",
+    delta: "-4.1%",
+    trend: "down",
+    hint: "YoY",
+    icon: Factory,
+    spark: [300, 295, 288, 290, 282, 278, 274, 271],
+  },
+  {
+    label: "Goals On Track",
+    value: "12",
+    unit: "/ 18",
+    delta: "67%",
+    trend: "up",
+    hint: "completion",
+    icon: Target,
+    spark: [6, 7, 8, 9, 10, 11, 11, 12],
+  },
+  {
+    label: "Open Risks",
+    value: "5",
+    delta: "2 high",
+    trend: "warn",
+    hint: "needs review",
+    icon: ShieldAlert,
+    spark: [9, 8, 8, 7, 7, 6, 6, 5],
+  },
+  {
+    label: "Compliance",
+    value: "94%",
+    delta: "CSRD ready",
+    trend: "up",
+    hint: "frameworks",
+    icon: BadgeCheck,
+    spark: [82, 84, 86, 88, 90, 91, 93, 94],
+  },
 ];
+
+function Sparkline({ data, trend }: { data: number[]; trend: string }) {
+  const w = 100;
+  const h = 28;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const points = data.map((d, i) => {
+    const x = (i / (data.length - 1)) * w;
+    const y = h - ((d - min) / range) * h;
+    return [x, y] as const;
+  });
+  const line = points.map(([x, y]) => `${x},${y}`).join(" ");
+  const area = `0,${h} ${line} ${w},${h}`;
+  const stroke =
+    trend === "up"
+      ? "hsl(var(--success))"
+      : trend === "down"
+      ? "hsl(var(--info))"
+      : "hsl(var(--warning))";
+  const gid = `spark-${Math.random().toString(36).slice(2, 8)}`;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full h-7">
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={stroke} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={stroke} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={area} fill={`url(#${gid})`} />
+      <polyline
+        points={line}
+        fill="none"
+        stroke={stroke}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 
 type TabKey = "performance" | "operations" | "intelligence" | "benchmark";
 
