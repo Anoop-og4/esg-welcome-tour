@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, BarChart3, Target, HelpCircle, ChevronDown, ChevronRight, Plus, Link2, PieChart, Droplets, Trash2, Zap, Eye, LogOut, GitBranch, Gamepad2, Trophy, Flame, Award, UsersRound, Gift, Sparkles, User, History } from "lucide-react";
+import { Home, Leaf, Users, Building2, ShoppingBag, Settings, FileText, Shield, BarChart3, Target, HelpCircle, ChevronDown, ChevronRight, Plus, Link2, PieChart, Droplets, Trash2, Zap, Eye, LogOut, GitBranch, Gamepad2, Trophy, Flame, Award, UsersRound, Gift, Sparkles, User, History, Footprints } from "lucide-react";
 import { useSidebarTheme, sidebarThemes } from "@/components/SidebarThemeProvider";
 import { AnimatePresence, motion } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -31,6 +31,7 @@ const navItems: NavItem[] = [
     ],
   },
   { icon: Target, label: "Goals", key: "goals" },
+  { icon: Footprints, label: "PCF Builder", key: "pcf" },
   { icon: History, label: "Audit History", key: "audit" },
   { icon: FileText, label: "Help Studio", key: "admin" },
   {
