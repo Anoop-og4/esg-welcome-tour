@@ -31,6 +31,7 @@ const navItems: NavItem[] = [
     ],
   },
   { icon: Target, label: "Goals", key: "goals" },
+  { icon: Footprints, label: "PCF Builder", key: "pcf" },
   { icon: History, label: "Audit History", key: "audit" },
   { icon: FileText, label: "Help Studio", key: "admin" },
   {
