@@ -11,7 +11,7 @@ import WorkflowBuilder from "@/components/workflow/WorkflowBuilder";
 import PlayApp from "@/components/play/PlayApp";
 import GoalModule from "@/components/goals/GoalModule";
 import AuditHistory from "@/components/audit/AuditHistory";
-import PCFBuilderPage from "@/components/pcf/PCFBuilderPage";
+import PCFFlowPage from "@/components/pcf/flow/PCFFlowPage";
 import MobileTopBar from "@/components/MobileTopBar";
 import OGChatbot from "@/components/chatbot/OGChatbot";
 
@@ -36,7 +36,7 @@ const Index = () => {
     if (activeView === "workflow") return <WorkflowBuilder />;
     if (activeView === "goals") return <GoalModule />;
     if (activeView === "audit") return <AuditHistory />;
-    if (activeView === "pcf") return <PCFBuilderPage />;
+    if (activeView === "pcf") return <PCFFlowPage />;
     if (activeView.startsWith("play")) return <PlayApp view={activeView} onNavigate={setActiveView} />;
     return <DashboardContent onNavigate={setActiveView} />;
   };
