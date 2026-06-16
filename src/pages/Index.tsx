@@ -36,6 +36,7 @@ const Index = () => {
     if (activeView === "workflow") return <WorkflowBuilder />;
     if (activeView === "goals") return <GoalModule />;
     if (activeView === "audit") return <AuditHistory />;
+    if (activeView === "pcf") return <PCFBuilderPage />;
     if (activeView.startsWith("play")) return <PlayApp view={activeView} onNavigate={setActiveView} />;
     return <DashboardContent onNavigate={setActiveView} />;
   };
