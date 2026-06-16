@@ -380,6 +380,68 @@ export function defaultTemplate(): PCFFlowDocument {
   return { productName: "My Product", nodes };
 }
 
+// ─── migration ───
+// Older formats stored relationships in a separate `edges:[{source,target,allocation}]`
+// array with no parentId on the node data. Convert any such document to the
+// current parentId/order/sharedParentIds model so existing saves/exports keep working.
+interface LegacyEdge {
+  id?: string;
+  source: string;
+  target: string;
+  allocation?: number;
+}
+
+export function migrateNodes(rawNodes: unknown[], rawEdges?: LegacyEdge[]): PCFFlowNode[] {
+  const nodes: PCFFlowNode[] = (rawNodes as PCFFlowNode[]).map((n) => ({
+    ...n,
+    type: "pcf",
+    position: n.position ?? { x: 0, y: 0 },
+    data: {
+      ...n.data,
+      parentId: n.data?.parentId ?? null,
+      order: n.data?.order ?? 0,
+      sharedParentIds: n.data?.sharedParentIds ?? [],
+    },
+  }));
+
+  if (Array.isArray(rawEdges) && rawEdges.length) {
+    const byId = new Map(nodes.map((n) => [n.id, n]));
+    const incoming = new Map<string, LegacyEdge[]>();
+    for (const e of rawEdges) {
+      if (!byId.has(e.source) || !byId.has(e.target)) continue;
+      const arr = incoming.get(e.target) ?? [];
+      arr.push(e);
+      incoming.set(e.target, arr);
+    }
+    for (const [target, es] of incoming) {
+      const node = byId.get(target)!;
+      const [primary, ...shared] = es;
+      node.data.parentId = primary.source;
+      node.data.sharedParentIds = shared.map((e) => e.source);
+      const alloc: Record<string, number> = {};
+      for (const e of es) if (typeof e.allocation === "number") alloc[e.source] = e.allocation;
+      if (Object.keys(alloc).length) node.data.parentAllocations = alloc;
+    }
+    // assign sibling order within each parent group
+    const byParent = new Map<string | null, PCFFlowNode[]>();
+    for (const n of nodes) {
+      const p = n.data.parentId;
+      const a = byParent.get(p) ?? [];
+      a.push(n);
+      byParent.set(p, a);
+    }
+    for (const [, group] of byParent) group.forEach((n, i) => (n.data.order = i));
+  }
+
+  // drop dangling parent / shared links
+  const ids = new Set(nodes.map((n) => n.id));
+  for (const n of nodes) {
+    if (n.data.parentId && !ids.has(n.data.parentId)) n.data.parentId = null;
+    n.data.sharedParentIds = (n.data.sharedParentIds ?? []).filter((p) => ids.has(p) && p !== n.id);
+  }
+  return nodes;
+}
+
 // ─── persistence ───
 export const flowStore = {
   load(): PCFFlowDocument | null {
@@ -388,7 +450,8 @@ export const flowStore = {
       if (!raw) return null;
       const parsed = JSON.parse(raw);
       if (!parsed || !Array.isArray(parsed.nodes)) return null;
-      return { productName: parsed.productName ?? "My Product", nodes: parsed.nodes };
+      const nodes = migrateNodes(parsed.nodes, parsed.edges);
+      return { productName: parsed.productName ?? "My Product", nodes: treeLayout(nodes) };
     } catch {
       return null;
     }
@@ -407,16 +470,7 @@ export function parseImportJSON(raw: string): PCFFlowDocument | null {
   try {
     const parsed = JSON.parse(raw);
     if (!parsed || !Array.isArray(parsed.nodes)) return null;
-    const ids = new Set<string>((parsed.nodes as PCFFlowNode[]).map((n) => n.id));
-    // sanitize structure: drop dangling parents / shared links
-    const nodes = (parsed.nodes as PCFFlowNode[]).map((n) => ({
-      ...n,
-      data: {
-        ...n.data,
-        parentId: n.data.parentId && ids.has(n.data.parentId) ? n.data.parentId : null,
-        sharedParentIds: (n.data.sharedParentIds ?? []).filter((p) => ids.has(p) && p !== n.id),
-      },
-    }));
+    const nodes = migrateNodes(parsed.nodes, parsed.edges);
     return { productName: parsed.productName ?? "Imported Product", nodes: treeLayout(nodes) };
   } catch {
     return null;

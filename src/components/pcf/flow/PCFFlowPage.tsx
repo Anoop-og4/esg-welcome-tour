@@ -5,6 +5,7 @@ import {
   Background,
   Controls,
   MiniMap,
+  MarkerType,
   useNodesState,
   useReactFlow,
   type Connection,
@@ -95,6 +96,9 @@ function PCFFlowInner() {
           source: n.data.parentId,
           target: n.id,
           deletable: false,
+          type: "smoothstep",
+          style: { stroke: "#94a3b8", strokeWidth: 2 },
+          markerEnd: { type: MarkerType.ArrowClosed, color: "#94a3b8", width: 18, height: 18 },
         });
       }
       for (const pid of n.data.sharedParentIds ?? []) {
@@ -102,8 +106,10 @@ function PCFFlowInner() {
           id: `s-${pid}-${n.id}`,
           source: pid,
           target: n.id,
+          type: "smoothstep",
           animated: true,
-          style: { strokeDasharray: "6 4", stroke: "#0ea5e9" },
+          style: { strokeDasharray: "6 4", stroke: "#0ea5e9", strokeWidth: 2 },
+          markerEnd: { type: MarkerType.ArrowClosed, color: "#0ea5e9", width: 18, height: 18 },
           label: `${Math.round(allocationFor(n, pid) * 100)}%`,
         });
       }
@@ -151,17 +157,28 @@ function PCFFlowInner() {
     [nodes, getIntersectingNodes, relayout],
   );
 
-  // ── connect handle->handle = add a SHARED parent ──
+  // ── connect handle->handle: become the PRIMARY parent if the child has none,
+  //    otherwise add a SHARED parent (the DAG case) ──
   const onConnect = useCallback(
     (params: Connection) => {
       if (!params.source || !params.target || params.source === params.target) return;
       const t = nodes as unknown as TPCFFlowNode[];
-      const next = addSharedParent(params.target, params.source, t);
-      if (next === t) return toast.error("Can't share — duplicate or would create a cycle");
-      setNodes(next as unknown as Node[]);
-      toast.success("Shared parent added");
+      const child = t.find((n) => n.id === params.target);
+      if (!child) return;
+      if (child.data.parentId === null) {
+        const order = combinedChildren(params.source, t).length;
+        const next = moveNode(params.target, params.source, order, t);
+        if (next === t) return toast.error("Can't connect — would create a cycle");
+        relayout(next);
+        toast.success("Connected");
+      } else {
+        const next = addSharedParent(params.target, params.source, t);
+        if (next === t) return toast.error("Can't share — duplicate or would create a cycle");
+        setNodes(next as unknown as Node[]);
+        toast.success("Shared parent added");
+      }
     },
-    [nodes, setNodes],
+    [nodes, setNodes, relayout],
   );
 
   // delete a shared (dashed) edge -> remove that shared parent
