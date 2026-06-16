@@ -11,6 +11,7 @@ import WorkflowBuilder from "@/components/workflow/WorkflowBuilder";
 import PlayApp from "@/components/play/PlayApp";
 import GoalModule from "@/components/goals/GoalModule";
 import AuditHistory from "@/components/audit/AuditHistory";
+import PCFBuilderPage from "@/components/pcf/PCFBuilderPage";
 import MobileTopBar from "@/components/MobileTopBar";
 import OGChatbot from "@/components/chatbot/OGChatbot";
 
