@@ -10,10 +10,13 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Trash2, Plus, ChevronLeft, ChevronRight, ArrowLeftRight, Save,
+  Trash2, Plus, ChevronLeft, ChevronRight, ArrowLeftRight, Save, AlertTriangle,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { PCFFlowNode, PCFNodeData, NODE_TYPES, SCOPES } from "./pcfFlowTypes";
 import { selfEmission, parentsOf, allocationFor } from "./pcfFlowUtils";
+import EmissionFactorPicker from "./EmissionFactorPicker";
+import { EmissionFactor, factorUnitLabel } from "./emissionFactors";
 
 interface Props {
   node: PCFFlowNode | null;
@@ -47,8 +50,29 @@ export default function PCFFlowNodeEditor({
   const update = (patch: Partial<PCFNodeData>) =>
     setDraft((prev) => (prev ? { ...prev, ...patch } : prev));
 
+  // pick a factor from the library: fills value + unit + provenance, aligns the
+  // quantity unit, so the calculation stays unit-consistent.
+  const pickFactor = (f: EmissionFactor) =>
+    update({
+      emissionFactor: f.value,
+      emissionFactorUnit: factorUnitLabel(f),
+      unit: f.unit,
+      factorId: f.id,
+      factorSource: f.source,
+      factorYear: f.year,
+      factorRegion: f.region,
+    });
+
+  // manual edit clears the library provenance (it's now a custom value)
+  const editFactorManually = (patch: Partial<PCFNodeData>) =>
+    update({ ...patch, factorId: undefined, factorSource: undefined, factorYear: undefined, factorRegion: undefined });
+
   const liveEmission = selfEmission(draft);
   const isRoot = draft.parentId === null;
+  // EF unit conventionally reads kgCO2e/<quantity unit>; warn if they disagree
+  const expectedEFUnit = `kgCO2e/${draft.unit}`;
+  const unitMismatch =
+    !!draft.emissionFactorUnit && draft.emissionFactorUnit !== expectedEFUnit;
   const nameById = new Map(nodes.map((n) => [n.id, n.data.name]));
   const parents = parentsOf(node);
 
@@ -101,18 +125,45 @@ export default function PCFFlowNodeEditor({
             </div>
           </div>
 
+          <div className="space-y-1.5">
+            <Label>Emission factor</Label>
+            <EmissionFactorPicker value={draft.factorId} onSelect={pickFactor} />
+            {draft.factorSource ? (
+              <div className="flex items-center gap-1.5 pt-0.5">
+                <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
+                  {draft.factorSource} {draft.factorYear}
+                </Badge>
+                <span className="text-[10px] text-muted-foreground">{draft.factorRegion}</span>
+              </div>
+            ) : (
+              <p className="text-[10px] text-muted-foreground">
+                Custom value — no library source attached.
+              </p>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Emission Factor</Label>
+              <Label>Factor value</Label>
               <Input type="number" value={draft.emissionFactor}
-                onChange={(e) => update({ emissionFactor: parseFloat(e.target.value) || 0 })} />
+                onChange={(e) => editFactorManually({ emissionFactor: parseFloat(e.target.value) || 0 })} />
             </div>
             <div className="space-y-1.5">
               <Label>EF Unit</Label>
               <Input value={draft.emissionFactorUnit}
-                onChange={(e) => update({ emissionFactorUnit: e.target.value })} />
+                onChange={(e) => editFactorManually({ emissionFactorUnit: e.target.value })} />
             </div>
           </div>
+
+          {unitMismatch && (
+            <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-700 dark:text-amber-400">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>
+                Unit mismatch: factor is <b>{draft.emissionFactorUnit}</b> but quantity unit is{" "}
+                <b>{draft.unit}</b> (expected <b>{expectedEFUnit}</b>). Check the calculation.
+              </span>
+            </div>
+          )}
 
           <div className="rounded-lg border bg-muted/40 p-3 text-sm">
             <div className="flex items-center justify-between">

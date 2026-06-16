@@ -24,6 +24,11 @@ export interface PCFNodeData {
   unit: string;
   emissionFactor: number;
   emissionFactorUnit: string;
+  // emission-factor library provenance (stamped when picked from the library)
+  factorId?: string;
+  factorSource?: string;
+  factorYear?: number;
+  factorRegion?: string;
   supplier?: string;
   location?: string;
   notes?: string;

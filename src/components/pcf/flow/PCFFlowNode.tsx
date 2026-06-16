@@ -100,9 +100,13 @@ function PCFFlowNodeComponent({ data, selected, id }: NodeProps) {
             fontSize: 10,
             color: "hsl(var(--muted-foreground))",
             marginTop: 1,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
           }}
         >
           {d.type}
+          {d.factorSource ? ` · ${d.factorSource} ${d.factorYear ?? ""}` : ""}
         </div>
       </div>
 
