@@ -15,12 +15,24 @@ function colorForNode(data: PCFNodeData): string {
   return "#f59e0b";
 }
 
+/** Stepped heat color by share of product total (green -> red). */
+function heatColor(share: number): string {
+  if (share >= 0.25) return "#dc2626"; // red — major hotspot
+  if (share >= 0.15) return "#ea580c"; // orange
+  if (share >= 0.07) return "#f59e0b"; // amber
+  if (share >= 0.02) return "#eab308"; // yellow
+  return "#84cc16"; // low — green
+}
+
 const fmt = (n: number | undefined) =>
   (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
 
 function PCFFlowNodeComponent({ data, selected, id }: NodeProps) {
   const d = data as PCFNodeData;
-  const color = colorForNode(d);
+  const hot = !!d.hotspotMode;
+  const share = d.hotspotShare ?? 0;
+  const color = hot ? heatColor(share) : colorForNode(d);
+  const major = hot && share >= 0.15;
 
   return (
     <div
@@ -33,8 +45,12 @@ function PCFFlowNodeComponent({ data, selected, id }: NodeProps) {
         background: "hsl(var(--card))",
         border: selected
           ? "2px solid hsl(var(--primary))"
+          : major
+          ? `2px solid ${color}`
           : "1px solid hsl(var(--border))",
-        boxShadow: "0 6px 20px -8px rgba(0,0,0,0.45)",
+        boxShadow: major
+          ? `0 0 0 4px ${color}33, 0 6px 20px -8px rgba(0,0,0,0.45)`
+          : "0 6px 20px -8px rgba(0,0,0,0.45)",
         display: "flex",
         flexDirection: "column",
         fontFamily: "inherit",
@@ -119,13 +135,23 @@ function PCFFlowNodeComponent({ data, selected, id }: NodeProps) {
           borderTop: "1px solid hsl(var(--border))",
         }}
       >
-        <div style={{ fontSize: 10, color: "hsl(var(--muted-foreground))" }}>
-          <span style={{ color: "hsl(var(--foreground))", fontWeight: 700 }}>
-            {fmt(d.branchTotal)}
-          </span>{" "}
-          kgCO₂e
-          <span style={{ opacity: 0.6 }}> (self {fmt(d.selfEmission)})</span>
-        </div>
+        {hot ? (
+          <div style={{ fontSize: 10, color: "hsl(var(--muted-foreground))" }}>
+            <span style={{ color, fontWeight: 800, fontSize: 13 }}>
+              {(share * 100).toFixed(1)}%
+            </span>{" "}
+            of total
+            <span style={{ opacity: 0.6 }}> ({fmt(d.selfEmission)} kg)</span>
+          </div>
+        ) : (
+          <div style={{ fontSize: 10, color: "hsl(var(--muted-foreground))" }}>
+            <span style={{ color: "hsl(var(--foreground))", fontWeight: 700 }}>
+              {fmt(d.branchTotal)}
+            </span>{" "}
+            kgCO₂e
+            <span style={{ opacity: 0.6 }}> (self {fmt(d.selfEmission)})</span>
+          </div>
+        )}
         <button
           className="pcf-add-child nodrag"
           data-pcf-add={id}

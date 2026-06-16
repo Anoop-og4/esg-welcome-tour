@@ -45,6 +45,10 @@ export interface PCFNodeData {
   selfEmission?: number;
   branchTotal?: number;
   depth?: number;
+  /** share (0..1) of the product total contributed by this node's self emission */
+  hotspotShare?: number;
+  /** whether the canvas is currently in hotspot (heatmap) mode */
+  hotspotMode?: boolean;
   [key: string]: unknown;
 }
 

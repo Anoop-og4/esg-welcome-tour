@@ -6,6 +6,7 @@ import {
   Controls,
   MiniMap,
   MarkerType,
+  Panel,
   useNodesState,
   useReactFlow,
   type Connection,
@@ -18,7 +19,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Plus, RotateCcw, Save, Download, Upload, Maximize2, LayoutGrid, Leaf,
+  Plus, RotateCcw, Save, Download, Upload, Maximize2, LayoutGrid, Leaf, Flame,
 } from "lucide-react";
 import PCFFlowNode from "./PCFFlowNode";
 import PCFFlowNodeEditor from "./PCFFlowNodeEditor";
@@ -37,6 +38,7 @@ function PCFFlowInner() {
   const [productName, setProductName] = useState("My Product");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [hotspotMode, setHotspotMode] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const { fitView, screenToFlowPosition, getIntersectingNodes } = useReactFlow();
@@ -75,15 +77,37 @@ function PCFFlowInner() {
     const t = nodes as unknown as TPCFFlowNode[];
     const branch = computeBranchTotals(t);
     const depths = computeDepths(t);
-    return nodes.map((n) => ({
-      ...n,
-      data: {
-        ...(n.data as PCFNodeData),
-        selfEmission: selfEmission(n.data as PCFNodeData),
-        branchTotal: branch.get(n.id) ?? 0,
-        depth: depths.get(n.id) ?? 0,
-      },
-    }));
+    const grand = productTotal(t);
+    return nodes.map((n) => {
+      const self = selfEmission(n.data as PCFNodeData);
+      return {
+        ...n,
+        data: {
+          ...(n.data as PCFNodeData),
+          selfEmission: self,
+          branchTotal: branch.get(n.id) ?? 0,
+          depth: depths.get(n.id) ?? 0,
+          hotspotMode,
+          hotspotShare: grand > 0 ? self / grand : 0,
+        },
+      };
+    });
+  }, [nodes, hotspotMode]);
+
+  // ranked contributors for the Pareto panel
+  const hotspots = useMemo(() => {
+    const t = nodes as unknown as TPCFFlowNode[];
+    const grand = productTotal(t);
+    const ranked = t
+      .map((n) => ({ id: n.id, name: n.data.name, self: selfEmission(n.data) }))
+      .filter((x) => x.self > 0)
+      .sort((a, b) => b.self - a.self);
+    let cum = 0;
+    return ranked.map((x) => {
+      const share = grand > 0 ? x.self / grand : 0;
+      cum += share;
+      return { ...x, share, cumulative: cum };
+    });
   }, [nodes]);
 
   const edges = useMemo<Edge[]>(() => {
@@ -337,6 +361,7 @@ function PCFFlowInner() {
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Input value={productName} onChange={(e) => setProductName(e.target.value)}
             className="h-9 w-56" placeholder="Product name" />
+          <Button size="sm" variant={hotspotMode ? "default" : "outline"} onClick={() => setHotspotMode((v) => !v)}><Flame className="mr-1 h-4 w-4" />Hotspots</Button>
           <Button size="sm" variant="outline" onClick={handleAddRoot}><Plus className="mr-1 h-4 w-4" />Add Root</Button>
           <Button size="sm" variant="outline" onClick={() => relayout(typed())}><LayoutGrid className="mr-1 h-4 w-4" />Tidy Layout</Button>
           <Button size="sm" variant="outline" onClick={handleReset}><RotateCcw className="mr-1 h-4 w-4" />Reset</Button>
@@ -365,6 +390,65 @@ function PCFFlowInner() {
           <Background gap={20} />
           <Controls />
           <MiniMap pannable zoomable />
+          {hotspotMode && (
+            <Panel position="top-right">
+              <div className="w-72 rounded-xl border bg-background/95 p-3 shadow-lg backdrop-blur">
+                <div className="mb-2 flex items-center gap-2">
+                  <Flame className="h-4 w-4 text-orange-500" />
+                  <span className="text-sm font-bold">Emission Hotspots</span>
+                </div>
+                {hotspots.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">
+                    No emissions yet — set quantities or pick factors to see hotspots.
+                  </p>
+                ) : (
+                  <>
+                    <p className="mb-2 text-[11px] text-muted-foreground">
+                      Ranked by share of total. The line marks the 80% cut-off (the vital few).
+                    </p>
+                    <div className="max-h-[320px] space-y-1.5 overflow-y-auto pr-1">
+                      {hotspots.map((h, i) => {
+                        const crossed80 = h.cumulative >= 0.8 && (i === 0 || hotspots[i - 1].cumulative < 0.8);
+                        return (
+                          <div key={h.id}>
+                            {crossed80 && (
+                              <div className="my-1 flex items-center gap-2">
+                                <div className="h-px flex-1 bg-orange-400/60" />
+                                <span className="text-[9px] font-semibold uppercase tracking-wide text-orange-500">80%</span>
+                                <div className="h-px flex-1 bg-orange-400/60" />
+                              </div>
+                            )}
+                            <button
+                              onClick={() => { setSelectedId(h.id); setDrawerOpen(true); }}
+                              className="w-full rounded-md px-1.5 py-1 text-left transition-colors hover:bg-muted/60"
+                            >
+                              <div className="flex items-center justify-between gap-2 text-xs">
+                                <span className="truncate">{i + 1}. {h.name}</span>
+                                <span className="shrink-0 font-bold tabular-nums">{(h.share * 100).toFixed(1)}%</span>
+                              </div>
+                              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                                <div
+                                  className="h-full rounded-full"
+                                  style={{
+                                    width: `${Math.max(2, h.share * 100)}%`,
+                                    background:
+                                      h.share >= 0.25 ? "#dc2626" :
+                                      h.share >= 0.15 ? "#ea580c" :
+                                      h.share >= 0.07 ? "#f59e0b" :
+                                      h.share >= 0.02 ? "#eab308" : "#84cc16",
+                                  }}
+                                />
+                              </div>
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+            </Panel>
+          )}
         </ReactFlow>
       </div>
 
