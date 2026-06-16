@@ -15,18 +15,27 @@ import PCFFlowPage from "@/components/pcf/flow/PCFFlowPage";
 import MobileTopBar from "@/components/MobileTopBar";
 import OGChatbot from "@/components/chatbot/OGChatbot";
 
+const WELCOME_SEEN_KEY = "esg-welcome-seen";
+
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(false);
   const [activeView, setActiveView] = useState("home");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
+    // already dismissed once -> never show again
+    if (localStorage.getItem(WELCOME_SEEN_KEY) === "true") return;
     const timer = setTimeout(() => {
       setShowWelcome(true);
     }, 3000);
 
     return () => clearTimeout(timer);
   }, []);
+
+  const handleCloseWelcome = () => {
+    setShowWelcome(false);
+    localStorage.setItem(WELCOME_SEEN_KEY, "true");
+  };
 
   const renderContent = () => {
     if (activeView === "home") return <HomePage onNavigate={setActiveView} />;
@@ -54,7 +63,7 @@ const Index = () => {
         <div className="flex-1 min-h-0 flex">{renderContent()}</div>
       </div>
       <AnimatePresence>
-        {showWelcome && <WelcomeModal onClose={() => setShowWelcome(false)} />}
+        {showWelcome && <WelcomeModal onClose={handleCloseWelcome} />}
       </AnimatePresence>
       <OGChatbot />
     </div>
