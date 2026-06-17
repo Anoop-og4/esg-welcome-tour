@@ -19,7 +19,7 @@ const WELCOME_SEEN_KEY = "esg-welcome-seen";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(false);
-  const [activeView, setActiveView] = useState("home");
+  const [activeView, setActiveView] = useState("pcf");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
