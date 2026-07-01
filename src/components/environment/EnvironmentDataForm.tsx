@@ -1,41 +1,49 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Trash2, Save, FolderPlus, RotateCcw, CheckCircle2, Leaf } from "lucide-react";
+import { Plus, Trash2, Save, RotateCcw, CheckCircle2, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
 /**
  * Table-view data entry form (POC).
- * - Rows and Section (group) rows, styled like the reference image.
+ * - Only data rows (no sections).
+ * - Dropdown cells: Scope and Unit are selectable.
  * - Interdependent columns: Total tCO₂e = Activity Value × Emission Factor (auto, read-only).
  * - Persists to localStorage; "Save" commits the sheet.
  */
 
-type RowKind = "data" | "section";
-
 interface DataRow {
   id: string;
-  kind: RowKind;
   category: string;
-  activity: string;      // Activity Value (input)
-  factor: string;        // Emission Factor (input)
+  scope: string;    // dropdown
+  activity: string; // Activity Value (input)
+  unit: string;     // dropdown
+  factor: string;   // Emission Factor (input)
   // total is derived: activity * factor
 }
 
-const STORAGE_KEY = "esg-env-data-sheet-v1";
+const STORAGE_KEY = "esg-env-data-sheet-v2";
+
+const SCOPE_OPTIONS = ["Scope 1", "Scope 2", "Scope 3"];
+const UNIT_OPTIONS = ["kg", "L", "kWh", "m³", "tonnes", "km"];
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
 const seedRows: DataRow[] = [
-  { id: uid(), kind: "data", category: "Diesel (stationary)", activity: "1200", factor: "2.68" },
-  { id: uid(), kind: "section", category: "Scope 2 — Purchased energy", activity: "", factor: "" },
-  { id: uid(), kind: "data", category: "Grid electricity", activity: "45000", factor: "0.71" },
-  { id: uid(), kind: "data", category: "Purchased steam", activity: "800", factor: "0.19" },
-  { id: uid(), kind: "data", category: "District cooling", activity: "300", factor: "0.12" },
-  { id: uid(), kind: "section", category: "Scope 3 — Value chain", activity: "", factor: "" },
+  { id: uid(), category: "Diesel (stationary)", scope: "Scope 1", activity: "1200", unit: "L", factor: "2.68" },
+  { id: uid(), category: "Grid electricity", scope: "Scope 2", activity: "45000", unit: "kWh", factor: "0.71" },
+  { id: uid(), category: "Purchased steam", scope: "Scope 2", activity: "800", unit: "kWh", factor: "0.19" },
+  { id: uid(), category: "Business travel", scope: "Scope 3", activity: "300", unit: "km", factor: "0.12" },
 ];
 
 function loadRows(): DataRow[] {
@@ -43,10 +51,7 @@ function loadRows(): DataRow[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw) as DataRow[];
   } catch { /* ignore */ }
-  return [
-    { id: uid(), kind: "section", category: "Scope 1 — Direct emissions", activity: "", factor: "" },
-    ...seedRows,
-  ];
+  return seedRows;
 }
 
 const computeTotal = (activity: string, factor: string) => {
@@ -64,14 +69,13 @@ export default function EnvironmentDataForm() {
   const grandTotal = useMemo(
     () =>
       rows.reduce((sum, r) => {
-        if (r.kind !== "data") return sum;
         const t = computeTotal(r.activity, r.factor);
         return sum + (t ?? 0);
       }, 0),
     [rows],
   );
 
-  const dataCount = rows.filter((r) => r.kind === "data").length;
+  const dataCount = rows.length;
 
   const update = (id: string, patch: Partial<DataRow>) =>
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -79,10 +83,10 @@ export default function EnvironmentDataForm() {
   const removeRow = (id: string) => setRows((prev) => prev.filter((r) => r.id !== id));
 
   const addRow = () =>
-    setRows((prev) => [...prev, { id: uid(), kind: "data", category: "", activity: "", factor: "" }]);
-
-  const addSection = () =>
-    setRows((prev) => [...prev, { id: uid(), kind: "section", category: "New Section", activity: "", factor: "" }]);
+    setRows((prev) => [
+      ...prev,
+      { id: uid(), category: "", scope: "Scope 1", activity: "", unit: "kg", factor: "" },
+    ]);
 
   const resetSheet = () => {
     localStorage.removeItem(STORAGE_KEY);
@@ -91,10 +95,9 @@ export default function EnvironmentDataForm() {
   };
 
   const save = () => {
-    // simple validation
-    const invalid = rows.some((r) => r.kind === "data" && !r.category.trim());
+    const invalid = rows.some((r) => !r.category.trim());
     if (invalid) {
-      toast({ title: "Missing category", description: "Every data row needs a category name.", variant: "destructive" });
+      toast({ title: "Missing category", description: "Every row needs a category name.", variant: "destructive" });
       return;
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
@@ -104,7 +107,6 @@ export default function EnvironmentDataForm() {
   };
 
   useEffect(() => {
-    // keep a live draft so refresh doesn't lose edits
     const t = setTimeout(() => localStorage.setItem(STORAGE_KEY, JSON.stringify(rows)), 600);
     return () => clearTimeout(t);
   }, [rows]);
@@ -127,9 +129,6 @@ export default function EnvironmentDataForm() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" onClick={addSection}>
-              <FolderPlus className="mr-1.5 h-4 w-4" /> Section
-            </Button>
             <Button variant="outline" size="sm" onClick={addRow}>
               <Plus className="mr-1.5 h-4 w-4" /> Row
             </Button>
@@ -150,11 +149,13 @@ export default function EnvironmentDataForm() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-sm">
+            <table className="w-full min-w-[820px] text-sm">
               <thead>
                 <tr className="bg-primary/90 text-primary-foreground">
                   <th className="px-4 py-3 text-left font-semibold">Category</th>
+                  <th className="px-4 py-3 text-left font-semibold">Scope</th>
                   <th className="px-4 py-3 text-left font-semibold">Activity Value</th>
+                  <th className="px-4 py-3 text-left font-semibold">Unit</th>
                   <th className="px-4 py-3 text-left font-semibold">Emission Factor</th>
                   <th className="px-4 py-3 text-right font-semibold">Total tCO₂e</th>
                   <th className="w-12 px-2 py-3" />
@@ -163,38 +164,6 @@ export default function EnvironmentDataForm() {
               <tbody>
                 <AnimatePresence initial={false}>
                   {rows.map((r) => {
-                    if (r.kind === "section") {
-                      return (
-                        <motion.tr
-                          key={r.id}
-                          layout
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="bg-amber-500/10"
-                        >
-                          <td colSpan={4} className="px-4 py-2.5">
-                            <input
-                              value={r.category}
-                              onChange={(e) => update(r.id, { category: e.target.value })}
-                              className="w-full bg-transparent text-sm font-semibold text-amber-600 outline-none placeholder:text-amber-600/50 dark:text-amber-400"
-                              placeholder="Section title"
-                            />
-                          </td>
-                          <td className="px-2 py-2.5 text-right">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                              onClick={() => removeRow(r.id)}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </td>
-                        </motion.tr>
-                      );
-                    }
-
                     const total = computeTotal(r.activity, r.factor);
                     return (
                       <motion.tr
@@ -215,6 +184,18 @@ export default function EnvironmentDataForm() {
                           />
                         </td>
                         <td className="px-3 py-1.5">
+                          <Select value={r.scope} onValueChange={(v) => update(r.id, { scope: v })}>
+                            <SelectTrigger className="h-9 border-transparent bg-transparent hover:border-border focus:border-primary">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {SCOPE_OPTIONS.map((o) => (
+                                <SelectItem key={o} value={o}>{o}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </td>
+                        <td className="px-3 py-1.5">
                           <Input
                             type="number"
                             inputMode="decimal"
@@ -223,6 +204,18 @@ export default function EnvironmentDataForm() {
                             placeholder="0"
                             className="h-9 border-transparent bg-transparent font-mono hover:border-border focus:border-primary"
                           />
+                        </td>
+                        <td className="px-3 py-1.5">
+                          <Select value={r.unit} onValueChange={(v) => update(r.id, { unit: v })}>
+                            <SelectTrigger className="h-9 border-transparent bg-transparent hover:border-border focus:border-primary">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {UNIT_OPTIONS.map((o) => (
+                                <SelectItem key={o} value={o}>{o}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </td>
                         <td className="px-3 py-1.5">
                           <Input
@@ -261,7 +254,7 @@ export default function EnvironmentDataForm() {
               </tbody>
               <tfoot>
                 <tr className="border-t border-border/60 bg-muted/40">
-                  <td className="px-4 py-3 text-sm font-semibold" colSpan={3}>
+                  <td className="px-4 py-3 text-sm font-semibold" colSpan={5}>
                     Grand total
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-base font-bold text-primary">
