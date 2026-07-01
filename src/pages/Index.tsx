@@ -12,6 +12,7 @@ import PlayApp from "@/components/play/PlayApp";
 import GoalModule from "@/components/goals/GoalModule";
 import AuditHistory from "@/components/audit/AuditHistory";
 import PCFFlowPage from "@/components/pcf/flow/PCFFlowPage";
+import EnvironmentDataForm from "@/components/environment/EnvironmentDataForm";
 import MobileTopBar from "@/components/MobileTopBar";
 import OGChatbot from "@/components/chatbot/OGChatbot";
 
