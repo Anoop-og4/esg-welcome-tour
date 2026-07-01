@@ -47,6 +47,7 @@ const Index = () => {
     if (activeView === "goals") return <GoalModule />;
     if (activeView === "audit") return <AuditHistory />;
     if (activeView === "pcf") return <PCFFlowPage />;
+    if (activeView === "env-data") return <EnvironmentDataForm />;
     if (activeView.startsWith("play")) return <PlayApp view={activeView} onNavigate={setActiveView} />;
     return <DashboardContent onNavigate={setActiveView} />;
   };
