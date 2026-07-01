@@ -27,6 +27,7 @@ const navItems: NavItem[] = [
       { label: "Waste", key: "environment", icon: Trash2 },
       { label: "Analytics", key: "environment", icon: BarChart3 },
       { label: "Detailed View", key: "environment", icon: Eye },
+      { label: "Add Data", key: "env-data", icon: Plus },
       { label: "Workflow", key: "workflow", icon: GitBranch },
     ],
   },
