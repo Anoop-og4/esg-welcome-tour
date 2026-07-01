@@ -12,6 +12,7 @@ import PlayApp from "@/components/play/PlayApp";
 import GoalModule from "@/components/goals/GoalModule";
 import AuditHistory from "@/components/audit/AuditHistory";
 import PCFFlowPage from "@/components/pcf/flow/PCFFlowPage";
+import EnvironmentDataForm from "@/components/environment/EnvironmentDataForm";
 import MobileTopBar from "@/components/MobileTopBar";
 import OGChatbot from "@/components/chatbot/OGChatbot";
 
@@ -46,6 +47,7 @@ const Index = () => {
     if (activeView === "goals") return <GoalModule />;
     if (activeView === "audit") return <AuditHistory />;
     if (activeView === "pcf") return <PCFFlowPage />;
+    if (activeView === "env-data") return <EnvironmentDataForm />;
     if (activeView.startsWith("play")) return <PlayApp view={activeView} onNavigate={setActiveView} />;
     return <DashboardContent onNavigate={setActiveView} />;
   };
