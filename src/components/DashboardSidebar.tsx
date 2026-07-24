@@ -34,7 +34,15 @@ const navItems: NavItem[] = [
   { icon: Target, label: "Goals", key: "goals" },
   { icon: Footprints, label: "PCF Builder", key: "pcf" },
   { icon: History, label: "Audit History", key: "audit" },
-  { icon: Newspaper, label: "News Assignment", key: "news-assignment" },
+  {
+    icon: Newspaper, label: "News Management", key: "news-dashboard",
+    children: [
+      { label: "Dashboard", key: "news-dashboard", icon: PieChart },
+      { label: "Incoming News", key: "news-incoming", icon: Newspaper },
+      { label: "Approved News", key: "news-approved", icon: FileText },
+      { label: "Assignments", key: "news-assignments", icon: Link2 },
+    ],
+  },
   { icon: FileText, label: "Help Studio", key: "admin" },
   {
     icon: Gamepad2, label: "Games", key: "play",
