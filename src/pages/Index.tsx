@@ -53,7 +53,16 @@ const Index = () => {
     if (activeView === "audit") return <AuditHistory />;
     if (activeView === "pcf") return <PCFFlowPage />;
     if (activeView === "env-data") return <EnvironmentDataForm />;
-    if (activeView === "news-assignment") return <NewsAssignmentPage />;
+    if (activeView === "news-dashboard" || activeView === "news-incoming" || activeView === "news-approved" || activeView === "news-assignments") {
+      return (
+        <NewsMgmtShell active={activeView as any} onNavigate={setActiveView}>
+          {activeView === "news-dashboard" && <NewsDashboard />}
+          {activeView === "news-incoming" && <IncomingNews />}
+          {activeView === "news-approved" && <ApprovedNews />}
+          {activeView === "news-assignments" && <Assignments />}
+        </NewsMgmtShell>
+      );
+    }
     if (activeView.startsWith("play")) return <PlayApp view={activeView} onNavigate={setActiveView} />;
     return <DashboardContent onNavigate={setActiveView} />;
   };
