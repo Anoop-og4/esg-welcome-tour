@@ -15,7 +15,11 @@ import PCFFlowPage from "@/components/pcf/flow/PCFFlowPage";
 import EnvironmentDataForm from "@/components/environment/EnvironmentDataForm";
 import MobileTopBar from "@/components/MobileTopBar";
 import OGChatbot from "@/components/chatbot/OGChatbot";
-import NewsAssignmentPage from "@/components/newsAssignment/NewsAssignmentPage";
+import NewsMgmtShell from "@/components/newsMgmt/NewsMgmtShell";
+import NewsDashboard from "@/components/newsMgmt/NewsDashboard";
+import IncomingNews from "@/components/newsMgmt/IncomingNews";
+import ApprovedNews from "@/components/newsMgmt/ApprovedNews";
+import Assignments from "@/components/newsMgmt/Assignments";
 
 const WELCOME_SEEN_KEY = "esg-welcome-seen";
 
