@@ -1,110 +1,66 @@
-# News Management Dashboard
+# New Home — Dynamic ESG Dashboard
 
-Replace the current single-page News Assignment with a full 4-step workflow admin experience, keeping all existing modules untouched. Frontend-only POC, dummy data via the existing service layer (extended). Data persists in `localStorage` so state survives step transitions.
+Add a separate, permission-aware **New Home** module and make it the default landing view, while keeping the existing Home and every current module intact.
 
-## Navigation
+## User experience
 
-Sidebar entry `News Assignment` becomes a group **News Management** with sub-items:
-1. Dashboard
-2. Incoming News
-3. Approved News
-4. Assignments
+- Add **New Home** to the sidebar and route dashboard actions through the app’s existing `onNavigate` view system.
+- Keep the current Home page available as **Home** so no existing dashboard functionality is removed.
+- Build a clean, light-first enterprise dashboard using the current semantic colors, typography, cards, buttons, theme toggle, search, notifications, and responsive shell.
+- Use a responsive 12-column layout that becomes a single, ordered feed on mobile.
 
-A shared header with breadcrumbs + step indicator (Incoming → Approved → Assigned → Dashboard) sits above every sub-view.
+## Personalized, permission-aware content
 
-## Data model (extends `src/types/newsAssignment.ts`)
+- Introduce one dashboard access adapter that exposes the current user, organization, role capabilities, module access, and `hasPermission()`.
+- The current codebase does not expose an application auth/role hook outside the game’s guest profile. The adapter will therefore use an API-ready mock session as a temporary fallback, isolated from the UI and replaceable by the real auth/permission provider without rewriting widgets.
+- Every KPI, section, record, and CTA will declare required module/permission keys and be filtered before rendering. No alternate permission decisions will be embedded inside individual cards.
+- Include representative Admin, Manager, and Regular User mock profiles in the service layer for future integration/testing, without hardcoding the page to one person.
 
-```ts
-News {
-  ...existing,
-  status: "pending" | "approved" | "rejected",
-  category?: string,
-  createdAt: string,
-}
+## Dashboard sections
 
-Assignment {
-  id: string,
-  newsId: number,
-  orgId: number,
-  category: string,
-  topic: string,
-  tags: string[],
-  priority: "low" | "medium" | "high",
-  displayOrder: number,
-  visibility: "public" | "internal" | "hidden",
-  notes: string,
-  assignedAt: string,
-}
-```
-A news article can have many Assignments (different orgs, different metadata).
+1. **Greeting and context**
+   - Time-aware morning/afternoon/evening greeting, user name, organization, current date, search, theme, and notification access.
 
-`newsAssignmentService.ts` gets: `updateNewsStatus`, `updateNews`, `deleteNews`, `createAssignment`, `updateAssignment`, `deleteAssignment`, `listAssignments`, `getActivity`. All in-memory + persisted to `localStorage` under `news-mgmt-v1`.
+2. **Quick KPIs**
+   - Pending Actions, Forms Pending, Assigned to Me, and Unread Notifications.
+   - Compact breakdowns and direct navigation to the relevant authorized module.
 
-## Modules
+3. **Primary work area**
+   - **My Progress / ESG Leaderboard:** current rank, score, change, progress, and professional team ranking.
+   - **Action Required:** priority, due state, module, assignee context, status, and contextual CTA for approve, verify, submit, review, complete, assign, or acknowledge.
 
-### 1. Incoming News (`IncomingNews.tsx`)
-- Table of `status=pending` articles: Title, Source, Category, Date, Relevance, Status badge, Actions.
-- Toolbar: search, pillar filter, source filter, "Fetch News" (adds 3 fake new items), bulk approve/reject.
-- Row actions: Preview (drawer), Approve, Reject (confirmation dialog).
-- Pagination (10/page), sortable columns, empty + loading states, toasts.
+4. **Workflow and data entry**
+   - Permission-filtered Workflow Actions.
+   - Pending Data Entry with progress, due/module/priority/status filters and sorting; CTAs continue into existing Environment, Workflow, Goals, Audit, or News views.
 
-### 2. Approved News (`ApprovedNews.tsx`)
-- Table of `status=approved` articles with editable inline fields via Edit dialog.
-- Actions: Edit (dialog with title, summary, category, pillar), Delete (confirm), Assign to Organization (opens Assignment dialog).
-- Bulk: Delete, Assign to org.
-- Badge shows count of existing assignments for each article.
+5. **Workspace awareness**
+   - Notifications with unread treatment and empty state.
+   - My Activity, or Team Activity only when the user has administrative activity access.
+   - Compact ESG News & Insights and What’s New panels with API-ready records and navigation.
 
-### 3. Assignments (`Assignments.tsx`)
-- Full CRUD table of assignments across all news+orgs.
-- Columns: News title, Organization, Category, Topic, Tags, Priority, Order, Visibility, Assigned date, Actions.
-- Create Assignment dialog (`AssignmentDialog.tsx`) with all metadata fields, org picker, tag chips input, priority + visibility selects, notes textarea.
-- Row actions: Edit, Delete, Reassign (change org, keeps metadata).
-- Filters: org, priority, visibility, search.
+6. **Forward view**
+   - Upcoming deadlines, events, releases, and features in a timeline/calendar-style list.
+   - Configurable ESG motivation quote card.
 
-### 4. Dashboard (`NewsDashboard.tsx`)
-Summary cards: Total, Pending, Approved, Rejected, Assigned, Unassigned, Organizations, Assignments.
-Charts (recharts, already in project):
-- Bar: News per Organization
-- Pie: News by Status
-- Line: News over Time (last 14 days)
-- Horizontal bar: Category distribution
-Tables/lists:
-- Recent Assignments (last 10)
-- Top Organizations (by assignment count)
-- Latest Activity timeline (approve/reject/assign events)
+## Data and interaction architecture
 
-## Shared UI
-- `NewsMgmtShell.tsx` — layout wrapper with breadcrumb + step indicator + sub-nav tabs.
-- `StatusBadge.tsx`, `PriorityBadge.tsx`.
-- `ConfirmDialog.tsx` reused for destructive actions.
-- All tables: shadcn Table + sorting, search input, pagination controls.
-- Loading skeletons preserved from current impl.
+- Add typed dashboard models plus a mock service with asynchronous reads and a short loading delay, following the project’s existing service-layer convention.
+- Keep user/session, permissions, KPIs, actions, forms, leaderboard, notifications, activity, news, updates, upcoming items, and quotes outside presentation components.
+- Derive summary counts from authorized records rather than duplicating display numbers.
+- Add loading skeletons and polished empty states for every independent widget.
+- Add local filtering/sorting for pending forms and responsive overflow handling for dense lists.
+- Use existing Button, Badge, Progress, Skeleton, Popover, Select, and Tooltip components; use Recharts only where a compact progress visualization adds clarity.
 
-## Integration
-- `Index.tsx`: replace single `news-assignment` view with router-like switch on `news-dashboard | news-incoming | news-approved | news-assignments`, all rendering `NewsMgmtShell` with active tab.
-- `DashboardSidebar.tsx`: convert the current News Assignment entry into an expandable group (like Environment/Games) with the 4 sub-items. The old `NewsAssignmentPage` is removed from routing (files left in place but unused).
+## Integration and validation
 
-## Out of scope
-- Real backend/API (service layer stays mock, structured for later swap).
-- Role-based permissions logic (UI shows role badges only; no enforcement).
-- Real-time updates.
+- Add `new-home` handling in the existing page switch and set it as the initial view.
+- Preserve all existing view keys and navigation behavior.
+- Verify desktop and mobile layouts, permission-based visibility, empty/loading states, and CTA navigation with the live preview.
+- Add focused tests for permission filtering and derived dashboard counts.
 
-## File plan
-New:
-- `src/components/newsMgmt/NewsMgmtShell.tsx`
-- `src/components/newsMgmt/IncomingNews.tsx`
-- `src/components/newsMgmt/ApprovedNews.tsx`
-- `src/components/newsMgmt/Assignments.tsx`
-- `src/components/newsMgmt/NewsDashboard.tsx`
-- `src/components/newsMgmt/AssignmentDialog.tsx`
-- `src/components/newsMgmt/EditNewsDialog.tsx`
-- `src/components/newsMgmt/PreviewDrawer.tsx`
-- `src/components/newsMgmt/StatusBadge.tsx`
+## Technical files
 
-Edited:
-- `src/types/newsAssignment.ts` (extend types)
-- `src/lib/newsAssignmentService.ts` (extend service)
-- `src/data/news.ts` (add status/category/createdAt)
-- `src/data/organizations.ts` (add a few more orgs)
-- `src/components/DashboardSidebar.tsx` (group + sub-items)
-- `src/pages/Index.tsx` (view routing)
+- New feature folder: `src/components/newHome/` for the page and focused dashboard sections.
+- New typed data/service layer: `src/types/newHome.ts`, `src/data/newHome.ts`, and `src/lib/newHomeService.ts`.
+- Small integration edits only in `src/pages/Index.tsx` and `src/components/DashboardSidebar.tsx`.
+- No backend schema or existing module rewrites.
