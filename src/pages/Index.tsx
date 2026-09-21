@@ -20,12 +20,13 @@ import NewsDashboard from "@/components/newsMgmt/NewsDashboard";
 import IncomingNews from "@/components/newsMgmt/IncomingNews";
 import ApprovedNews from "@/components/newsMgmt/ApprovedNews";
 import Assignments from "@/components/newsMgmt/Assignments";
+import NewHomePage from "@/components/newHome/NewHomePage";
 
 const WELCOME_SEEN_KEY = "esg-welcome-seen";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(false);
-  const [activeView, setActiveView] = useState("pcf");
+  const [activeView, setActiveView] = useState("new-home");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -44,6 +45,7 @@ const Index = () => {
   };
 
   const renderContent = () => {
+    if (activeView === "new-home") return <NewHomePage onNavigate={setActiveView} />;
     if (activeView === "home") return <HomePage onNavigate={setActiveView} />;
     if (activeView === "help") return <HelpContent />;
     if (activeView === "admin") return <HelpStudio />;
