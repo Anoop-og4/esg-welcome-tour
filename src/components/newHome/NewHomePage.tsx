@@ -113,7 +113,7 @@ export default function NewHomePage({ onNavigate }: NewHomePageProps) {
     return [...filtered].sort((a, b) => sort === "progress" ? b.progress - a.progress : a.due.localeCompare(b.due));
   }, [data, priority, sort]);
 
-  if (!data) return <div className="flex-1 overflow-auto bg-background p-4 md:p-6"><div className="mx-auto max-w-[1500px] space-y-4"><Skeleton className="h-28 w-full"/><div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">{[1,2,3,4].map(i => <Skeleton key={i} className="h-56"/>)}</div><div className="grid gap-4 lg:grid-cols-2"><Skeleton className="h-96"/><Skeleton className="h-96"/></div></div></div>;
+  if (!data) return <div className="light flex-1 overflow-auto bg-background p-4 text-foreground md:p-6"><div className="mx-auto max-w-[1500px] space-y-4"><Skeleton className="h-28 w-full"/><div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">{[1,2,3,4].map(i => <Skeleton key={i} className="h-56"/>)}</div><div className="grid gap-4 lg:grid-cols-2"><Skeleton className="h-96"/><Skeleton className="h-96"/></div></div></div>;
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -129,7 +129,7 @@ export default function NewHomePage({ onNavigate }: NewHomePageProps) {
     { label: "Notifications", value: unread, detail: "Workspace updates", progress: Math.max(12, 100 - unread * 14), progressLabel: "Inbox cleared", trend: `${unread} unread`, icon: Bell, target: "new-home", tone: unread > 2 ? "destructive" as const : "primary" as const },
   ];
 
-  return <div className="flex-1 overflow-auto bg-background">
+  return <div className="light flex-1 overflow-auto bg-background text-foreground">
     <header className="sticky top-0 z-20 hidden items-center justify-between border-b border-border bg-card/90 px-6 py-3 backdrop-blur-md md:flex"><div className="flex items-center gap-2 text-sm text-muted-foreground"><Leaf size={16} className="text-primary"/><span>Workspace</span><span>/</span><span className="font-medium text-foreground">New Home</span></div><div className="flex items-center gap-2"><GlobalSearch onNavigate={onNavigate}/><ThemeToggle/><NotificationPanel/><div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{data.user.name.slice(0,2).toUpperCase()}</div></div></header>
 
     <main className="mx-auto max-w-[1500px] space-y-5 p-4 pb-24 md:p-6 lg:p-8">
