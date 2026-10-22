@@ -1,26 +1,25 @@
 // Environment Dashboard — shared demo datasets (client-side dummy data, ready to be swapped for API calls).
 
-export const kpiTiles = [
-  { label: "Total Emission", value: "271,874.7", unit: "tCO₂e", delta: "+6% YoY", trend: "up" as const, tone: "primary" as const, progress: 64 },
-  { label: "Carbon Intensity", value: "521.34", unit: "tCO₂e / unit", delta: "-3.2% vs target", trend: "down" as const, tone: "info" as const, progress: 78 },
-  { label: "Green Energy", value: "20,399.6", unit: "MWh", delta: "+11% YoY", trend: "up" as const, tone: "primary" as const, progress: 71 },
-  { label: "Goals On Track", value: "1", unit: "of 3", delta: "2 need attention", trend: "flat" as const, tone: "warning" as const, progress: 33 },
-  { label: "YoY Growth", value: "6%", unit: "emission prediction", delta: "within budget", trend: "up" as const, tone: "info" as const, progress: 60 },
-];
+import type { DashboardFilters, FilterPeriod, ScopeKey } from "@/lib/dashboardLayout";
 
-export const emissionsByScope = [
+/** Annual (current FY) emissions per scope, tCO₂e — these sum to the Total Emission KPI. */
+export const emissionsByScope: { name: ScopeKey; value: number }[] = [
   { name: "Scope 1", value: 98400 },
   { name: "Scope 2", value: 112600 },
   { name: "Scope 3", value: 60874 },
 ];
 
-export const scopeColors: Record<string, string> = {
-  "Scope 1": "hsl(var(--primary))",
-  "Scope 2": "hsl(var(--info))",
-  "Scope 3": "hsl(var(--warning))",
+/** Categorical chart palette — CSS tokens validated for colour-blind separation in both themes. */
+export const chartColors = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)"] as const;
+
+export const scopeColors: Record<ScopeKey, string> = {
+  "Scope 1": chartColors[0],
+  "Scope 2": chartColors[1],
+  "Scope 3": chartColors[2],
 };
 
-export const scopeTrend = [
+// Monthly profile per scope; normalised below so each scope's 12 months add up to its annual total.
+const scopeProfile = [
   { month: "Jan", "Scope 1": 7600, "Scope 2": 8900, "Scope 3": 4800 },
   { month: "Feb", "Scope 1": 7200, "Scope 2": 9300, "Scope 3": 5100 },
   { month: "Mar", "Scope 1": 8100, "Scope 2": 8600, "Scope 3": 4600 },
@@ -34,6 +33,45 @@ export const scopeTrend = [
   { month: "Nov", "Scope 1": 6400, "Scope 2": 8900, "Scope 3": 4800 },
   { month: "Dec", "Scope 1": 6100, "Scope 2": 8100, "Scope 3": 4500 },
 ];
+
+export type ScopeMonth = { month: string } & Record<ScopeKey, number>;
+
+export const scopeTrend: ScopeMonth[] = (() => {
+  const scopes = emissionsByScope.map((s) => s.name);
+  const factors = Object.fromEntries(
+    emissionsByScope.map((s) => [s.name, s.value / scopeProfile.reduce((sum, m) => sum + m[s.name], 0)]),
+  ) as Record<ScopeKey, number>;
+  const rows = scopeProfile.map((m) => {
+    const row = { month: m.month } as ScopeMonth;
+    scopes.forEach((scope) => (row[scope] = Math.round(m[scope] * factors[scope])));
+    return row;
+  });
+  // absorb rounding drift in the latest month so the year reconciles exactly
+  const last = rows[rows.length - 1];
+  emissionsByScope.forEach((s) => (last[s.name] += s.value - rows.reduce((sum, r) => sum + r[s.name], 0)));
+  return rows;
+})();
+
+export const periodMonths: Record<FilterPeriod, number> = { "12m": 12, "6m": 6, "3m": 3 };
+
+export const periodLabels: Record<FilterPeriod, string> = {
+  "12m": "FY 2026 (12 months)",
+  "6m": "Last 6 months",
+  "3m": "Last quarter",
+};
+
+/** Keep the trailing months of a monthly series that fall inside the selected period. */
+export function sliceByPeriod<T>(rows: T[], period: FilterPeriod): T[] {
+  return rows.slice(-periodMonths[period]);
+}
+
+/** Emissions per scope summed over the selected period and scopes. */
+export function scopeTotals(filters: DashboardFilters): { name: ScopeKey; value: number }[] {
+  const months = sliceByPeriod(scopeTrend, filters.period);
+  return filters.scopes.map((scope) => ({ name: scope, value: months.reduce((sum, m) => sum + m[scope], 0) }));
+}
+
+export const monthlyTotals = scopeTrend.map((m) => ({ month: m.month, value: m["Scope 1"] + m["Scope 2"] + m["Scope 3"] }));
 
 export const carbonIntensity = [
   { year: "2021", intensity: 640, target: 620 },
@@ -82,17 +120,17 @@ export const wasteAnalytics = [
 ];
 
 export const wasteColors: Record<string, string> = {
-  Recycled: "hsl(var(--primary))",
-  Landfill: "hsl(var(--destructive))",
-  Incinerated: "hsl(var(--warning))",
-  Composted: "hsl(var(--info))",
+  Recycled: chartColors[0],
+  Composted: chartColors[1],
+  Landfill: chartColors[2],
+  Incinerated: chartColors[3],
 };
 
-export const wasteMonthly = [
-  { month: "Q1", recycled: 140, landfill: 68, other: 44 },
-  { month: "Q2", recycled: 158, landfill: 61, other: 41 },
-  { month: "Q3", recycled: 166, landfill: 57, other: 38 },
-  { month: "Q4", recycled: 156, landfill: 54, other: 36 },
+export const wasteQuarterly = [
+  { quarter: "Q1", Recycled: 140, Composted: 21, Landfill: 68, Incinerated: 29 },
+  { quarter: "Q2", Recycled: 158, Composted: 23, Landfill: 61, Incinerated: 27 },
+  { quarter: "Q3", Recycled: 166, Composted: 24, Landfill: 57, Incinerated: 28 },
+  { quarter: "Q4", Recycled: 156, Composted: 22, Landfill: 54, Incinerated: 26 },
 ];
 
 export const facilityEmissions = [
@@ -104,15 +142,24 @@ export const facilityEmissions = [
   { facility: "Other sites", value: 53374, share: 19 },
 ];
 
-export const tooltipStyle = {
-  contentStyle: {
-    background: "hsl(var(--popover))",
-    border: "1px solid hsl(var(--border))",
-    borderRadius: 10,
-    fontSize: 12,
-    color: "hsl(var(--popover-foreground))",
-    boxShadow: "var(--shadow-elevated)",
-  },
-  itemStyle: { color: "hsl(var(--popover-foreground))" },
-  labelStyle: { color: "hsl(var(--muted-foreground))", fontWeight: 600 },
-};
+export type KpiTone = "good" | "bad" | "neutral";
+
+export interface KpiTile {
+  id: string;
+  label: string;
+  value: string;
+  unit: string;
+  delta: string;
+  direction: "up" | "down" | "flat";
+  /** whether the movement is favourable for sustainability */
+  tone: KpiTone;
+  spark: number[];
+}
+
+export const kpiTiles: KpiTile[] = [
+  { id: "total", label: "Total Emission", value: "271,874.7", unit: "tCO₂e", delta: "6% YoY", direction: "up", tone: "bad", spark: monthlyTotals.map((m) => m.value) },
+  { id: "intensity", label: "Carbon Intensity", value: "521.34", unit: "tCO₂e / unit", delta: "3.2% vs LY", direction: "down", tone: "good", spark: carbonIntensity.map((c) => c.intensity) },
+  { id: "green", label: "Green Energy", value: "20,399.6", unit: "MWh", delta: "11% YoY", direction: "up", tone: "good", spark: greenEnergyMonthly.map((g) => g.mwh) },
+  { id: "goals", label: "Goals On Track", value: "1", unit: "of 3", delta: "2 need attention", direction: "flat", tone: "neutral", spark: [] },
+  { id: "growth", label: "YoY Growth", value: "6%", unit: "emission forecast", delta: "Within budget", direction: "flat", tone: "neutral", spark: [] },
+];

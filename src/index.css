@@ -89,6 +89,12 @@
     --sidebar-accent-foreground: 210 15% 80%;
     --sidebar-border: 220 20% 14%;
     --sidebar-ring: 142 70% 45%;
+
+    /* Categorical chart palette (validated for CVD separation on the dark card surface) */
+    --chart-1: #2fa866;
+    --chart-2: #4f97db;
+    --chart-3: #b9772a;
+    --chart-4: #9580dd;
   }
 
   .light {
@@ -172,6 +178,12 @@
     --sidebar-accent-foreground: 220 20% 30%;
     --sidebar-border: 210 15% 86%;
     --sidebar-ring: 142 60% 38%;
+
+    /* Categorical chart palette (validated for CVD separation on white) */
+    --chart-1: #1a8a4f;
+    --chart-2: #2f7fc1;
+    --chart-3: #c9822b;
+    --chart-4: #7a5fc4;
   }
 }
 

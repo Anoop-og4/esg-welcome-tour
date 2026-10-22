@@ -1,26 +1,20 @@
-import { Filter } from "lucide-react";
+import { Leaf } from "lucide-react";
 import GlobalSearch from "@/components/GlobalSearch";
 import NotificationPanel from "@/components/notifications/NotificationPanel";
+import ThemeToggle from "@/components/ThemeToggle";
+import EnvironmentDashboard from "@/components/dashboard/EnvironmentDashboard";
 
 interface DashboardContentProps {
   onNavigate: (view: string) => void;
 }
 
-const stats = [
-  { label: "Total Emission", value: "271,874.7", unit: "TCO₂e" },
-  { label: "Carbon Intensity", value: "521.34", unit: "TCO₂e / in2" },
-  { label: "Green Energy", value: "20,399.6", unit: "MWh" },
-  { label: "Goals On Track", value: "1", unit: "of 3" },
-  { label: "YoY Growth", value: "6%", unit: "prediction" },
-];
-
 export default function DashboardContent({ onNavigate }: DashboardContentProps) {
   return (
-    <div className="flex-1 overflow-auto">
+    <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
       {/* Top bar */}
-      <header className="flex items-center justify-between border-b border-border bg-card/70 backdrop-blur-md px-6 py-3">
+      <header className="hidden shrink-0 items-center justify-between border-b border-border bg-card/90 px-6 py-3 backdrop-blur-md md:flex">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>🏠</span>
+          <Leaf size={16} className="text-primary" />
           <span>/</span>
           <span>Environment</span>
           <span>/</span>
@@ -28,6 +22,7 @@ export default function DashboardContent({ onNavigate }: DashboardContentProps) 
         </div>
         <div className="flex items-center gap-3">
           <GlobalSearch onNavigate={onNavigate} />
+          <ThemeToggle />
           <NotificationPanel />
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
@@ -37,50 +32,7 @@ export default function DashboardContent({ onNavigate }: DashboardContentProps) 
         </div>
       </header>
 
-      <div className="px-6 pt-6 pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="font-display text-xl font-bold text-foreground">Environment Dashboard</h1>
-            <button className="flex items-center gap-1.5 rounded-lg border border-border bg-secondary/50 px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary/70 transition-colors">
-              📅 Current Financial Year
-            </button>
-            <button className="flex items-center gap-1.5 rounded-lg border border-border bg-secondary/50 px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary/70 transition-colors">
-              <Filter size={12} /> Filters
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 px-6 md:grid-cols-5">
-        {stats.map((s) => (
-          <div key={s.label} className="glass-card glow-border p-4">
-            <p className="esg-stat-label mb-1">{s.label}</p>
-            <p className="esg-stat-value">{s.value}</p>
-            <p className="text-xs text-muted-foreground">{s.unit}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 px-6 py-6 md:grid-cols-2">
-        <div className="glass-card glow-border flex h-64 items-center justify-center">
-          <div className="text-center text-muted-foreground">
-            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-              📊
-            </div>
-            <p className="text-sm font-medium">Emission by Scope</p>
-            <p className="text-xs">Interactive chart</p>
-          </div>
-        </div>
-        <div className="glass-card glow-border flex h-64 items-center justify-center">
-          <div className="text-center text-muted-foreground">
-            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-info/10 text-info">
-              📈
-            </div>
-            <p className="text-sm font-medium">Scope Breakdown</p>
-            <p className="text-xs">Detailed analysis</p>
-          </div>
-        </div>
-      </div>
+      <EnvironmentDashboard />
     </div>
   );
 }
