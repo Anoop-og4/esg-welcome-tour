@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { motion } from "framer-motion";
-import { ArrowDown, ArrowUp, GripVertical, MoreHorizontal, Settings2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, GripVertical, MoreHorizontal, Pencil, Settings2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -40,6 +40,8 @@ interface WidgetCardProps {
   onResize: (size: WidgetSize) => void;
   onRemove: () => void;
   onNudge: (direction: -1 | 1) => void;
+  /** only for user-created widgets */
+  onEditCustom?: () => void;
   onDragStart: (e: React.DragEvent) => void;
   onDragEnd: () => void;
   onDragOver: (e: React.DragEvent, side: DropSide) => void;
@@ -47,7 +49,7 @@ interface WidgetCardProps {
 }
 
 export const WidgetCard = forwardRef<HTMLDivElement, WidgetCardProps>(function WidgetCard(
-  { def, item, index, count, span, fullRow, editing, filters, dragging, dropSide, onChartType, onResize, onRemove, onNudge, onDragStart, onDragEnd, onDragOver, onDrop },
+  { def, item, index, count, span, fullRow, editing, filters, dragging, dropSide, onChartType, onResize, onRemove, onNudge, onEditCustom, onDragStart, onDragEnd, onDragOver, onDrop },
   ref,
 ) {
   const Icon = def.icon;
@@ -152,6 +154,12 @@ export const WidgetCard = forwardRef<HTMLDivElement, WidgetCardProps>(function W
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
+                  {onEditCustom && (
+                    <>
+                      <DropdownMenuItem onSelect={onEditCustom} className="gap-2 text-sm"><Pencil size={14} />Edit widget…</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
                   {chartTypeMenu}
                   {chartTypeMenu && <DropdownMenuSeparator />}
                   <DropdownMenuLabel className="text-xs text-muted-foreground">Size</DropdownMenuLabel>

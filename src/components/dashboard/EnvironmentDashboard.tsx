@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
-import { Check, LayoutGrid, LayoutTemplate, PanelRightOpen, Pencil, Plus, RotateCcw, Save, SlidersHorizontal } from "lucide-react";
+import { Check, ChevronDown, LayoutGrid, LayoutTemplate, PanelRightOpen, Pencil, Plus, RefreshCw, RotateCcw, Save, Settings2, SlidersHorizontal, User } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,8 +21,11 @@ import { ALL_SCOPES, DASHBOARD_TEMPLATES, DEFAULT_FILTERS, type FilterPeriod, ty
 import { periodLabels, scopeColors } from "./dashboardData";
 import { useDashboardLayout } from "./useDashboardLayout";
 import { type DropSide, WidgetCard } from "./WidgetCard";
+import type { CustomWidgetDraft, CustomWidgetSpec, UserTemplate } from "@/lib/dashboardLibrary";
+import { ManageTemplatesDialog, SaveTemplateDialog } from "./TemplateGallery";
+import { type BuilderMode, type BuilderTab, WidgetBuilderDialog } from "./WidgetBuilderDialog";
 import { NEW_WIDGET_MIME, WidgetLibrary } from "./WidgetLibrary";
-import { widgetById } from "./widgets";
+import { useWidgetRegistry } from "./useWidgetRegistry";
 
 type DragState = { kind: "move"; from: number } | { kind: "new"; id: string };
 type DropTarget = { index: number; side: DropSide } | "end";
@@ -71,7 +74,8 @@ const spanFor = (size: WidgetSize, columns: number) => (size === "large" ? colum
 
 export default function EnvironmentDashboard() {
   const dash = useDashboardLayout();
-  const { items, editing, dirty, filters } = dash;
+  const registry = useWidgetRegistry();
+  const { items, editing, dirty, filters, template } = dash;
   const { ref: gridRef, columns } = useGridColumns(editing);
   const isDesktop = useIsDesktop();
 
@@ -80,8 +84,9 @@ export default function EnvironmentDashboard() {
   const [drag, setDrag] = useState<DragState | null>(null);
   const [target, setTarget] = useState<DropTarget | null>(null);
   const [, forceTick] = useState(0);
-
-  const template = DASHBOARD_TEMPLATES.find((t) => t.id === dash.templateId);
+  const [templateDialog, setTemplateDialog] = useState<{ mode: "create" | "rename"; template?: UserTemplate } | null>(null);
+  const [manageOpen, setManageOpen] = useState(false);
+  const [builder, setBuilder] = useState<BuilderMode | null>(null);
   const filtersActive = filters.period !== DEFAULT_FILTERS.period || filters.scopes.length !== ALL_SCOPES.length;
 
   // keep the "saved x minutes ago" label fresh
@@ -91,7 +96,7 @@ export default function EnvironmentDashboard() {
   }, []);
 
   const scrollToWidget = (id: string) =>
-    setTimeout(() => document.querySelector(`[data-testid="widget-${id}"]`)?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 80);
+    setTimeout(() => document.querySelector(`[data-testid="widget-${id}"]`)?.scrollIntoView?.({ behavior: "smooth", block: "nearest" }), 80);
 
   /* ── edit lifecycle ── */
 
@@ -120,7 +125,7 @@ export default function EnvironmentDashboard() {
   }, [editing, save]);
 
   const applyTemplate = (id: string) => {
-    const name = DASHBOARD_TEMPLATES.find((t) => t.id === id)?.name;
+    const name = DASHBOARD_TEMPLATES.find((t) => t.id === id)?.name ?? dash.userTemplates.find((t) => t.id === id)?.name;
     if (editing) {
       dash.applyTemplate(id);
       return;
@@ -133,7 +138,60 @@ export default function EnvironmentDashboard() {
   const addWidget = (id: string, size: WidgetSize, slot?: number) => {
     dash.add(id, size, slot);
     scrollToWidget(id);
-    if (!isDesktop) toast.success(`${widgetById(id)?.title} added`);
+    if (!isDesktop) toast.success(`${registry.byId(id)?.title} added`);
+  };
+
+  /* ── templates ── */
+
+  const submitTemplateDialog = (name: string, description: string) => {
+    if (templateDialog?.mode === "rename" && templateDialog.template) {
+      dash.renameTemplate(templateDialog.template.id, name, description);
+      toast.success("Template renamed");
+    } else {
+      dash.saveAsTemplate(name, description);
+      toast.success(`Saved as “${name}”`, { description: "Your layout is saved and listed under My templates." });
+    }
+    setTemplateDialog(null);
+  };
+
+  const updateCurrentTemplate = () => {
+    if (!template?.isUser) return;
+    dash.updateTemplate(template.id);
+    toast.success(`“${template.name}” updated`, { description: "The template now matches this layout." });
+  };
+
+  const deleteTemplate = (t: UserTemplate) => {
+    dash.deleteTemplate(t.id);
+    toast(`Deleted “${t.name}”`);
+  };
+
+  /* ── custom widgets ── */
+
+  const openBuilder = (tab: BuilderTab) => {
+    if (!isDesktop) setLibraryOpen(false);
+    setBuilder({ kind: "create", tab });
+  };
+
+  const editCustomWidget = (id: string) => {
+    const spec = registry.specs.find((w) => w.id === id);
+    if (!spec) return;
+    if (!isDesktop) setLibraryOpen(false);
+    setBuilder({ kind: "edit", spec });
+  };
+
+  const createCustomWidget = (draft: CustomWidgetDraft, source: CustomWidgetSpec["source"], addNow: boolean) => {
+    const spec = dash.createCustomWidget(draft, source, addNow);
+    setBuilder(null);
+    if (addNow) scrollToWidget(spec.id);
+    toast.success(`“${spec.title}” created`, {
+      description: addNow ? (editing ? "Added to your dashboard — save the layout to keep it." : "Added to your dashboard.") : "Find it under Custom in the widget library.",
+    });
+  };
+
+  const updateCustomWidget = (id: string, draft: CustomWidgetDraft) => {
+    const spec = dash.editCustomWidget(id, draft);
+    setBuilder(null);
+    toast.success(`“${spec.title}” updated`);
   };
 
   /* ── drag & drop ── */
@@ -157,7 +215,7 @@ export default function EnvironmentDashboard() {
     if (drag?.kind === "move") {
       if (!isNoop(t)) dash.moveToSlot(drag.from, slotOf(t));
     } else if (newId) {
-      const def = widgetById(newId);
+      const def = registry.byId(newId);
       if (def) addWidget(def.id, def.defaultSize, slotOf(t));
     }
     endDrag();
@@ -169,11 +227,24 @@ export default function EnvironmentDashboard() {
 
   const library = (
     <WidgetLibrary
+      widgets={registry.all}
       items={items}
       templateId={dash.templateId}
+      templateModified={dash.templateModified}
+      userTemplates={dash.userTemplates}
       onAdd={(id, size) => addWidget(id, size)}
       onRemove={(id) => dash.remove(items.findIndex((i) => i.id === id))}
+      onCreateWidget={openBuilder}
+      onEditWidget={editCustomWidget}
+      onDeleteWidget={(id) => {
+        const title = registry.byId(id)?.title;
+        dash.deleteCustomWidget(id);
+        toast(`Deleted “${title}”`);
+      }}
       onApplyTemplate={dash.applyTemplate}
+      onSaveTemplate={() => setTemplateDialog({ mode: "create" })}
+      onRenameTemplate={(t) => setTemplateDialog({ mode: "rename", template: t })}
+      onDeleteTemplate={deleteTemplate}
       onDragNewStart={(id) => setDrag({ kind: "new", id })}
       onDragNewEnd={endDrag}
       onClose={() => setLibraryOpen(false)}
@@ -224,10 +295,37 @@ export default function EnvironmentDashboard() {
                     <span className="hidden sm:inline">Reset</span>
                   </Button>
                   <Button variant="outline" size="sm" onClick={requestCancel}>Cancel</Button>
-                  <Button size="sm" className="gap-1.5 shadow-sm" onClick={save}>
-                    <Save size={14} />
-                    Save layout
-                  </Button>
+                  <div className="flex rounded-md shadow-sm">
+                    <Button size="sm" className="gap-1.5 rounded-r-none" onClick={save}>
+                      <Save size={14} />
+                      Save layout
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="sm" className="rounded-l-none border-l border-primary-foreground/25 px-2" aria-label="More save options">
+                          <ChevronDown size={14} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-72">
+                        <DropdownMenuItem onSelect={() => setTemplateDialog({ mode: "create" })} className="flex items-start gap-2.5 py-2">
+                          <LayoutTemplate size={15} className="mt-0.5 text-primary" />
+                          <span>
+                            <span className="block text-sm font-medium">Save as new template…</span>
+                            <span className="block text-xs text-muted-foreground">Name this layout so you can switch back to it</span>
+                          </span>
+                        </DropdownMenuItem>
+                        {template?.isUser && (
+                          <DropdownMenuItem onSelect={updateCurrentTemplate} className="flex items-start gap-2.5 py-2">
+                            <RefreshCw size={15} className="mt-0.5 text-primary" />
+                            <span>
+                              <span className="block text-sm font-medium">Save and update “{template.name}”</span>
+                              <span className="block text-xs text-muted-foreground">Overwrite your template with this layout</span>
+                            </span>
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -240,7 +338,15 @@ export default function EnvironmentDashboard() {
             <div>
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Environment Dashboard</h1>
               <p className="mt-1 flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
-                <span>{template ? template.name : "Custom layout"}</span>
+                {template ? (
+                  <span className="flex items-center gap-1.5">
+                    {template.isUser ? <User size={13} className="text-primary" /> : <LayoutTemplate size={13} className="text-primary" />}
+                    <span className="font-medium text-foreground">{template.name}</span>
+                    {dash.templateModified && <span className="rounded-full bg-muted px-1.5 py-px text-[11px] font-medium text-muted-foreground">edited</span>}
+                  </span>
+                ) : (
+                  <span>Custom layout</span>
+                )}
                 <span aria-hidden>·</span>
                 <span>{items.length} widgets</span>
                 {dash.saved.savedAt && !editing && (
@@ -260,9 +366,23 @@ export default function EnvironmentDashboard() {
                       Templates
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-72">
-                    <DropdownMenuLabel className="text-xs text-muted-foreground">Prebuilt layouts</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
+                  <DropdownMenuContent align="end" className="max-h-[70vh] w-72 overflow-y-auto">
+                    {dash.userTemplates.length > 0 && (
+                      <>
+                        <DropdownMenuLabel className="flex items-center gap-1.5 text-xs text-muted-foreground"><User size={12} />My templates</DropdownMenuLabel>
+                        {dash.userTemplates.map((t) => (
+                          <DropdownMenuItem key={t.id} onSelect={() => applyTemplate(t.id)} className="flex items-start gap-2 py-2">
+                            <span className="mt-0.5 w-4 shrink-0 text-primary">{t.id === dash.templateId && <Check size={14} />}</span>
+                            <span className="min-w-0">
+                              <span className="block truncate text-sm font-medium text-foreground">{t.name}</span>
+                              <span className="block truncate text-xs text-muted-foreground">{t.description || `${t.items.length} widgets`}</span>
+                            </span>
+                          </DropdownMenuItem>
+                        ))}
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    <DropdownMenuLabel className="flex items-center gap-1.5 text-xs text-muted-foreground"><LayoutTemplate size={12} />Built-in</DropdownMenuLabel>
                     {DASHBOARD_TEMPLATES.map((t) => (
                       <DropdownMenuItem key={t.id} onSelect={() => applyTemplate(t.id)} className="flex items-start gap-2 py-2">
                         <span className="mt-0.5 w-4 shrink-0 text-primary">{t.id === dash.templateId && <Check size={14} />}</span>
@@ -272,6 +392,18 @@ export default function EnvironmentDashboard() {
                         </span>
                       </DropdownMenuItem>
                     ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => setTemplateDialog({ mode: "create" })} className="gap-2">
+                      <Plus size={14} className="text-primary" />Save current layout as template…
+                    </DropdownMenuItem>
+                    {template?.isUser && dash.templateModified && (
+                      <DropdownMenuItem onSelect={updateCurrentTemplate} className="gap-2">
+                        <RefreshCw size={14} className="text-primary" />Update “{template.name}”
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onSelect={() => setManageOpen(true)} className="gap-2">
+                      <Settings2 size={14} className="text-muted-foreground" />Manage templates…
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <Button size="sm" className="gap-1.5 shadow-sm" onClick={startEditing}>
@@ -366,7 +498,7 @@ export default function EnvironmentDashboard() {
               >
                 <AnimatePresence mode="popLayout" initial={false}>
                   {items.map((item, index) => {
-                    const def = widgetById(item.id);
+                    const def = registry.byId(item.id);
                     if (!def) return null;
                     return (
                         <WidgetCard
@@ -385,6 +517,7 @@ export default function EnvironmentDashboard() {
                           onResize={(size) => dash.resize(index, size)}
                           onRemove={() => dash.remove(index)}
                           onNudge={(dir) => dash.nudge(index, dir)}
+                          onEditCustom={def.custom ? () => editCustomWidget(def.id) : undefined}
                           onDragStart={(e) => {
                             e.dataTransfer.effectAllowed = "move";
                             e.dataTransfer.setData("text/plain", item.id);
@@ -449,6 +582,35 @@ export default function EnvironmentDashboard() {
           </SheetContent>
         </Sheet>
       )}
+
+      <SaveTemplateDialog
+        open={templateDialog !== null}
+        onOpenChange={(open) => !open && setTemplateDialog(null)}
+        mode={templateDialog?.mode ?? "create"}
+        template={templateDialog?.template}
+        items={items}
+        userTemplates={dash.userTemplates}
+        onSubmit={submitTemplateDialog}
+      />
+      <ManageTemplatesDialog
+        open={manageOpen}
+        onOpenChange={setManageOpen}
+        userTemplates={dash.userTemplates}
+        activeId={dash.templateId}
+        activeModified={dash.templateModified}
+        onApply={applyTemplate}
+        onRename={(t) => setTemplateDialog({ mode: "rename", template: t })}
+        onDelete={deleteTemplate}
+        onSaveCurrent={() => setTemplateDialog({ mode: "create" })}
+      />
+      <WidgetBuilderDialog
+        open={builder !== null}
+        onOpenChange={(open) => !open && setBuilder(null)}
+        mode={builder ?? { kind: "create", tab: "build" }}
+        filters={filters}
+        onCreate={createCustomWidget}
+        onUpdate={updateCustomWidget}
+      />
 
       <AlertDialog open={confirm !== null} onOpenChange={(open) => !open && setConfirm(null)}>
         <AlertDialogContent>
